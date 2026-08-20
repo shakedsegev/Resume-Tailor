@@ -1,0 +1,34 @@
+{
+  "personal": {
+    "name": "Your Full Name",
+    "degree": "B.Sc. Computer Science",
+    "status": "Student",
+    "seeking": "Software Engineering Internship / Student Position"
+  },
+  "skills": {
+    "programming_languages": ["Python", "Java", "C++"],
+    "concepts": ["OOP", "Data Structures", "Algorithms"],
+    "tools": ["Git", "VS Code"],
+    "spoken_languages": ["English"]
+  },
+  "unlisted_academic_coursework_and_engineering_nuances": [
+    {
+      "project": "Example Project Name",
+      "technologies": ["Language", "Framework"],
+      "details": "Brief description of what you built and what it demonstrates about your skills."
+    }
+  ],
+  "extended_workflow_and_environment": [
+    "Example: Proficient in cross-platform development on macOS and Linux.",
+    "Example: Experience with AI-assisted development tools like GitHub Copilot."
+  ],
+  "extended_background_and_soft_skills": [
+    {
+      "attribute": "Example Attribute",
+      "details": "Description of a soft skill or background detail that adds credibility to your application."
+    }
+  ],
+  "application_target_context": {
+    "details": "Describe the types of roles you are targeting and any important context for how the AI should tailor your resume (e.g. tone, companies, seniority level)."
+  }
+}
