@@ -1,0 +1,58 @@
+{
+  "personal": {
+  "name": "Shaked Segev",
+  "degree": "B.Sc. Computer Science",
+  "status": "Student",
+  "seeking": "Software Engineering Internship / Student Position"
+},
+  "skills": {
+  "programming_languages": ["Python", "Java", "C++", "TypeScript", "x86 Assembly", "Scheme"],
+  "concepts": ["OOP", "Multithreading", "Sockets", "Functional Programming", "Memory Management"],
+  "tools": ["Git", "GitHub Copilot", "VS Code", "Docker"],
+  "spoken_languages": ["Hebrew", "English"]
+  },
+  "unlisted_academic_coursework_and_engineering_nuances": [
+    {
+      "project": "AST Translator & Interpreter",
+      "technologies": ["TypeScript", "Scheme", "Functional Programming"],
+      "details": "Implemented an L2 AST to Python translator and Scheme/L3 interpreter procedures as part of functional programming coursework. Demonstrates ability to work with pure functional paradigms, non-OOP concepts, and flexibility in learning distinct language structures."
+    },
+    {
+      "project": "Multi-Precision Integer Calculator",
+      "technologies": ["32-bit x86 Assembly"],
+      "details": "Wrote and debugged routines for multi-precision integer addition and fraction processing as an academic project. Validates low-level memory handling and hardware-adjacent understanding."
+    },
+    {
+      "project": "LRU Cache System",
+      "technologies": ["C++", "Memory Management"],
+      "details": "Developed as an academic coursework project alongside the DJ Station application, emphasizing manual memory management and data structure optimization."
+    },
+    {
+      "project": "STOMP Messaging Server & Client (Architecture Deep-Dive)",
+      "technologies": ["Java", "C++", "Sockets", "Reactor Pattern", "Cross-Language Interoperability"],
+      "details": "Implemented direct low-level Socket communication. Built a cross-language architecture requiring components in Java and C++ to communicate seamlessly in a client-server structure (academic coursework)."
+    },
+    {
+      "project": "Linear Algebra Computation Engine (Architecture Deep-Dive)",
+      "technologies": ["Java", "Multithreading", "Thread-Safety", "Synchronization"],
+      "details": "Designed a highly thread-safe architecture utilizing complex synchronization mechanisms and shared resources management for parallel matrix operations, going beyond basic multithreading (academic coursework)."
+    }
+  ],
+  "extended_workflow_and_environment": [
+    "Proficient in cross-platform development configuration spanning macOS (Apple Silicon), Linux Docker containers, and Windows WSL.",
+    "Active integration of AI-assisted development tools, specifically GitHub Copilot, within Visual Studio Code workflows."
+  ],
+  "extended_background_and_soft_skills": [
+    {
+      "attribute": "International Background",
+      "details": "Lived in Singapore for four years during childhood and attended an international school. Provides concrete, verifiable backing for fluent English and demonstrates cross-cultural adaptability for multinational companies."
+    },
+    {
+      "attribute": "Discipline & Athletics",
+      "details": "Earned a black belt in Taekwondo following four years of training. Complements elite youth basketball achievements (Top 20 nationwide, MVP, Captain) to emphasize extreme long-term commitment, intrinsic motivation, and discipline."
+    }
+  ],
+  "application_target_context": {
+    "details": "Targeting software engineering student positions. Experience tailoring professional, concise materials for enterprise and top-tier companies including SAP, Texas Instruments, Apple, Wix, MalamTeam, Amazon, Fullpath, Dell, and NVIDIA. Requires direct, results-oriented phrasing without over-elaborating on personal narratives."
+  }
+}
