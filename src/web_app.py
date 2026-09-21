@@ -241,6 +241,7 @@ async def tailor_resume_endpoint(
                     programming_languages=getattr(tailored_res, "ordered_languages", []),
                     frameworks_and_tools=getattr(tailored_res, "tools_lines", []),
                     core_concepts=getattr(tailored_res, "core_concepts_lines", []),
+                    spoken_languages=resume_data.get("spoken_languages", []) or (profile_dict.get("skills", {}).get("spoken_languages", []) if profile_dict and isinstance(profile_dict.get("skills"), dict) else []),
                 ),
                 experience=[
                     ExperienceItem(
@@ -265,11 +266,21 @@ async def tailor_resume_endpoint(
                     )
                 ],
                 additional_sections=[
-                    AdditionalSection(
-                        title="Leadership, Extracurricular & Military Experience",
-                        items=getattr(tailored_res, "military_bullets", []),
-                    )
-                ] if getattr(tailored_res, "military_bullets", []) else [],
+                    sec for sec in [
+                        AdditionalSection(
+                            title="Military Service & Tactical Leadership",
+                            items=getattr(tailored_res, "military_bullets", []) or resume_data.get("military_bullets", []),
+                        ) if (getattr(tailored_res, "military_bullets", []) or resume_data.get("military_bullets", [])) else None,
+                        AdditionalSection(
+                            title="Volunteering & Mentorship",
+                            items=resume_data.get("volunteering_bullets", []),
+                        ) if resume_data.get("volunteering_bullets") else None,
+                        AdditionalSection(
+                            title="Sport Excellence",
+                            items=resume_data.get("sport_bullets", []),
+                        ) if resume_data.get("sport_bullets") else None,
+                    ] if sec is not None
+                ],
             )
             generate_universal_resume_pdf(
                 resume=ats_resume,

@@ -81,6 +81,18 @@ def extract_resume_sections(resume_path: Path) -> dict[str, Any]:
             ps = shape.text_frame.paragraphs
             data["tools_raw"] = [ps[i].text.strip() for i in range(2, 6) if i < len(ps)]
             data["concepts_raw"] = [ps[i].text.strip() for i in range(8, 10) if i < len(ps)]
+        elif shape.name == "TextBox 17" and shape.has_text_frame:
+            data["spoken_languages"] = [
+                p.text.strip() for p in shape.text_frame.paragraphs if p.text.strip()
+            ]
+        elif shape.name == "TextBox 40" and shape.has_text_frame:
+            data["sport_bullets"] = [
+                p.text.strip() for p in shape.text_frame.paragraphs if p.text.strip()
+            ]
+        elif shape.name == "TextBox 47" and shape.has_text_frame:
+            data["volunteering_bullets"] = [
+                p.text.strip() for p in shape.text_frame.paragraphs if p.text.strip()
+            ]
         elif shape.name == "Group 51" and hasattr(shape, "shapes"):
             langs = []
             for g in shape.shapes:

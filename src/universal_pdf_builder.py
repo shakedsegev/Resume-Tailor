@@ -180,9 +180,9 @@ MODERN_TECH_TEMPLATE = """<!DOCTYPE html>
 </div>
 {% endif %}
 
-{% if resume.skills.programming_languages or resume.skills.frameworks_and_tools or resume.skills.core_concepts %}
+{% if resume.skills.programming_languages or resume.skills.frameworks_and_tools or resume.skills.core_concepts or resume.skills.spoken_languages %}
 <div class="section">
-  <div class="section-title">Technical Skills</div>
+  <div class="section-title">Technical & Language Skills</div>
   <div class="skills-grid">
     {% if resume.skills.programming_languages %}
     <span class="skill-label">Languages:</span>
@@ -201,6 +201,10 @@ MODERN_TECH_TEMPLATE = """<!DOCTYPE html>
     {% if resume.skills.core_concepts %}
     <span class="skill-label">Core Concepts:</span>
     <span class="skill-values">{{ resume.skills.core_concepts | join(', ') }}</span>
+    {% endif %}
+    {% if resume.skills.spoken_languages %}
+    <span class="skill-label">Spoken Languages:</span>
+    <span class="skill-values">{{ resume.skills.spoken_languages | join(' · ') }}</span>
     {% endif %}
   </div>
 </div>

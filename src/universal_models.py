@@ -44,6 +44,10 @@ class SkillCategories(BaseModel):
     programming_languages: list[str] = Field(default_factory=list)
     frameworks_and_tools: list[str] = Field(default_factory=list)
     core_concepts: list[str] = Field(default_factory=list)
+    spoken_languages: list[str] = Field(
+        default_factory=list,
+        description="Spoken/natural languages with proficiency, e.g. 'English (Native Proficiency)', 'Hebrew (Native)'",
+    )
 
 
 class AdditionalSection(BaseModel):

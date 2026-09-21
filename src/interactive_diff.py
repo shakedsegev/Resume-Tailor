@@ -525,9 +525,9 @@ INTERACTIVE_RESUME_TEMPLATE = """<!DOCTYPE html>
 </div>
 {% endif %}
 
-{% if rendered_skills.programming_languages or rendered_skills.frameworks_and_tools or rendered_skills.core_concepts %}
+{% if rendered_skills.programming_languages or rendered_skills.frameworks_and_tools or rendered_skills.core_concepts or rendered_skills.spoken_languages %}
 <div class="section">
-  <div class="section-title">Technical Skills</div>
+  <div class="section-title">Technical & Language Skills</div>
   <div class="skills-grid">
     {% if rendered_skills.programming_languages %}
     <span class="skill-label">Languages:</span>
@@ -546,6 +546,10 @@ INTERACTIVE_RESUME_TEMPLATE = """<!DOCTYPE html>
     {% if rendered_skills.core_concepts %}
     <span class="skill-label">Core Concepts:</span>
     <span class="skill-values">{{ rendered_skills.core_concepts | safe }}</span>
+    {% endif %}
+    {% if rendered_skills.spoken_languages %}
+    <span class="skill-label">Spoken Languages:</span>
+    <span class="skill-values">{{ rendered_skills.spoken_languages | safe }}</span>
     {% endif %}
   </div>
 </div>
@@ -764,10 +768,27 @@ def build_interactive_resume_diff_html(
         original_fallback=orig_concepts,
     )
 
+    # Spoken Languages
+    rendered_spoken = ""
+    if hasattr(resume.skills, "spoken_languages") and resume.skills.spoken_languages:
+        spoken_str = " · ".join(resume.skills.spoken_languages)
+        orig_spoken = (
+            " · ".join(original_resume.skills.spoken_languages)
+            if original_resume and hasattr(original_resume.skills, "spoken_languages") and original_resume.skills.spoken_languages
+            else ""
+        )
+        rendered_spoken = highlight_text(
+            text=spoken_str,
+            section="Spoken Languages",
+            changes_log=changes_log,
+            original_fallback=orig_spoken,
+        )
+
     rendered_skills = {
         "programming_languages": rendered_pills,
         "frameworks_and_tools": rendered_tools,
         "core_concepts": rendered_concepts,
+        "spoken_languages": rendered_spoken,
     }
 
     # 4. Projects
