@@ -8,7 +8,8 @@ from pathlib import Path
 import subprocess
 from typing import Optional
 from jinja2 import Template
-from src.universal_models import UniversalResume
+# pyrefly: ignore [missing-import]
+from src.universal_models import UniversalResume, sanitize_universal_resume
 
 
 CHROME_PATH = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
@@ -173,7 +174,7 @@ MODERN_TECH_TEMPLATE = """<!DOCTYPE html>
       <span class="item-title">{{ edu.institution }}</span>
       <span class="item-date">{{ edu.date_range }}</span>
     </div>
-    <div class="item-sub">{{ edu.degree }}{% if edu.gpa %} · GPA: {{ edu.gpa }}{% endif %}</div>
+    <div class="item-sub">{{ edu.degree }}{% if edu.gpa %} · {% if 'gpa' in edu.gpa.lower() %}{{ edu.gpa }}{% else %}GPA: {{ edu.gpa }}{% endif %}{% endif %}</div>
     {% if edu.details %}<p style="font-size: 8.4pt; color: #475569; margin-top: 1px;">{{ edu.details }}</p>{% endif %}
   </div>
   {% endfor %}
@@ -402,6 +403,7 @@ def generate_universal_resume_pdf(
     output_dir = output_dir.resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    resume = sanitize_universal_resume(resume)
     html_path = output_dir / f"{base_name}.html"
     pdf_path = output_dir / f"{base_name}.pdf"
 

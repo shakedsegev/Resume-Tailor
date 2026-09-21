@@ -13,6 +13,7 @@ import re
 from typing import Any, Optional
 
 from jinja2 import Template
+# pyrefly: ignore [missing-import]
 from src.universal_models import (
     AdditionalSection,
     ContactInfo,
@@ -21,6 +22,7 @@ from src.universal_models import (
     ProjectItem,
     SkillCategories,
     UniversalResume,
+    sanitize_universal_resume,
 )
 
 
@@ -518,7 +520,7 @@ INTERACTIVE_RESUME_TEMPLATE = """<!DOCTYPE html>
       <span class="item-title">{{ edu.institution }}</span>
       <span class="item-date">{{ edu.date_range }}</span>
     </div>
-    <div class="item-sub">{{ edu.degree }}{% if edu.gpa %} · GPA: {{ edu.gpa }}{% endif %}</div>
+    <div class="item-sub">{{ edu.degree }}{% if edu.gpa %} · {% if 'gpa' in edu.gpa.lower() %}{{ edu.gpa }}{% else %}GPA: {{ edu.gpa }}{% endif %}{% endif %}</div>
     {% if edu.rendered_details %}<p style="font-size: 8.4pt; color: #475569; margin-top: 1px;">{{ edu.rendered_details | safe }}</p>{% endif %}
   </div>
   {% endfor %}
@@ -673,6 +675,10 @@ def build_interactive_resume_diff_html(
     """
     output_html_path = output_html_path.resolve()
     output_html_path.parent.mkdir(parents=True, exist_ok=True)
+
+    resume = sanitize_universal_resume(resume)
+    if original_resume:
+        original_resume = sanitize_universal_resume(original_resume)
 
     # 1. Summary
     rendered_summary = ""

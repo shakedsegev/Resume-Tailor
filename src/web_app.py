@@ -20,12 +20,19 @@ project_root = Path(__file__).parent.parent.resolve()
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
+# pyrefly: ignore [missing-import]
 from src.universal_parser import extract_text_from_file
+# pyrefly: ignore [missing-import]
 from src.universal_ai import parse_raw_resume_to_schema, tailor_universal_resume
+# pyrefly: ignore [missing-import]
 from src.universal_pdf_builder import generate_universal_resume_pdf
+# pyrefly: ignore [missing-import]
 from src.profile_manager import convert_document_to_profile, build_profile_from_questionnaire
+# pyrefly: ignore [missing-import]
 from src.ats_analyzer import analyze_resume_format, ATSFormatReport
+# pyrefly: ignore [missing-import]
 from src.sample_data import GENERIC_SAMPLE_PROFILE, GENERIC_SAMPLE_JD
+# pyrefly: ignore [missing-import]
 from src.models import CandidateProfile
 
 app = FastAPI(
@@ -187,9 +194,13 @@ async def tailor_resume_endpoint(
     # 1. Design-Preserving PPTX Tailoring (when requested or auto-suggested)
     if file_ext in [".pptx", ".ppt"] and effective_strategy != "ats_optimized":
         try:
+            # pyrefly: ignore [missing-import]
             from src.parser import extract_resume_sections
+            # pyrefly: ignore [missing-import]
             from src.ai_engine import tailor_full_resume
+            # pyrefly: ignore [missing-import]
             from src.pdf_builder import build_full_tailored_resume
+            # pyrefly: ignore [missing-import]
             from src.universal_models import (
                 UniversalResume,
                 ContactInfo,
@@ -218,6 +229,7 @@ async def tailor_resume_endpoint(
             )
 
             # Build interactive changes view with full resume and green marker highlights
+            # pyrefly: ignore [missing-import]
             from src.interactive_diff import build_interactive_pptx_diff_html
             diff_path = OUTPUTS_DIR / f"{base_filename}_diff.html"
             build_interactive_pptx_diff_html(
@@ -335,6 +347,7 @@ async def tailor_resume_endpoint(
     )
 
     # Build interactive changes view with complete resume and green marker highlights
+    # pyrefly: ignore [missing-import]
     from src.interactive_diff import build_interactive_resume_diff_html
     diff_path = OUTPUTS_DIR / f"{base_filename}_diff.html"
     build_interactive_resume_diff_html(

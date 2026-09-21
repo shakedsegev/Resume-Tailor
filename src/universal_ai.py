@@ -8,8 +8,15 @@ import json
 from typing import Optional
 from google import genai
 from google.genai import types
+# pyrefly: ignore [missing-import]
 from src.ai_engine import get_client, _generate_with_fallback, SYSTEM_INSTRUCTION
-from src.universal_models import UniversalResume, UniversalTailoredOutput, FitAnalysis
+# pyrefly: ignore [missing-import]
+from src.universal_models import (
+    UniversalResume,
+    UniversalTailoredOutput,
+    FitAnalysis,
+    sanitize_universal_resume,
+)
 
 
 def parse_raw_resume_to_schema(
@@ -49,7 +56,8 @@ Rules:
     )
 
     response = _generate_with_fallback(client, prompt, config)
-    return UniversalResume.model_validate_json(response.text)
+    parsed = UniversalResume.model_validate_json(response.text)
+    return sanitize_universal_resume(parsed)
 
 
 def tailor_universal_resume(
@@ -107,11 +115,13 @@ When a Candidate Master Profile is provided, actively synthesize and enrich the 
 4. PROFESSIONAL SUMMARY & EDUCATION (STRICT GPA ISOLATION):
    - Align summary to the target role, highlighting technical identity, systems programming focus, and engineering impact.
    - NEVER repeat GPA or numerical grades in the Professional Summary! GPA belongs exclusively in the Education section. Mentioning GPA twice appears repetitive and self-conscious to recruiters.
-   - In Education: retain exact institution, degree, date range, and GPA. Prioritize the top 5-6 coursework subjects most relevant to the JD.
+   - In Education: retain exact institution, degree, date range. In 'education[0].gpa', provide ONLY the numerical score or concise grade (e.g. '83.5', '92', '3.85'). Do NOT include 'GPA:' prefix in this field. Prioritize the top 5-6 coursework subjects most relevant to the JD.
 
-5. ADDITIONAL SECTIONS (VOLUNTEERING, MILITARY, SPORTS):
-   - Preserve valuable background sections: Military Service, Sports Excellence, Volunteering & Mentorship.
-   - Frame transferable leadership, operational discipline, and teamwork. NEVER silently drop verified sections.
+5. MANDATORY SECTION GROUPING & ZERO DUPLICATE HEADERS:
+   - Every domain, category, or topic MUST be grouped together under ONE SINGLE HEADER. Never output two sections with the same or similar headers.
+   - All items that belong to the same category (e.g. all certifications, all publications, all awards, all leadership, or all community work) must be grouped together under a single unified section header.
+   - SPOKEN LANGUAGES: Place all natural/spoken languages exclusively in 'skills.spoken_languages'. NEVER create a separate additional_section titled 'Languages' or 'Spoken Languages'.
+   - If a role or accomplishment is already described under 'experience', never duplicate or repeat that same role as an entry under 'additional_sections'.
 
 6. STRICT ZERO DUPLICATION & INTENTIONAL OMISSION:
    - ZERO DUPLICATION: No sentence, metric, or bullet point may appear in more than one section of the resume. Every line must deliver unique value.
@@ -141,4 +151,6 @@ When a Candidate Master Profile is provided, actively synthesize and enrich the 
     )
 
     response = _generate_with_fallback(client, prompt, config)
-    return UniversalTailoredOutput.model_validate_json(response.text)
+    output = UniversalTailoredOutput.model_validate_json(response.text)
+    output.tailored_resume = sanitize_universal_resume(output.tailored_resume)
+    return output

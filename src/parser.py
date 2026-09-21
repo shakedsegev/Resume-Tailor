@@ -1,7 +1,10 @@
 
 from dataclasses import asdict
+# pyrefly: ignore [missing-import]
 from src.models import TextBlock
+# pyrefly: ignore [missing-import]
 from src.models import ResumeShape
+# pyrefly: ignore [missing-import]
 from src.models import ResumeContent
 from pathlib import Path
 import json

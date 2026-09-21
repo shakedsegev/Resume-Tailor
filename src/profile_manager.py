@@ -9,7 +9,9 @@ from pathlib import Path
 from typing import Optional, Any
 from google import genai
 from google.genai import types
+# pyrefly: ignore [missing-import]
 from src.models import CandidateProfile
+# pyrefly: ignore [missing-import]
 from src.ai_engine import get_client, _generate_with_fallback, SYSTEM_INSTRUCTION
 
 

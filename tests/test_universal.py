@@ -156,3 +156,63 @@ def test_tailor_universal_resume_signature():
     assert "resume" in sig.parameters
     assert "job_description" in sig.parameters
 
+
+def test_candidate_agnostic_sanitizer():
+    from src.universal_models import (
+        UniversalResume,
+        ContactInfo,
+        SkillCategories,
+        EducationItem,
+        AdditionalSection,
+        sanitize_universal_resume,
+    )
+
+    resume = UniversalResume(
+        contact=ContactInfo(name="Morgan Taylor"),
+        summary="Computer Science graduate from University of Oxford with a first-year GPA of 92 and strong expertise in systems architecture.",
+        skills=SkillCategories(
+            programming_languages=["Python", "Rust"],
+        ),
+        education=[
+            EducationItem(
+                degree="B.Sc. Computer Science",
+                institution="University of Oxford",
+                gpa="GPA: First Year GPA: 92",
+                details="Coursework: Algorithms, Operating Systems | GPA: 92",
+            )
+        ],
+        additional_sections=[
+            AdditionalSection(title="Certifications", items=["AWS Certified Solutions Architect"]),
+            AdditionalSection(title="Certifications", items=["Certified Kubernetes Administrator"]),
+            AdditionalSection(title="Languages", items=["French (Fluent)", "German (Intermediate)"]),
+            AdditionalSection(title="Publications", items=["Paper on distributed consensus in IEEE 2024"]),
+        ],
+    )
+
+    sanitized = sanitize_universal_resume(resume)
+
+    # 1. GPA must be purged from summary
+    assert "92" not in sanitized.summary
+    assert "GPA" not in sanitized.summary
+    assert sanitized.summary.startswith("Computer Science graduate from University of Oxford with strong expertise")
+
+    # 2. GPA in education must be normalized
+    assert sanitized.education[0].gpa == "First Year: 92"
+    assert "GPA: 92" not in sanitized.education[0].details
+
+    # 3. Spoken languages must be absorbed into skills.spoken_languages
+    assert "French (Fluent)" in sanitized.skills.spoken_languages
+    assert "German (Intermediate)" in sanitized.skills.spoken_languages
+
+    # 4. There must be ZERO duplicate headers in additional_sections
+    titles = [s.title for s in sanitized.additional_sections]
+    assert len(titles) == len(set(titles)), f"Duplicate headers found: {titles}"
+    assert "Languages" not in titles
+
+    # 5. Items with the same header must be grouped together under that header
+    cert_sec = next(s for s in sanitized.additional_sections if s.title == "Certifications")
+    assert "AWS Certified Solutions Architect" in cert_sec.items
+    assert "Certified Kubernetes Administrator" in cert_sec.items
+    assert len(cert_sec.items) == 2
+
+
