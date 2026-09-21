@@ -46,7 +46,7 @@ class SkillCategories(BaseModel):
     core_concepts: list[str] = Field(default_factory=list)
     spoken_languages: list[str] = Field(
         default_factory=list,
-        description="Spoken/natural languages with proficiency, e.g. 'English (Native Proficiency)', 'Hebrew (Native)'",
+        description="Spoken/natural languages with proficiency as stated by the candidate (e.g. 'Spanish (Fluent)', 'German (Native)', 'French (Professional)'). Empty if none listed.",
     )
 
 

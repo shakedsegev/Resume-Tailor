@@ -33,7 +33,7 @@ Rules:
    - programming_languages (e.g., Python, C++, Java, TypeScript, SQL, C, x86 Assembly)
    - frameworks_and_tools (e.g., Docker, Git, Linux, Bash, WSL, macOS)
    - core_concepts (e.g., Multithreading, Concurrency, OOP, Sockets, Memory Management, SOLID)
-   - spoken_languages: Extract ALL natural/spoken languages with their proficiency levels (e.g. "English (Native Proficiency)", "Hebrew (Native)"). NEVER omit spoken languages!
+   - spoken_languages: Extract any natural/spoken languages and proficiency levels explicitly stated in the document (e.g. Spanish, French, German, Mandarin, English, Arabic, etc.). If none are listed by the candidate, return an empty list. NEVER invent or assume languages!
 3. Extract all work experience with company, role/title, dates, and full bullet points.
 4. Extract all projects with project name, tech stack tags, descriptions, and bullets.
 5. Extract education: institution, degree, GPA, and coursework.
@@ -91,7 +91,7 @@ When a Candidate Master Profile is provided, actively synthesize and enrich the 
 1. PROGRAMMING LANGUAGES, TOOLS & SPOKEN LANGUAGES:
    - In 'programming_languages', cross-reference the Master Profile. Add any verified languages that are required or preferred by the JD, prioritizing the top languages required by the JD first.
    - In 'frameworks_and_tools' and 'core_concepts', prioritize technologies matching the JD.
-   - INVIOLABLE SPOKEN LANGUAGES: Preserve all verified natural languages (e.g. English, Hebrew) and their proficiency levels in 'spoken_languages'. NEVER omit spoken languages!
+   - SPOKEN LANGUAGES: If the candidate lists spoken languages in their resume or profile, preserve them exactly with their proficiency levels. If the candidate does not list spoken languages, leave 'spoken_languages' empty. NEVER invent, fabricate, or assume any languages!
 
 2. WORK EXPERIENCE ENRICHMENT:
    - Actively cross-reference each experience role with the Master Profile.
