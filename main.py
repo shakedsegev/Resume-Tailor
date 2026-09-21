@@ -132,8 +132,18 @@ def main() -> None:
         action="store_true",
         help="Do not automatically open the generated PDF in the default viewer.",
     )
+    parser.add_argument(
+        "--web",
+        action="store_true",
+        help="Launch the interactive web application interface in your browser.",
+    )
 
     args = parser.parse_args()
+
+    if args.web:
+        from src.web_app import start_server
+        start_server(auto_open=not args.no_open)
+        return
 
     print(BANNER)
 
