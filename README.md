@@ -1,25 +1,31 @@
 # Resume-Tailor 🎯
 
-An autonomous AI-powered pipeline that tailors a Canva-designed 1-page technical resume to any Job Description (JD) using Google Gemini AI, producing a ready-to-submit, high-resolution vector PDF while strictly preserving layout geometry and typography.
+An autonomous AI-powered pipeline and modern web application that tailors any technical or professional resume to any Job Description (JD) using Google Gemini AI, producing a ready-to-submit, high-resolution vector PDF while strictly preserving layout geometry and typography.
 
 ---
 
 ## Key Features
 
-- **Full-Spectrum Substantive Tailoring**: Deeply reframes and optimizes every section of the resume:
-  - **Academic Projects**: Aligns tech tags, networking protocols, concurrency architectures, and low-level details.
-  - **Work Experience**: Elevates technical troubleshooting, R&D consulting, infrastructure automation, and systems reliability while preserving exact metrics.
-  - **Programming Languages**: Dynamically reorders native Canva pill badges using flow coordinates so priority languages lead first (e.g. Python, C++, SQL).
-  - **Tools & Platforms**: Formats developer environments and tooling across 4 neat lines without redundant programming languages.
+- **Universal Multi-Format Support**:
+  - Upload Canva PPTX presentations, Microsoft Word DOCX, or PDFs.
+  - Automatically parses structure, headers, experience, projects, skills, and education.
+- **Full-Spectrum Substantive Tailoring**:
+  - **Academic & Side Projects**: Aligns tech tags, networking protocols, concurrency architectures, and systems nuances.
+  - **Work Experience**: Elevates technical troubleshooting, architectural impact, and systems reliability while preserving exact metrics.
+  - **Programming Languages**: Dynamically reorders skill pills using flow coordinates so priority languages lead first.
+  - **Tools & Platforms**: Formats developer environments and tooling neatly without clutter.
   - **Core Concepts**: Prioritizes relevant architectural paradigms (Multithreading, Sockets, OOP, Memory Management).
   - **Education & Coursework**: Surfaces the most relevant coursework and verified grades first.
-  - **Military Leadership**: Sharpens command and high-stakes operational execution bullets.
-- **Zero Hallucination Guarantee**: Strict ground-truth guardrails grounded in `profile.json` ensure metrics (e.g., 40 min to <1 min, grades 91, 100, 90) and technologies are never fabricated.
-- **Layout & Visual Collision Protection**:
-  - Automatically calculates line budgets and applies `Pt(8.6)` font scaling.
-  - Moves entire native Canva pill groups without text-swapping to eliminate word splits (like `pytho\nn`) and auto-kerning distortion.
-  - Guarantees everything fits strictly on **1 single page** with zero overlapping sections.
-- **Fast Vector PDF Export**: Uses Apple Keynote via AppleScript to export crisp vector PDFs in seconds on macOS.
+  - **Leadership & Service**: Sharpens command, discipline, and high-stakes operational execution bullets.
+- **Interactive Changes Preview with Hover Rationale**:
+  - Live preview in the browser where all tailored changes are highlighted in soft marker green (`#dcfce7`).
+  - Hovering over any highlighted text reveals an explanation tooltip showing what was changed from what and why.
+  - **Zero Pollution on Export**: The downloaded PDF remains 100% clean and pristine for recruiter submission.
+- **Candidate Master Profile (Ground Truth)**:
+  - Guided 4-step wizard or document upload to establish ground truth for unlisted technical accomplishments.
+  - Guarantees zero hallucinations and preserves all factual numbers and metrics without alteration.
+- **Fast Vector PDF Export**:
+  - Compiles crisp, ATS-ready vector PDFs via headless Chrome or native Apple Keynote.
 
 ---
 
@@ -42,41 +48,41 @@ An autonomous AI-powered pipeline that tailors a Canva-designed 1-page technical
    Create a `.env` file in the root directory:
    ```env
    GEMINI_API_KEY=your_gemini_api_key_here
-   GEMINI_MODEL=gemini-3.8-flash  # optional override
+   GEMINI_MODEL=gemini-2.5-flash  # optional override
    ```
-
-4. **Ensure Base Template & Profile are present**:
-   - `Shaked Segev - CV.pptx`: The Canva-exported PowerPoint template.
-   - `profile.json`: The candidate's verified ground truth.
 
 ---
 
 ## Usage
 
-### 1. Tailor via CLI Argument
+### 1. Launch the Web Application (Recommended)
+Run the web application server:
+```bash
+python app.py
+```
+Or with CLI flag:
+```bash
+python main.py --web
+```
+Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser:
+- Upload any resume file (Canva PPTX, Word DOCX, or PDF).
+- Paste your target Job Description.
+- Click **Tailor & Preserve Design**.
+- View the interactive preview with marker green highlights and hover tooltips, or toggle to the clean vector PDF.
+
+### 2. Tailor via CLI
 Pass the job description directly in quotes:
 ```bash
-python main.py --jd "Software Engineering Student position at a backend infrastructure team. Requirements: Python, C++, Docker, multithreading, socket networking."
-```
-
-### 2. Tailor via File
-Save the target job description to a text file and run:
-```bash
-python main.py --jd-file path/to/job_description.txt --output-name "Google_SWE_Tailored_CV"
-```
-
-### 3. Interactive Mode
-Run without arguments to paste the job description interactively:
-```bash
-python main.py
+python main.py --template "resume_template.pptx" --jd "Backend Infrastructure Engineer. Requirements: Python, C++, Docker, multithreading, socket networking."
 ```
 
 ### Options & Flags
+- `--web`: Launch the interactive browser web application.
 - `--jd <text>`: Target Job Description text string.
 - `--jd-file <path>`: Path to file containing the Job Description.
-- `--output-name <name>`: Custom base filename for output `.pptx` and `.pdf` (default: `Shaked_Segev_Tailored_CV`).
+- `--output-name <name>`: Custom base filename for output `.pptx` and `.pdf` (default: `tailored_resume`).
 - `--output-dir <path>`: Output directory (default: `outputs/`).
-- `--template <path>`: Custom template PPTX (default: `Shaked Segev - CV.pptx`).
+- `--template <path>`: Custom template PPTX (default: `None`).
 - `--profile <path>`: Custom profile JSON (default: `profile.json`).
 - `--no-open`: Skip automatically opening the generated PDF in the default viewer.
 
@@ -88,3 +94,9 @@ Run the test suite with `pytest`:
 ```bash
 pytest
 ```
+
+---
+
+## License
+
+MIT License. See [LICENSE](LICENSE) for details.

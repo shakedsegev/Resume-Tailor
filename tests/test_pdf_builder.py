@@ -1,9 +1,10 @@
 from pathlib import Path
 from pptx import Presentation
+import pytest
 from src.pdf_builder import reorder_pill_groups, apply_full_tailoring
 from src.ai_engine import TailoredProject
 
-TEMPLATE_PATH = Path("Shaked Segev - CV.pptx")
+TEMPLATE_PATH = Path("template.pptx") if Path("template.pptx").exists() else Path("Shaked Segev - CV.pptx")
 
 
 class DummyTailored:
@@ -45,6 +46,7 @@ class DummyTailored:
         ]
 
 
+@pytest.mark.skipif(not TEMPLATE_PATH.exists(), reason="Template PPTX not available")
 def test_reorder_pill_groups():
     prs = Presentation(TEMPLATE_PATH)
     slide = prs.slides[0]
@@ -59,6 +61,7 @@ def test_reorder_pill_groups():
     reorder_pill_groups(group_51, ["Python", "C++", "SQL", "Java", "TypeScript", "C", "Assembly x86"])
 
 
+@pytest.mark.skipif(not TEMPLATE_PATH.exists(), reason="Template PPTX not available")
 def test_apply_full_tailoring():
     prs = Presentation(TEMPLATE_PATH)
     tailored = DummyTailored()

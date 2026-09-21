@@ -3,7 +3,7 @@ from src.universal_parser import extract_text_from_file
 from src.universal_models import UniversalResume, ContactInfo, SkillCategories, EducationItem, ProjectItem, ExperienceItem
 from src.universal_pdf_builder import render_resume_to_html, generate_universal_resume_pdf
 
-TEMPLATE_PATH = Path("Shaked Segev - CV.pptx")
+TEMPLATE_PATH = Path("template.pptx") if Path("template.pptx").exists() else Path("Shaked Segev - CV.pptx")
 
 
 def test_extract_text_from_pptx():
