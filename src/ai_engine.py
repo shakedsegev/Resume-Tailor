@@ -314,14 +314,14 @@ Actively rewrite, elevate, and align every bullet point and description so the c
 1. Experience:
    - Reframe experience into high-impact accomplishments, engineering problem-solving, and systems reliability.
    - Lead with the most impressive, technically relevant achievements that align with the target JD.
-   - Draw upon unlisted context or technical nuances from the candidate profile where applicable.
+   - Actively synthesize and incorporate described accomplishments, unlisted technical context, and verified metrics from the candidate profile.
    - Preserve all factual metrics (e.g., turnaround times, performance speedups, numbers, dollar amounts) without alteration.
 2. Academic & Technical Projects:
    - Emphasize architectural patterns, protocols, concurrency, data structures, and technologies matching the target JD.
    - Draw on deep-dive details from the candidate's profile to substantiate technical rigor.
 3. Languages & Tools:
-   - In 'ordered_languages', put the top languages required by the JD first.
-   - In 'tools_lines', put required developer tools/environments (e.g. Docker, Git, Linux, Bash, CI/CD). NEVER put programming languages here.
+   - In 'ordered_languages', include all verified programming languages from the candidate profile and resume that align with the target JD, putting the top languages required by the JD first.
+   - In 'tools_lines', put required developer tools/environments (e.g. Docker, Git, Linux, Bash, CI/CD) from the profile/resume. NEVER put programming languages here.
    - In 'core_concepts_lines', put required concepts (e.g. Multithreading, Concurrency, Sockets, Memory Management, OOP, SOLID Principles).
 4. Coursework:
    - Order the most relevant verified coursework and grades first.

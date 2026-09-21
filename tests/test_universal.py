@@ -63,3 +63,12 @@ def test_universal_pdf_generation(tmp_path):
     assert html_p.stat().st_size > 0
     assert pdf_p.exists()
     assert pdf_p.stat().st_size > 0
+
+
+def test_tailor_universal_resume_signature():
+    import inspect
+    from src.universal_ai import tailor_universal_resume
+    sig = inspect.signature(tailor_universal_resume)
+    assert "profile" in sig.parameters
+    assert "resume" in sig.parameters
+    assert "job_description" in sig.parameters

@@ -211,7 +211,11 @@ async def tailor_resume_endpoint(
         )
 
     parsed_resume = parse_raw_resume_to_schema(raw_text)
-    tailored_output = tailor_universal_resume(parsed_resume, jd_text.strip())
+    tailored_output = tailor_universal_resume(
+        resume=parsed_resume,
+        job_description=jd_text.strip(),
+        profile=profile_dict,
+    )
 
     candidate_name = tailored_output.tailored_resume.contact.name or "Tailored"
     safe_name = re.sub(r"[^a-zA-Z0-9_-]", "_", candidate_name)
