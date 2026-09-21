@@ -51,3 +51,33 @@ def test_api_analyze_format_endpoint(tmp_path):
     assert "risks" in data
     assert "recommendations" in data
     assert "suggested_strategy" in data
+
+
+def test_pdf_always_suggests_ats_optimized(tmp_path):
+    """Verifies that PDF files always report ats_optimized since preserve_design is strictly for PPTX."""
+    from src.ats_analyzer import analyze_pdf_format
+    dummy_pdf = tmp_path / "resume.pdf"
+    # Create a minimal valid PDF
+    dummy_pdf.write_bytes(
+        b"%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n"
+        b"2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n"
+        b"3 0 obj<</Type/Page/MediaBox[0 0 612 792]/Parent 2 0 R>>endobj\n"
+        b"xref\n0 4\n0000000000 65535 f \n0000000009 00000 n \n0000000052 00000 n \n0000000101 00000 n \n"
+        b"trailer<</Size 4/Root 1 0 R>>\nstartxref\n163\n%%EOF"
+    )
+    report = analyze_pdf_format(dummy_pdf)
+    assert report.suggested_strategy == "ats_optimized"
+
+
+def test_docx_always_suggests_ats_optimized(tmp_path):
+    """Verifies that DOCX files always report ats_optimized."""
+    from src.ats_analyzer import analyze_docx_format
+    import docx
+    doc = docx.Document()
+    doc.add_paragraph("Candidate Resume\nExperience\nEducation\nSkills")
+    docx_file = tmp_path / "resume.docx"
+    doc.save(str(docx_file))
+
+    report = analyze_docx_format(docx_file)
+    assert report.suggested_strategy == "ats_optimized"
+

@@ -182,6 +182,8 @@ async def tailor_resume_endpoint(
     effective_strategy = format_strategy
     if effective_strategy == "auto":
         effective_strategy = format_report.suggested_strategy
+    if file_ext not in [".pptx", ".ppt"]:
+        effective_strategy = "ats_optimized"
 
     # Load master profile context if provided
     profile_dict = None

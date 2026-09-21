@@ -111,7 +111,7 @@ def analyze_pdf_format(pdf_path: Path) -> ATSFormatReport:
     else:
         score = 92
         needs_change = False
-        suggested = "preserve_design"
+        suggested = "ats_optimized"
         recs.append("Document structure is already clean and readable for modern ATS systems.")
         layout_name = "Single-Column Standard PDF Layout"
 
@@ -176,7 +176,7 @@ def analyze_docx_format(docx_path: Path) -> ATSFormatReport:
         original_page_count=page_count,
         risks=risks,
         recommendations=recs,
-        suggested_strategy="ats_optimized" if needs_change else "preserve_design",
+        suggested_strategy="ats_optimized",
         detected_design={
             "accent_color": "#0284c7",
             "font_family": "Calibri, Arial, sans-serif",

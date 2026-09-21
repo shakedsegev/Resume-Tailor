@@ -158,8 +158,8 @@
               <!-- Risk bullet list if any -->
               <ul id="atsRiskList" class="text-[11px] text-amber-900 bg-amber-50/80 p-2.5 rounded-lg border border-amber-200/60 space-y-1 hidden"></ul>
 
-              <!-- Format Strategy Options -->
-              <div id="atsStrategyChooser" class="space-y-2 pt-1 border-t border-slate-200/60">
+              <!-- Format Strategy Options (Only shown for PPTX inputs where visual design preservation is supported) -->
+              <div id="atsStrategyChooser" class="hidden space-y-2 pt-1 border-t border-slate-200/60">
                 <p class="text-[11px] font-bold text-slate-700 uppercase tracking-wider" data-i18n="ats_choose_strategy">Choose Format Strategy:</p>
                 
                 <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-slate-200 hover:border-sky-400 bg-white cursor-pointer transition-all">
@@ -170,7 +170,7 @@
                   </div>
                 </label>
 
-                <label id="preserveDesignOption" class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-slate-200 hover:border-sky-400 bg-white cursor-pointer transition-all">
+                <label id="preserveDesignOption" class="hidden flex items-start space-x-2.5 p-2.5 rounded-lg border border-slate-200 hover:border-sky-400 bg-white cursor-pointer transition-all">
                   <input type="radio" name="format_strategy" id="strategyPreserve" value="preserve_design" class="mt-0.5 text-sky-600 focus:ring-sky-500">
                   <div>
                     <span class="block text-xs font-bold text-slate-800" data-i18n="ats_opt_preserve">🎨 Preserve Original Visual Design</span>
@@ -1223,6 +1223,7 @@
     const atsScoreBadge = document.getElementById('atsScoreBadge');
     const atsAdvisoryDesc = document.getElementById('atsAdvisoryDesc');
     const atsRiskList = document.getElementById('atsRiskList');
+    const atsStrategyChooser = document.getElementById('atsStrategyChooser');
     const preserveDesignOption = document.getElementById('preserveDesignOption');
     const strategyAts = document.getElementById('strategyAts');
     const strategyPreserve = document.getElementById('strategyPreserve');
@@ -1247,6 +1248,9 @@
       atsAdvisoryDesc.textContent = "Scanning document layout, floating coordinate frames, and ATS parser safety...";
       atsRiskList.innerHTML = '';
       atsRiskList.classList.add('hidden');
+      atsStrategyChooser.classList.add('hidden');
+      preserveDesignOption.classList.add('hidden');
+      strategyAts.checked = true;
 
       try {
         const fd = new FormData();
@@ -1264,10 +1268,11 @@
       atsAdvisoryCard.classList.remove('hidden');
       atsScoreBadge.textContent = `ATS Score: ${report.ats_score}/100`;
 
+      const isPptx = Boolean(selectedFile && /\.(pptx|ppt)$/i.test(selectedFile.name));
+
       if (report.needs_format_change) {
         atsScoreBadge.className = "text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200";
         atsScoreIcon.textContent = "⚠️";
-        atsAdvisoryDesc.textContent = `Detected ${report.layout_type}. This layout has formatting traits that may cause text scrambling in Workday, Taleo, Greenhouse, or Lever ATS parsers.`;
 
         atsRiskList.innerHTML = '';
         if (report.risks && report.risks.length > 0) {
@@ -1277,16 +1282,37 @@
             atsRiskList.appendChild(li);
           });
           atsRiskList.classList.remove('hidden');
+        } else {
+          atsRiskList.classList.add('hidden');
         }
-        preserveDesignOption.classList.remove('hidden');
-        strategyAts.checked = true;
+
+        if (isPptx) {
+          atsAdvisoryDesc.textContent = `Detected ${report.layout_type}. This presentation layout has formatting traits that may cause text scrambling in Workday, Taleo, Greenhouse, or Lever ATS parsers. Choose below whether to generate a 100% ATS-compliant clean format or preserve the visual Canva presentation layout.`;
+          atsStrategyChooser.classList.remove('hidden');
+          preserveDesignOption.classList.remove('hidden');
+          strategyAts.checked = true;
+        } else {
+          atsAdvisoryDesc.textContent = `Detected ${report.layout_type}. This layout has formatting traits that may cause text scrambling in Workday, Taleo, Greenhouse, or Lever ATS parsers. Our engine will compile it into a clean, 100% ATS-compliant single-column vector layout.`;
+          atsStrategyChooser.classList.add('hidden');
+          preserveDesignOption.classList.add('hidden');
+          strategyAts.checked = true;
+        }
       } else {
         atsScoreBadge.className = "text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200";
         atsScoreIcon.textContent = "✅";
-        atsAdvisoryDesc.textContent = `Detected ${report.layout_type}. Your document layout is already 100% ATS-friendly! Now paste your target Job Description in Step 2 below and click "Tailor & Preserve Design" to customize your bullet points, technical skills, and achievements for this specific role.`;
         atsRiskList.classList.add('hidden');
-        preserveDesignOption.classList.add('hidden');
-        strategyAts.checked = true;
+
+        if (isPptx) {
+          atsAdvisoryDesc.textContent = `Detected ${report.layout_type}. Your presentation template is ready to tailor. Choose below whether to generate a 100% ATS-compliant clean format or preserve the visual Canva presentation layout.`;
+          atsStrategyChooser.classList.remove('hidden');
+          preserveDesignOption.classList.remove('hidden');
+          strategyAts.checked = true;
+        } else {
+          atsAdvisoryDesc.textContent = `Detected ${report.layout_type}. Your document layout is already 100% ATS-friendly! Now paste your target Job Description in Step 2 below and click "Tailor & Preserve Design" to customize your bullet points, technical skills, and achievements for this specific role.`;
+          atsStrategyChooser.classList.add('hidden');
+          preserveDesignOption.classList.add('hidden');
+          strategyAts.checked = true;
+        }
       }
     }
 
@@ -1300,6 +1326,9 @@
       atsAdvisoryCard.classList.add('hidden');
       atsRiskList.innerHTML = '';
       atsRiskList.classList.add('hidden');
+      atsStrategyChooser.classList.add('hidden');
+      preserveDesignOption.classList.add('hidden');
+      strategyAts.checked = true;
     });
 
     tailorForm.addEventListener('submit', async (e) => {
@@ -1412,6 +1441,9 @@
       atsAdvisoryCard.classList.add('hidden');
       atsRiskList.innerHTML = '';
       atsRiskList.classList.add('hidden');
+      atsStrategyChooser.classList.add('hidden');
+      preserveDesignOption.classList.add('hidden');
+      strategyAts.checked = true;
       btnDownloadAtsPdf.classList.add('hidden');
       resultsView.classList.add('hidden');
       placeholderView.classList.remove('hidden');
