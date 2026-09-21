@@ -373,7 +373,7 @@ def build_full_tailored_resume(
     template_pptx: Path,
     output_dir: Path,
     tailored: Any,
-    base_name: str = "Shaked_Segev_Fully_Tailored_CV",
+    base_name: str = "tailored_resume",
 ) -> tuple[Path, Path]:
     """
     Complete end-to-end full resume tailoring:

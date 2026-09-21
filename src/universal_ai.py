@@ -89,7 +89,10 @@ SUBSTANTIVE TAILORING MANDATE:
 5. SUMMARY & EDUCATION:
    - Align summary (if present) to target role.
    - Prioritize relevant coursework and retain exact grades.
-6. HARD GUARDRAILS:
+6. CHANGES LOG & RATIONALE:
+   - For every modified bullet, project tag, skill ordering, or coursework line, create a ChangeAnnotation in 'changes_log'.
+   - Detail what the original phrasing was, the new tailored text, and a clear explanation of why it was changed and which JD keyword or profile achievement was elevated.
+7. HARD GUARDRAILS:
    - ZERO FABRICATION: Never invent companies, tools, dates, credentials, or technologies the candidate does not have.
    - METRIC PRESERVATION: Never alter or inflate numbers.
 """

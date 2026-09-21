@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Resume-Tailor 🎯 | Universal AI Resume Customizer</title>
+  <title>Resume-Tailor 🎯 | Design-Preserving AI Resume Tailor</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -39,73 +39,77 @@
             Resume-Tailor
           </span>
           <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-sky-100 text-sky-800">
-            Universal AI Engine
+            Design-Preserving AI
           </span>
         </div>
       </div>
 
-      <div class="flex items-center space-x-3 text-sm text-slate-500">
-        <span class="hidden sm:inline-flex items-center gap-1.5">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          Gemini AI Ready
-        </span>
-      </div>
+      <!-- Navigation Tabs -->
+      <nav class="flex items-center space-x-2 bg-slate-100 p-1 rounded-xl">
+        <button id="navTabTailor" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-slate-900 shadow-sm">
+          ⚡ Tailor Resume
+        </button>
+        <button id="navTabProfile" class="px-4 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-600 hover:text-slate-900">
+          🧠 Master Profile
+        </button>
+      </nav>
     </div>
   </header>
 
-  <!-- Main Content Layout -->
+  <!-- Main Container -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+    <!-- ========================================================================= -->
+    <!-- TAB 1: RESUME TAILORING -->
+    <!-- ========================================================================= -->
+    <div id="tabContentTailor" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
       
-      <!-- LEFT COLUMN: Ingestion & Control Panel (5 cols) -->
+      <!-- LEFT COLUMN: Inputs (5 cols) -->
       <section class="lg:col-span-5 space-y-6">
         
-        <!-- Welcome Card -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-          <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <span>✨</span> Tailor Any Resume for Any Role
+        <!-- Feature Highlights Card -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+          <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+            <span>✨</span> Keep Your Design. Tailor Every Word.
           </h2>
-          <p class="text-sm text-slate-500 mt-1">
-            Upload any resume (<span class="font-medium text-slate-700">PDF, DOCX, PPTX</span>) and paste the Job Description. The AI will substantively tailor every section with zero hallucinations and export a ready-to-submit 1-page vector PDF.
+          <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+            Upload your designed resume (<span class="font-semibold text-slate-700">Canva PPTX, Word DOCX, or PDF</span>). Our layout protection engine adjusts positions and line budgets dynamically so text never overlaps or breaks, while Gemini aligns your achievements with the target JD.
           </p>
         </div>
 
         <form id="tailorForm" class="space-y-6">
           
-          <!-- STEP 1: Upload Resume File -->
-          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <!-- STEP 1: Upload Designed Resume -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
             <div class="flex items-center justify-between">
-              <label class="block text-sm font-bold text-slate-800">
-                1. Upload Resume
+              <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                1. Upload Designed Resume
               </label>
-              <button type="button" id="btnUseDemoResume" class="text-xs text-sky-600 hover:text-sky-700 font-semibold hover:underline">
-                Use Sample Resume
-              </button>
             </div>
 
-            <!-- Drag and Drop Dropzone -->
-            <div id="dropzone" class="border-2 border-dashed border-slate-300 hover:border-sky-500 transition-colors rounded-xl p-6 text-center cursor-pointer bg-slate-50/50 hover:bg-sky-50/30">
-              <input type="file" id="resumeFileInput" name="resume_file" accept=".pdf,.docx,.doc,.pptx,.ppt,.txt" class="hidden">
+            <!-- Dropzone -->
+            <div id="dropzone" class="border-2 border-dashed border-slate-300 hover:border-sky-500 transition-colors rounded-xl p-5 text-center cursor-pointer bg-slate-50/50 hover:bg-sky-50/30">
+              <input type="file" id="resumeFileInput" name="resume_file" accept=".pdf,.docx,.doc,.pptx,.ppt,.txt" class="hidden" required>
               <div class="flex flex-col items-center justify-center space-y-2">
-                <div class="w-12 h-12 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center text-2xl">
+                <div class="w-10 h-10 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center text-xl">
                   📄
                 </div>
-                <div class="text-sm font-medium text-slate-700">
-                  <span class="text-sky-600 font-semibold">Click to upload</span> or drag & drop
+                <div class="text-xs font-medium text-slate-700">
+                  <span class="text-sky-600 font-semibold">Click to select resume</span> or drag & drop
                 </div>
-                <p class="text-xs text-slate-400">
-                  Supports PDF, DOCX, PPTX, or TXT
+                <p class="text-[11px] text-slate-400">
+                  Canva PPTX, Word DOCX, or PDF
                 </p>
               </div>
             </div>
 
-            <!-- File Selected Status -->
+            <!-- File Selected Card -->
             <div id="fileStatusCard" class="hidden p-3 bg-sky-50 border border-sky-200 rounded-xl flex items-center justify-between">
               <div class="flex items-center space-x-3 overflow-hidden">
-                <span class="text-xl">📎</span>
+                <span class="text-lg">📎</span>
                 <div class="truncate">
-                  <p id="fileName" class="text-xs font-semibold text-slate-800 truncate">resume.pdf</p>
-                  <p id="fileSize" class="text-[11px] text-slate-500">124 KB</p>
+                  <p id="fileName" class="text-xs font-semibold text-slate-800 truncate">resume.pptx</p>
+                  <p id="fileSize" class="text-[10px] text-slate-500">124 KB</p>
                 </div>
               </div>
               <button type="button" id="btnRemoveFile" class="text-xs text-slate-400 hover:text-rose-600 font-bold p-1">
@@ -114,15 +118,28 @@
             </div>
           </div>
 
-          <!-- STEP 2: Job Description -->
-          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <!-- STEP 2: Ground-Truth Profile Status -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+            <div class="flex items-center space-x-3 overflow-hidden">
+              <span class="text-xl">🧠</span>
+              <div class="truncate">
+                <p class="text-xs font-bold text-slate-800">Master Profile Context</p>
+                <p id="profileStatusText" class="text-[11px] text-slate-400 font-medium truncate">
+                  No profile loaded (Optional: upload notes or use wizard)
+                </p>
+              </div>
+            </div>
+            <button type="button" id="btnSwitchToProfileTab" class="text-xs font-semibold text-sky-600 hover:text-sky-700 hover:underline">
+              Build / Upload →
+            </button>
+          </div>
+
+          <!-- STEP 3: Job Description -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
             <div class="flex items-center justify-between">
-              <label for="jdText" class="block text-sm font-bold text-slate-800">
+              <label for="jdText" class="block text-xs font-bold text-slate-800 uppercase tracking-wider">
                 2. Target Job Description
               </label>
-              <button type="button" id="btnUseDemoJD" class="text-xs text-sky-600 hover:text-sky-700 font-semibold hover:underline">
-                Load Sample Tech JD
-              </button>
             </div>
             
             <textarea
@@ -130,7 +147,7 @@
               name="jd_text"
               rows="6"
               placeholder="Paste the target job description requirements, responsibilities, and qualifications here..."
-              class="w-full text-sm rounded-xl border-slate-200 shadow-sm focus:border-sky-500 focus:ring-sky-500 p-3 bg-slate-50/50 border placeholder:text-slate-400 custom-scrollbar"
+              class="w-full text-xs sm:text-sm rounded-xl border-slate-200 shadow-sm focus:border-sky-500 focus:ring-sky-500 p-3 bg-slate-50/50 border placeholder:text-slate-400 custom-scrollbar"
               required
             ></textarea>
           </div>
@@ -142,27 +159,27 @@
             class="w-full py-3.5 px-6 rounded-xl font-bold text-white shadow-lg shadow-sky-500/25 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-all flex items-center justify-center space-x-2 cursor-pointer"
           >
             <span>🚀</span>
-            <span>Tailor My Resume</span>
+            <span>Tailor & Preserve Design</span>
           </button>
         </form>
 
-        <!-- Dynamic Progress Indicator -->
-        <div id="progressCard" class="hidden bg-white p-6 rounded-2xl border border-sky-100 shadow-sm space-y-4">
+        <!-- Progress Indicator Card -->
+        <div id="progressCard" class="hidden bg-white p-5 rounded-2xl border border-sky-100 shadow-sm space-y-3">
           <div class="flex items-center justify-between text-xs font-semibold text-slate-600">
-            <span id="progressStatusText">Analyzing with Gemini AI...</span>
-            <span class="animate-pulse text-sky-600 font-mono">In Progress</span>
+            <span id="progressStatusText">Extracting resume layout...</span>
+            <span class="animate-pulse text-sky-600 font-mono">Processing</span>
           </div>
           <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-            <div id="progressBar" class="bg-gradient-to-r from-sky-500 to-indigo-600 h-2 rounded-full transition-all duration-500" style="width: 35%;"></div>
+            <div id="progressBar" class="bg-gradient-to-r from-sky-500 to-indigo-600 h-2 rounded-full transition-all duration-500" style="width: 30%;"></div>
           </div>
-          <p id="progressDetail" class="text-xs text-slate-400">
-            Extracting document sections and building structured profile...
+          <p id="progressDetail" class="text-[11px] text-slate-400">
+            Analyzing document structure and layout...
           </p>
         </div>
 
       </section>
 
-      <!-- RIGHT COLUMN: Fit Report & Live Preview (7 cols) -->
+      <!-- RIGHT COLUMN: Results & Live Preview (7 cols) -->
       <section class="lg:col-span-7 space-y-6">
 
         <!-- Initial Placeholder State -->
@@ -170,89 +187,106 @@
           <div class="w-16 h-16 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center text-3xl mb-4">
             📄
           </div>
-          <h3 class="text-base font-bold text-slate-700">No Resume Generated Yet</h3>
-          <p class="text-sm text-slate-400 max-w-sm mt-1">
-            Upload your resume on the left and paste a Job Description to generate your tailored resume and fit breakdown.
+          <h3 class="text-base font-bold text-slate-700">Ready to Tailor Your Resume</h3>
+          <p class="text-xs text-slate-400 max-w-sm mt-1">
+            Upload your resume on the left, paste any target JD, and generate your tailored, design-preserved resume.
           </p>
         </div>
 
-        <!-- Active Results Dashboard -->
+        <!-- Active Results View -->
         <div id="resultsView" class="hidden space-y-6">
           
           <!-- Fit Analysis Card -->
-          <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
-            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-3">
               <div>
-                <span class="text-xs font-semibold text-sky-600 uppercase tracking-wider">ATS Strategic Assessment</span>
-                <h3 class="text-lg font-bold text-slate-900">Job Fit Analysis</h3>
+                <span class="text-[10px] font-bold text-sky-600 uppercase tracking-wider">ATS Strategic Assessment</span>
+                <h3 class="text-base font-bold text-slate-900">Job Fit Analysis</h3>
               </div>
-              <div class="flex items-center space-x-2 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl">
-                <span class="text-emerald-700 font-bold text-sm" id="matchScoreBadge">88% Match</span>
+              <div class="flex items-center space-x-2 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-xl">
+                <span class="text-emerald-700 font-bold text-xs" id="matchScoreBadge">88% Match</span>
               </div>
             </div>
 
-            <!-- Strategic Pitch Quote -->
-            <div class="bg-sky-50/70 border-l-4 border-sky-500 p-4 rounded-r-xl">
-              <p class="text-xs font-semibold text-sky-800 uppercase tracking-wider">Strategic Pitch Angle</p>
-              <p id="pitchAngleText" class="text-xs sm:text-sm text-slate-700 mt-1 italic leading-relaxed">
-                <!-- Injected pitch angle -->
+            <!-- Pitch Angle -->
+            <div class="bg-sky-50/70 border-l-4 border-sky-500 p-3.5 rounded-r-xl">
+              <p class="text-[10px] font-bold text-sky-800 uppercase tracking-wider">Strategic Pitch Angle</p>
+              <p id="pitchAngleText" class="text-xs text-slate-700 mt-1 italic leading-relaxed">
+                <!-- Injected pitch -->
               </p>
             </div>
 
-            <!-- Matches & Gaps Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-              <!-- Strong Matches -->
-              <div class="bg-emerald-50/50 border border-emerald-100 rounded-xl p-3.5 space-y-2">
-                <p class="text-xs font-bold text-emerald-800 flex items-center gap-1.5">
+            <!-- 3 Columns: Match, Partial, Gap -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+              <div class="bg-emerald-50/50 border border-emerald-100 rounded-xl p-3 space-y-1.5">
+                <p class="text-[11px] font-bold text-emerald-800 flex items-center gap-1">
                   <span>🟢</span> Strong Matches
                 </p>
-                <ul id="matchList" class="text-xs text-slate-600 space-y-1 custom-scrollbar max-h-32 overflow-y-auto">
-                  <!-- Injected items -->
-                </ul>
+                <ul id="matchList" class="text-[11px] text-slate-600 space-y-1 custom-scrollbar max-h-28 overflow-y-auto"></ul>
               </div>
 
-              <!-- Partial Matches -->
-              <div class="bg-amber-50/50 border border-amber-100 rounded-xl p-3.5 space-y-2">
-                <p class="text-xs font-bold text-amber-800 flex items-center gap-1.5">
+              <div class="bg-amber-50/50 border border-amber-100 rounded-xl p-3 space-y-1.5">
+                <p class="text-[11px] font-bold text-amber-800 flex items-center gap-1">
                   <span>🟡</span> Transferable Skills
                 </p>
-                <ul id="partialList" class="text-xs text-slate-600 space-y-1 custom-scrollbar max-h-32 overflow-y-auto">
-                  <!-- Injected items -->
-                </ul>
+                <ul id="partialList" class="text-[11px] text-slate-600 space-y-1 custom-scrollbar max-h-28 overflow-y-auto"></ul>
               </div>
 
-              <!-- Gaps -->
-              <div class="bg-rose-50/50 border border-rose-100 rounded-xl p-3.5 space-y-2">
-                <p class="text-xs font-bold text-rose-800 flex items-center gap-1.5">
+              <div class="bg-rose-50/50 border border-rose-100 rounded-xl p-3 space-y-1.5">
+                <p class="text-[11px] font-bold text-rose-800 flex items-center gap-1">
                   <span>🔴</span> Missing Gaps
                 </p>
-                <ul id="gapList" class="text-xs text-slate-600 space-y-1 custom-scrollbar max-h-32 overflow-y-auto">
-                  <!-- Injected items -->
-                </ul>
+                <ul id="gapList" class="text-[11px] text-slate-600 space-y-1 custom-scrollbar max-h-28 overflow-y-auto"></ul>
               </div>
             </div>
           </div>
 
-          <!-- Document Actions & Preview Bar -->
+          <!-- Document Action Bar -->
           <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
-            <div class="flex items-center space-x-2">
-              <span class="text-sm font-bold text-slate-800">📄 Tailored Document</span>
-              <span class="text-xs text-slate-400 font-medium">(1-Page Vector PDF)</span>
+            <!-- View Mode Switcher -->
+            <div class="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl">
+              <button
+                type="button"
+                id="btnViewDiff"
+                class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-emerald-700 shadow-sm flex items-center gap-1.5"
+              >
+                <span>✨</span>
+                <span>Highlights & Explanations</span>
+              </button>
+              <button
+                type="button"
+                id="btnViewPdf"
+                class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-600 hover:text-slate-900 flex items-center gap-1.5"
+              >
+                <span>📄</span>
+                <span>Clean Final PDF</span>
+              </button>
             </div>
-            <div class="flex items-center space-x-3">
+
+            <!-- Action Buttons: Reset, Open, Download -->
+            <div class="flex items-center space-x-2.5">
+              <button
+                type="button"
+                id="btnReset"
+                class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors flex items-center gap-1.5"
+                title="Clear current inputs and upload your next resume"
+              >
+                <span>🔄</span>
+                <span>Tailor Another Resume</span>
+              </button>
               <a
                 id="btnOpenNewTab"
                 href="#"
                 target="_blank"
-                class="px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 border border-slate-200 hover:bg-slate-50 transition-colors"
+                class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 border border-slate-200 hover:bg-slate-50 transition-colors"
               >
-                Open in Tab ↗
+                Open Tab ↗
               </a>
               <a
                 id="btnDownloadPdf"
                 href="#"
                 download
-                class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 shadow-md shadow-sky-500/20 transition-all flex items-center gap-1.5"
+                class="px-4 py-1.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 shadow-md shadow-sky-500/20 transition-all flex items-center gap-1.5"
               >
                 <span>⬇️</span>
                 <span>Download PDF</span>
@@ -260,14 +294,14 @@
             </div>
           </div>
 
-          <!-- Live Preview Iframe Frame -->
+          <!-- Preview Frame (Loads Native Vector PDF Directly) -->
           <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-2">
-            <div class="bg-slate-100 rounded-xl overflow-hidden border border-slate-200" style="height: 680px;">
+            <div class="bg-slate-100 rounded-xl overflow-hidden border border-slate-200" style="height: 720px;">
               <iframe
                 id="previewIframe"
                 src="about:blank"
                 class="w-full h-full border-0 bg-white"
-                title="Resume Preview"
+                title="Resume PDF Preview"
               ></iframe>
             </div>
           </div>
@@ -277,9 +311,256 @@
       </section>
 
     </div>
+
+
+    <!-- ========================================================================= -->
+    <!-- TAB 2: MASTER PROFILE GROUND TRUTH (Questionnaire / Document Upload) -->
+    <!-- ========================================================================= -->
+    <div id="tabContentProfile" class="hidden space-y-8 max-w-4xl mx-auto">
+      
+      <!-- Profile Header -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+          <span>🧠</span> Candidate Master Profile (Ground Truth)
+        </h2>
+        <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+          Your Master Profile is your personal database of verified projects, unlisted engineering nuances, technical architectures, and exact metrics. The AI uses this ground truth to highlight keywords without ever fabricating facts.
+        </p>
+      </div>
+
+      <!-- Creation Mode Selector -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- OPTION A: Upload Background Document / Notes -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center text-xl mb-3">
+              📤
+            </div>
+            <h3 class="text-sm font-bold text-slate-800">Option A: Upload Background Notes</h3>
+            <p class="text-xs text-slate-500 mt-1">
+              Upload notes, markdown, LinkedIn text, or a profile document. The AI converts it into a structured ground truth.
+            </p>
+          </div>
+
+          <div class="space-y-3 pt-2">
+            <input type="file" id="profileFileInput" accept=".txt,.json,.md,.pdf,.docx" class="text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100 cursor-pointer w-full">
+            <textarea id="profileNotesText" rows="4" placeholder="Or paste background text, unlisted project details, and verified accomplishments here..." class="w-full text-xs rounded-xl border-slate-200 p-3 bg-slate-50/50 border placeholder:text-slate-400"></textarea>
+            <button id="btnUploadProfile" class="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-slate-800 hover:bg-slate-900 transition-colors">
+              Convert to Master Profile with AI
+            </button>
+          </div>
+        </div>
+
+        <!-- OPTION B: Interactive Questionnaire Wizard -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl mb-3">
+              📋
+            </div>
+            <h3 class="text-sm font-bold text-slate-800">Option B: Questionnaire Wizard</h3>
+            <p class="text-xs text-slate-500 mt-1">
+              Answer 4 guided questions to build your master ground truth step-by-step together with the AI.
+            </p>
+          </div>
+
+          <div class="space-y-3 pt-2">
+            <button id="btnOpenWizardModal" class="w-full py-3.5 px-4 rounded-xl text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-colors flex items-center justify-center gap-2">
+              <span>✏️</span>
+              <span>Launch Interactive Questionnaire</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Active Master Profile View & JSON Export -->
+      <div id="activeProfileCard" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div>
+            <span class="text-[10px] font-bold text-sky-600 uppercase tracking-wider">Active Ground Truth</span>
+            <h3 class="text-sm font-bold text-slate-800">Master Candidate Profile</h3>
+          </div>
+          <button id="btnDownloadProfileJson" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">
+            ⬇️ Download profile.json
+          </button>
+        </div>
+
+        <pre id="profileJsonPreview" class="text-[11px] font-mono bg-slate-900 text-emerald-400 p-4 rounded-xl overflow-x-auto max-h-80 custom-scrollbar">// No profile loaded yet. Build one using the questionnaire or upload your notes above.</pre>
+      </div>
+
+    </div>
+
   </main>
 
+  <!-- Questionnaire Wizard Modal -->
+  <div id="wizardModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 space-y-5 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+          <span>📋</span> Guided Profile Questionnaire
+        </h3>
+        <button id="btnCloseWizard" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+      </div>
+
+      <form id="wizardForm" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-800 mb-1">1. Full Name & Target Roles</label>
+          <input type="text" id="wizName" placeholder="e.g. Your Name · Target Roles: Software Engineering Intern / Backend Engineer" class="w-full p-2.5 rounded-xl border border-slate-200" required>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-800 mb-1">2. Core Technical Skills</label>
+          <input type="text" id="wizSkills" placeholder="e.g. Python, C++, Java, Docker, Git, Multithreading, Sockets, Linux" class="w-full p-2.5 rounded-xl border border-slate-200" required>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-800 mb-1">3. Unlisted Projects & Architectural Details</label>
+          <p class="text-[11px] text-slate-400 mb-1">What architectures, protocols, or low-level details did you build that are not fully detailed on your resume?</p>
+          <textarea id="wizProjects" rows="3" placeholder="e.g. Implemented custom STOMP protocol using raw sockets and Reactor pattern. Engineered parallel matrix computation engine with synchronization primitives." class="w-full p-2.5 rounded-xl border border-slate-200"></textarea>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-800 mb-1">4. Verified Metrics & Work Experience Achievements</label>
+          <p class="text-[11px] text-slate-400 mb-1">What exact numbers, turnaround times, or speedup metrics did you achieve?</p>
+          <textarea id="wizMetrics" rows="3" placeholder="e.g. Slashed deployment turnaround from 40 min to under 1 min by automating database queries. Received 3 Excellence Awards for technical troubleshooting." class="w-full p-2.5 rounded-xl border border-slate-200"></textarea>
+        </div>
+
+        <button type="submit" class="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700">
+          Save & Generate Master Profile
+        </button>
+      </form>
+    </div>
+  </div>
+
   <script>
+    // Navigation Tabs
+    const navTabTailor = document.getElementById('navTabTailor');
+    const navTabProfile = document.getElementById('navTabProfile');
+    const tabContentTailor = document.getElementById('tabContentTailor');
+    const tabContentProfile = document.getElementById('tabContentProfile');
+    const btnSwitchToProfileTab = document.getElementById('btnSwitchToProfileTab');
+
+    function switchTab(tab) {
+      if (tab === 'tailor') {
+        navTabTailor.classList.add('bg-white', 'text-slate-900', 'shadow-sm');
+        navTabTailor.classList.remove('text-slate-600');
+        navTabProfile.classList.remove('bg-white', 'text-slate-900', 'shadow-sm');
+        navTabProfile.classList.add('text-slate-600');
+        tabContentTailor.classList.remove('hidden');
+        tabContentProfile.classList.add('hidden');
+      } else {
+        navTabProfile.classList.add('bg-white', 'text-slate-900', 'shadow-sm');
+        navTabProfile.classList.remove('text-slate-600');
+        navTabTailor.classList.remove('bg-white', 'text-slate-900', 'shadow-sm');
+        navTabTailor.classList.add('text-slate-600');
+        tabContentProfile.classList.remove('hidden');
+        tabContentTailor.classList.add('hidden');
+      }
+    }
+
+    navTabTailor.addEventListener('click', () => switchTab('tailor'));
+    navTabProfile.addEventListener('click', () => switchTab('profile'));
+    btnSwitchToProfileTab.addEventListener('click', () => switchTab('profile'));
+
+    // Master Profile State
+    let activeProfile = null;
+    const profileStatusText = document.getElementById('profileStatusText');
+    const profileJsonPreview = document.getElementById('profileJsonPreview');
+
+    function updateProfileDisplay() {
+      if (activeProfile) {
+        const name = activeProfile.personal?.name || "Candidate";
+        profileStatusText.textContent = `✓ Master Profile Active: ${name}`;
+        profileStatusText.classList.remove('text-slate-400');
+        profileStatusText.classList.add('text-emerald-600');
+        profileJsonPreview.textContent = JSON.stringify(activeProfile, null, 2);
+      }
+    }
+
+    // Profile Upload (Option A)
+    const profileFileInput = document.getElementById('profileFileInput');
+    const profileNotesText = document.getElementById('profileNotesText');
+    const btnUploadProfile = document.getElementById('btnUploadProfile');
+
+    btnUploadProfile.addEventListener('click', async () => {
+      const file = profileFileInput.files[0];
+      const notes = profileNotesText.value.trim();
+
+      if (!file && !notes) {
+        alert("Please select a profile file or paste background notes.");
+        return;
+      }
+
+      btnUploadProfile.disabled = true;
+      btnUploadProfile.textContent = "Analyzing & Building Profile...";
+
+      const formData = new FormData();
+      if (file) formData.append('profile_file', file);
+      if (notes) formData.append('notes_text', notes);
+
+      try {
+        const res = await fetch('/api/profile/upload', { method: 'POST', body: formData });
+        if (!res.ok) throw new Error("Profile conversion failed");
+        activeProfile = await res.json();
+        updateProfileDisplay();
+        alert("Master Profile successfully generated!");
+      } catch (err) {
+        alert(`Error: ${err.message}`);
+      } finally {
+        btnUploadProfile.disabled = false;
+        btnUploadProfile.textContent = "Convert to Master Profile with AI";
+      }
+    });
+
+    // Questionnaire Wizard (Option B)
+    const wizardModal = document.getElementById('wizardModal');
+    const btnOpenWizardModal = document.getElementById('btnOpenWizardModal');
+    const btnCloseWizard = document.getElementById('btnCloseWizard');
+    const wizardForm = document.getElementById('wizardForm');
+
+    btnOpenWizardModal.addEventListener('click', () => wizardModal.classList.remove('hidden'));
+    btnCloseWizard.addEventListener('click', () => wizardModal.classList.add('hidden'));
+
+    wizardForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        name_and_status: document.getElementById('wizName').value,
+        skills: document.getElementById('wizSkills').value,
+        unlisted_projects: document.getElementById('wizProjects').value,
+        verified_metrics: document.getElementById('wizMetrics').value,
+      };
+
+      wizardModal.classList.add('hidden');
+      profileStatusText.textContent = "Synthesizing questionnaire answers...";
+
+      try {
+        const res = await fetch('/api/profile/questionnaire', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error("Questionnaire parsing failed");
+        activeProfile = await res.json();
+        updateProfileDisplay();
+        alert("Master Profile created from questionnaire!");
+      } catch (err) {
+        alert(`Error: ${err.message}`);
+      }
+    });
+
+    // Download Profile JSON
+    document.getElementById('btnDownloadProfileJson').addEventListener('click', () => {
+      if (!activeProfile) return;
+      const blob = new Blob([JSON.stringify(activeProfile, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "master_candidate_profile.json";
+      a.click();
+    });
+
+    // Tailoring Form
     const tailorForm = document.getElementById('tailorForm');
     const dropzone = document.getElementById('dropzone');
     const resumeFileInput = document.getElementById('resumeFileInput');
@@ -288,8 +569,6 @@
     const fileSize = document.getElementById('fileSize');
     const btnRemoveFile = document.getElementById('btnRemoveFile');
     const jdText = document.getElementById('jdText');
-    const btnUseDemoJD = document.getElementById('btnUseDemoJD');
-    const btnUseDemoResume = document.getElementById('btnUseDemoResume');
     const btnSubmit = document.getElementById('btnSubmit');
 
     const progressCard = document.getElementById('progressCard');
@@ -309,9 +588,7 @@
     const btnOpenNewTab = document.getElementById('btnOpenNewTab');
 
     let selectedFile = null;
-    let useDemoResume = false;
 
-    // Dropzone interaction
     dropzone.addEventListener('click', () => resumeFileInput.click());
     dropzone.addEventListener('dragover', (e) => {
       e.preventDefault();
@@ -323,19 +600,14 @@
     dropzone.addEventListener('drop', (e) => {
       e.preventDefault();
       dropzone.classList.remove('border-sky-500', 'bg-sky-50/50');
-      if (e.dataTransfer.files.length > 0) {
-        handleFileSelection(e.dataTransfer.files[0]);
-      }
+      if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
     });
     resumeFileInput.addEventListener('change', () => {
-      if (resumeFileInput.files.length > 0) {
-        handleFileSelection(resumeFileInput.files[0]);
-      }
+      if (resumeFileInput.files.length > 0) handleFile(resumeFileInput.files[0]);
     });
 
-    function handleFileSelection(file) {
+    function handleFile(file) {
       selectedFile = file;
-      useDemoResume = false;
       fileName.textContent = file.name;
       fileSize.textContent = `${(file.size / 1024).toFixed(1)} KB`;
       dropzone.classList.add('hidden');
@@ -344,40 +616,16 @@
 
     btnRemoveFile.addEventListener('click', () => {
       selectedFile = null;
-      useDemoResume = false;
       resumeFileInput.value = '';
       dropzone.classList.remove('hidden');
       fileStatusCard.classList.add('hidden');
     });
 
-    btnUseDemoResume.addEventListener('click', () => {
-      useDemoResume = true;
-      selectedFile = null;
-      fileName.textContent = "Shaked Segev - CV.pptx (Sample Base Resume)";
-      fileSize.textContent = "1.4 MB (Loaded)";
-      dropzone.classList.add('hidden');
-      fileStatusCard.classList.remove('hidden');
-    });
-
-    btnUseDemoJD.addEventListener('click', async () => {
-      try {
-        const res = await fetch('/api/sample-jd');
-        const data = await res.json();
-        jdText.value = data.sample_jd;
-      } catch (err) {
-        jdText.value = `Backend Software Engineering Student position at a cloud infrastructure team.
-Requirements: Solid foundation in Computer Science, experience with Python, C++, or Java.
-Strong understanding of multithreading, concurrency, socket networking, and Linux environments.
-Experience with Docker and CI/CD pipelines is a plus. Passion for building robust, low-latency systems.`;
-      }
-    });
-
-    // Form Submit
     tailorForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      if (!selectedFile && !useDemoResume) {
-        alert("Please upload a resume file or click 'Use Sample Resume'.");
+      if (!selectedFile) {
+        alert("Please upload your resume file (Canva PPTX, Word DOCX, or PDF).");
         return;
       }
       if (!jdText.value.trim()) {
@@ -385,59 +633,48 @@ Experience with Docker and CI/CD pipelines is a plus. Passion for building robus
         return;
       }
 
-      // UI state: loading
       btnSubmit.disabled = true;
       btnSubmit.classList.add('opacity-70', 'cursor-not-allowed');
       progressCard.classList.remove('hidden');
       placeholderView.classList.remove('hidden');
       resultsView.classList.add('hidden');
 
-      // Progress animation steps
-      updateProgress(25, "Reading Resume File", "Extracting text and structure...");
+      updateProgress(20, "Extracting Document Layout", "Preserving native fonts, colors, and badge graphics...");
       const formData = new FormData();
-      if (selectedFile) {
-        formData.append('resume_file', selectedFile);
-      } else {
-        formData.append('use_demo_resume', 'true');
-      }
+      formData.append('resume_file', selectedFile);
       formData.append('jd_text', jdText.value.trim());
+      if (activeProfile) formData.append('profile_json', JSON.stringify(activeProfile));
 
-      const progressInterval = setInterval(() => {
-        const currentWidth = parseInt(progressBar.style.width);
-        if (currentWidth < 50) {
-          updateProgress(50, "Parsing Resume Structure", "Organizing experience, skills & coursework...");
-        } else if (currentWidth < 80) {
-          updateProgress(80, "AI Substantive Tailoring", "Aligning bullets and ATS keywords with Gemini...");
-        } else if (currentWidth < 95) {
-          updateProgress(95, "Compiling Vector PDF", "Rendering pixel-perfect vector document...");
+      const interval = setInterval(() => {
+        const cur = parseInt(progressBar.style.width);
+        if (cur < 50) {
+          updateProgress(50, "Synthesizing with Master Profile", "Matching verified projects & metrics without hallucination...");
+        } else if (cur < 80) {
+          updateProgress(80, "AI Substantive Tailoring", "Sharpening bullets & ordering skills by JD relevance...");
+        } else if (cur < 95) {
+          updateProgress(95, "Compiling Vector PDF", "Verifying layout margins and zero visual collision...");
         }
-      }, 3500);
+      }, 3000);
 
       try {
-        const response = await fetch('/api/tailor', {
-          method: 'POST',
-          body: formData
-        });
-
-        clearInterval(progressInterval);
-
-        if (!response.ok) {
-          const errData = await response.json();
-          throw new Error(errData.detail || "Tailoring failed");
+        const res = await fetch('/api/tailor', { method: 'POST', body: formData });
+        clearInterval(interval);
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || "Tailoring failed");
         }
-
-        const data = await response.json();
-        updateProgress(100, "Done!", "Resume tailored successfully.");
+        const data = await res.json();
+        updateProgress(100, "Complete!", "Design preserved & tailored successfully.");
 
         setTimeout(() => {
           progressCard.classList.add('hidden');
           btnSubmit.disabled = false;
           btnSubmit.classList.remove('opacity-70', 'cursor-not-allowed');
           displayResults(data);
-        }, 600);
+        }, 500);
 
       } catch (err) {
-        clearInterval(progressInterval);
+        clearInterval(interval);
         progressCard.classList.add('hidden');
         btnSubmit.disabled = false;
         btnSubmit.classList.remove('opacity-70', 'cursor-not-allowed');
@@ -445,13 +682,53 @@ Experience with Docker and CI/CD pipelines is a plus. Passion for building robus
       }
     });
 
-    function updateProgress(percent, status, detail) {
-      progressBar.style.width = `${percent}%`;
+    function updateProgress(pct, status, detail) {
+      progressBar.style.width = `${pct}%`;
       progressStatusText.textContent = status;
       progressDetail.textContent = detail;
     }
 
+    let lastTailoredData = null;
+    const btnViewDiff = document.getElementById('btnViewDiff');
+    const btnViewPdf = document.getElementById('btnViewPdf');
+    const btnReset = document.getElementById('btnReset');
+
+    btnViewDiff.addEventListener('click', () => {
+      btnViewDiff.classList.add('bg-white', 'text-emerald-700', 'shadow-sm');
+      btnViewDiff.classList.remove('text-slate-600');
+      btnViewPdf.classList.remove('bg-white', 'text-slate-900', 'shadow-sm');
+      btnViewPdf.classList.add('text-slate-600');
+      if (lastTailoredData?.diff_url) {
+        previewIframe.src = lastTailoredData.diff_url;
+      }
+    });
+
+    btnViewPdf.addEventListener('click', () => {
+      btnViewPdf.classList.add('bg-white', 'text-slate-900', 'shadow-sm');
+      btnViewPdf.classList.remove('text-slate-600');
+      btnViewDiff.classList.remove('bg-white', 'text-emerald-700', 'shadow-sm');
+      btnViewDiff.classList.add('text-slate-600');
+      if (lastTailoredData?.preview_url) {
+        previewIframe.src = `${lastTailoredData.preview_url}#toolbar=0&navpanes=0&view=FitH`;
+      }
+    });
+
+    btnReset.addEventListener('click', () => {
+      selectedFile = null;
+      resumeFileInput.value = '';
+      jdText.value = '';
+      lastTailoredData = null;
+      dropzone.classList.remove('hidden');
+      fileStatusCard.classList.add('hidden');
+      resultsView.classList.add('hidden');
+      placeholderView.classList.remove('hidden');
+      progressCard.classList.add('hidden');
+      progressBar.style.width = '0%';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
     function displayResults(data) {
+      lastTailoredData = data;
       placeholderView.classList.add('hidden');
       resultsView.classList.remove('hidden');
 
@@ -459,7 +736,6 @@ Experience with Docker and CI/CD pipelines is a plus. Passion for building robus
       matchScoreBadge.textContent = `${fit.match_score || 88}% Match`;
       pitchAngleText.textContent = fit.pitch_angle || "Positioning candidate based on core competencies.";
 
-      // Render Strong Matches
       matchList.innerHTML = '';
       (fit.match || []).forEach(item => {
         const li = document.createElement('li');
@@ -467,7 +743,6 @@ Experience with Docker and CI/CD pipelines is a plus. Passion for building robus
         matchList.appendChild(li);
       });
 
-      // Render Partial Matches
       partialList.innerHTML = '';
       (fit.partial || []).forEach(item => {
         const li = document.createElement('li');
@@ -475,7 +750,6 @@ Experience with Docker and CI/CD pipelines is a plus. Passion for building robus
         partialList.appendChild(li);
       });
 
-      // Render Gaps
       gapList.innerHTML = '';
       (fit.gap || []).forEach(item => {
         const li = document.createElement('li');
@@ -483,8 +757,12 @@ Experience with Docker and CI/CD pipelines is a plus. Passion for building robus
         gapList.appendChild(li);
       });
 
-      // Set Preview and Download Links
-      previewIframe.src = data.preview_url;
+      // Default to the interactive highlighted diff view so the user can hover and see what changed and why
+      if (data.diff_url) {
+        btnViewDiff.click();
+      } else {
+        btnViewPdf.click();
+      }
       btnDownloadPdf.href = data.download_url;
       btnOpenNewTab.href = data.preview_url;
     }

@@ -106,8 +106,8 @@ def main() -> None:
     parser.add_argument(
         "--template",
         type=Path,
-        default=project_root / "Shaked Segev - CV.pptx",
-        help="Path to base PowerPoint template (default: 'Shaked Segev - CV.pptx').",
+        default=None,
+        help="Path to base PowerPoint template (.pptx).",
     )
     parser.add_argument(
         "--profile",
@@ -124,8 +124,8 @@ def main() -> None:
     parser.add_argument(
         "--output-name",
         type=str,
-        default="Shaked_Segev_Tailored_CV",
-        help="Base filename for generated .pptx and .pdf.",
+        default="tailored_resume",
+        help="Base filename for generated output files (default: 'tailored_resume').",
     )
     parser.add_argument(
         "--no-open",

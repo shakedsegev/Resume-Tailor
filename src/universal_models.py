@@ -80,6 +80,15 @@ class FitAnalysis(BaseModel):
     )
 
 
+class ChangeAnnotation(BaseModel):
+    section: str = Field(description="Section name (e.g. Experience, Projects, Skills, Coursework)")
+    original_text: str = Field(description="Original phrasing or content from the source resume")
+    tailored_text: str = Field(description="New tailored phrasing incorporating target keywords")
+    rationale: str = Field(description="Clear explanation of why this change was made, what was changed from what, and which JD keyword was highlighted")
+
+
 class UniversalTailoredOutput(BaseModel):
     fit_analysis: FitAnalysis
     tailored_resume: UniversalResume
+    changes_log: list[ChangeAnnotation] = Field(default_factory=list)
+

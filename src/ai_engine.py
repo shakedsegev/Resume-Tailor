@@ -69,31 +69,42 @@ class TailoredProjects(BaseModel):
     )
 
 
+class ChangeAnnotation(BaseModel):
+    section: str = Field(description="Section name (e.g. Experience, Projects, Skills, Coursework)")
+    original_text: str = Field(description="Original phrasing or skills from the source resume")
+    tailored_text: str = Field(description="New tailored phrasing incorporating keywords")
+    rationale: str = Field(description="Clear explanation of why this change was made, what was changed from what, and which JD keyword or verified metric was highlighted")
+
+
 class FullTailoredResume(BaseModel):
     fit_analysis: FitAnalysis = Field(
         description="Structured assessment of candidate fit against the job description."
     )
     experience_bullets: list[str] = Field(
-        description="Exactly 6 tailored experience bullets for Verifone. Each bullet strictly MAX 135 characters to fit in 2 lines without overlapping."
+        description="Tailored experience bullets matching the original bullet count. Each bullet strictly MAX 135 characters to fit in 2 lines without overlapping."
     )
     academic_projects: list[TailoredProject] = Field(
-        description="3 tailored projects with relevant tech tags and descriptions strictly MAX 140 characters."
+        description="Tailored projects matching the original count with relevant tech tags and descriptions strictly MAX 140 characters."
     )
     ordered_languages: list[str] = Field(
         default_factory=list,
-        description="Reordered list of the candidate's 7 languages with top JD requirements first (e.g. Python, C++, SQL, Java, TypeScript, C, Assembly x86)."
+        description="Reordered list of candidate programming languages with top JD requirements first."
     )
     tools_lines: list[str] = Field(
-        description="Candidate's tools and platforms (e.g. Linux, Docker, Git, Bash, WSL, macOS, VS Code, Claude, ChatGPT, AntiGravity) formatted across exactly 4 lines, each strictly MAX 25 characters. Do NOT include programming languages."
+        description="Candidate's tools and platforms formatted across exactly 4 lines, each strictly MAX 25 characters. Do NOT include programming languages."
     )
     core_concepts_lines: list[str] = Field(
-        description="Candidate's engineering concepts (e.g. Multithreading, Concurrency, Sockets, OOP, Memory Management, SOLID Principles) formatted across exactly 2 lines, line 1 MAX 35 characters, line 2 MAX 30 characters."
+        description="Candidate's engineering concepts formatted across exactly 2 lines, line 1 MAX 35 characters, line 2 MAX 30 characters."
     )
     coursework_line: str = Field(
-        description="Coursework line starting with 'Core CS Coursework: ' strictly MAX 180 characters, keeping exact grades."
+        description="Coursework line starting with 'Core Coursework: ' (or original header) strictly MAX 180 characters, keeping exact grades."
     )
     military_bullets: list[str] = Field(
-        description="3 sharpened military leadership bullets, each strictly MAX 135 characters."
+        description="Sharpened leadership, military, or extracurricular bullets matching original count, each strictly MAX 135 characters."
+    )
+    changes_log: list[ChangeAnnotation] = Field(
+        default_factory=list,
+        description="Detailed log of changes made across each section, explaining what was changed, from what, and why."
     )
 
 
@@ -275,13 +286,13 @@ def tailor_full_resume(
     """
     Executes a comprehensive, full-resume tailoring across all sections:
     - Fit & Pitch Analysis
-    - Experience Bullets (Verifone)
-    - Academic Projects (STOMP Server, Linear Algebra Engine, DJ Station)
-    - Programming Language Pills Priority Ordering
-    - Tools & Platforms Reordering
-    - Core Concepts Reordering
-    - Relevant Coursework Prioritization
-    - Military Leadership Framing
+    - Experience Bullets
+    - Technical & Academic Projects
+    - Programming Languages Priority Ordering
+    - Tools & Platforms Alignment
+    - Core Concepts Alignment
+    - Coursework Prioritization
+    - Leadership & Extracurriculars Framing
     """
     client = client or get_client()
 
@@ -300,38 +311,43 @@ Target Job Description:
 SUBSTANTIVE TAILORING MANDATE:
 Do NOT merely return the original text with 1-2 words swapped.
 Actively rewrite, elevate, and align every bullet point and description so the candidate stands out as a stellar match:
-1. Experience (Verifone):
-   - Reframe technical support and supervision into high-impact systems engineering, R&D troubleshooting, infrastructure automation, and software reliability.
-   - Lead with the most impressive, technically relevant achievements.
-   - Preserve exact metrics (e.g. turnaround from 40 min to <1 min).
-2. Academic Projects:
-   - STOMP Server: Emphasize network sockets, Reactor pattern, thread-pool concurrency, and packet protocols.
-   - Linear Algebra Engine: Emphasize multithreading, thread safety, synchronization, and CPU optimization.
-   - DJ Station Audio Processor: Emphasize C++, manual memory management, and OOP/SOLID design.
+1. Experience:
+   - Reframe experience into high-impact accomplishments, engineering problem-solving, and systems reliability.
+   - Lead with the most impressive, technically relevant achievements that align with the target JD.
+   - Draw upon unlisted context or technical nuances from the candidate profile where applicable.
+   - Preserve all factual metrics (e.g., turnaround times, performance speedups, numbers, dollar amounts) without alteration.
+2. Academic & Technical Projects:
+   - Emphasize architectural patterns, protocols, concurrency, data structures, and technologies matching the target JD.
+   - Draw on deep-dive details from the candidate's profile to substantiate technical rigor.
 3. Languages & Tools:
-   - In 'ordered_languages', put the top languages required by the JD first (e.g. Python, C++, SQL).
-   - In 'tools_lines', put required developer tools/environments (e.g. Docker, Git, Linux, Bash, WSL, macOS, VS Code, Claude, ChatGPT, AntiGravity). NEVER put programming languages here.
+   - In 'ordered_languages', put the top languages required by the JD first.
+   - In 'tools_lines', put required developer tools/environments (e.g. Docker, Git, Linux, Bash, CI/CD). NEVER put programming languages here.
    - In 'core_concepts_lines', put required concepts (e.g. Multithreading, Concurrency, Sockets, Memory Management, OOP, SOLID Principles).
 4. Coursework:
-   - Order Systems Programming, Operating Systems, Computer Architecture (91), Data Structures, Algorithms first.
-5. Military:
-   - Frame squad leadership, founding the special mobility unit, and high-stakes operational execution.
+   - Order the most relevant verified coursework and grades first.
+5. Leadership & Extracurriculars:
+   - Frame leadership, high-stakes operational execution, discipline, and transferable strengths.
+6. Changes Log & Rationale:
+   - For each section modified (Experience, Projects, Languages, Tools, Coursework, Leadership), generate a record in 'changes_log'.
+   - In 'original_text', specify the original text.
+   - In 'tailored_text', specify the new tailored phrasing.
+   - In 'rationale', explain why the change was made, what was highlighted, and which JD keyword or profile achievement it aligns with.
 
-CRITICAL CANVA LAYOUT BUDGET CONSTRAINTS:
-The resume is a single-page fixed Canva design. Any text overflow will collide with other sections.
+CRITICAL LAYOUT BUDGET CONSTRAINTS:
+The resume is a single-page fixed visual design. Any text overflow will collide with other sections.
 You MUST strictly obey these exact limits:
-1. Academic Projects (3 items):
-   - title_suffix: MAX 45 characters (e.g. ' | Java, C++, Sockets, Reactor'). Must start with ' | '.
+1. Academic Projects:
+   - title_suffix: MAX 45 characters. Must start with ' | '.
    - description: Strictly MAX 140 characters (fits in 2 lines).
-2. Experience Bullets (6 items):
+2. Experience Bullets:
    - Each bullet strictly MAX 135 characters (fits in 2 lines).
 3. Tools & Platforms (4 lines):
    - Exactly 4 lines, each line strictly MAX 25 characters.
 4. Core Concepts (2 lines):
    - Exactly 2 lines, line 1 MAX 35 characters, line 2 MAX 30 characters.
 5. Coursework (1 line):
-   - Starts with 'Core CS Coursework: ' and strictly MAX 180 characters.
-6. Military Bullets (3 items):
+   - Strictly MAX 180 characters, preserving exact grades.
+6. Leadership / Additional Bullets:
    - Each bullet strictly MAX 135 characters.
 
 STRICT CONTENT GUARDRAILS:
