@@ -218,3 +218,56 @@ def test_build_interactive_resume_diff_html(tmp_path):
     assert 'id="tooltip"' in content
     assert "addEventListener('mouseenter'" in content
     assert "#dcfce7" in content
+
+
+def test_find_matching_change_section_isolation():
+    """Verifies that changes in one section never contaminate tooltips in another section."""
+    changes = [
+        ChangeAnnotation(
+            section="Projects",
+            original_text="Built a distributed key-value store in Go with Raft consensus.",
+            tailored_text="Architected distributed key-value store in Go implementing Raft consensus.",
+            rationale="Demonstrated distributed consensus expertise for backend role.",
+        ),
+        ChangeAnnotation(
+            section="Experience",
+            original_text="Maintained legacy services.",
+            tailored_text="Modernized legacy backend services with Go microservices.",
+            rationale="Highlighted modernization and Go skills matching JD.",
+        ),
+    ]
+
+    # 1. Look up an experience bullet with similar words ("backend services in Go")
+    # It must NOT latch onto the Projects change!
+    match = find_matching_change(
+        text="Modernized legacy backend services with Go microservices.",
+        section="Experience: Senior Engineer at CloudCorp",
+        changes_log=changes,
+        original_fallback="Maintained legacy services.",
+    )
+    assert match is not None
+    assert match["original"] == "Maintained legacy services."
+    assert "Go skills matching JD" in match["rationale"]
+    assert "Raft consensus" not in match["rationale"]
+
+    # 2. When original_fallback is provided and differs, original is GUARANTEED to be original_fallback
+    match2 = find_matching_change(
+        text="Architected distributed pipeline processing 5M events daily.",
+        section="Experience",
+        changes_log=changes,
+        original_fallback="Worked on internal event pipeline.",
+    )
+    assert match2 is not None
+    assert match2["original"] == "Worked on internal event pipeline."
+    # The rationale should be an experience-specific rationale, not Raft consensus from Projects!
+    assert "Raft consensus" not in match2["rationale"]
+
+    # 3. Unchanged item must return None
+    match3 = find_matching_change(
+        text="Maintained legacy services.",
+        section="Experience",
+        changes_log=changes,
+        original_fallback="Maintained legacy services.",
+    )
+    assert match3 is None
+

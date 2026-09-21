@@ -24,6 +24,7 @@ from src.universal_parser import extract_text_from_file
 from src.universal_ai import parse_raw_resume_to_schema, tailor_universal_resume
 from src.universal_pdf_builder import generate_universal_resume_pdf
 from src.profile_manager import convert_document_to_profile, build_profile_from_questionnaire
+from src.ats_analyzer import analyze_resume_format, ATSFormatReport
 from src.sample_data import GENERIC_SAMPLE_PROFILE, GENERIC_SAMPLE_JD
 from src.models import CandidateProfile
 
@@ -121,17 +122,41 @@ async def questionnaire_profile_endpoint(payload: dict[str, Any] = Body(...)):
         )
 
 
+@app.post("/api/analyze-format")
+async def analyze_format_endpoint(resume_file: UploadFile = File(...)):
+    """
+    Analyzes an uploaded resume file for ATS parser compatibility and layout risks.
+    Returns ATS score, layout classification, risk items, and recommendations.
+    """
+    file_id = f"analyze_{uuid.uuid4().hex[:8]}"
+    file_ext = Path(resume_file.filename or "resume.pdf").suffix.lower() or ".pdf"
+    temp_path = UPLOADS_DIR / f"{file_id}{file_ext}"
+    try:
+        contents = await resume_file.read()
+        temp_path.write_bytes(contents)
+        report = analyze_resume_format(temp_path)
+        return JSONResponse(content=report.model_dump())
+    finally:
+        if temp_path.exists():
+            try:
+                temp_path.unlink()
+            except Exception:
+                pass
+
+
 @app.post("/api/tailor")
 async def tailor_resume_endpoint(
     resume_file: UploadFile = File(...),
     jd_text: str = Form(...),
     profile_json: Optional[str] = Form(None),
+    format_strategy: str = Form("auto"),
 ):
     """
     Universal Tailoring Pipeline:
-    - Preserves design when a presentation (PPTX) is uploaded.
-    - Compiles a vector PDF preserving native styles, fonts, and badge graphics.
-    - Integrates unlisted context from the master profile if provided.
+    - Analyzes resume format for ATS parser risks.
+    - If user chooses 'ats_optimized', outputs a 100% ATS-compliant single-column clean format.
+    - If user chooses 'preserve_design', preserves visual layout (PPTX/Canva) and provides ATS version.
+    - Substantively enriches accomplishments and skills with verified profile context.
     """
     if not jd_text or not jd_text.strip():
         raise HTTPException(status_code=400, detail="Job description cannot be empty.")
@@ -145,6 +170,12 @@ async def tailor_resume_endpoint(
     contents = await resume_file.read()
     dest_path.write_bytes(contents)
 
+    # Analyze format compatibility
+    format_report = analyze_resume_format(dest_path)
+    effective_strategy = format_strategy
+    if effective_strategy == "auto":
+        effective_strategy = format_report.suggested_strategy
+
     # Load master profile context if provided
     profile_dict = None
     if profile_json:
@@ -153,12 +184,21 @@ async def tailor_resume_endpoint(
         except Exception:
             profile_dict = None
 
-    # 1. Design-Preserving PPTX Tailoring
-    if file_ext in [".pptx", ".ppt"]:
+    # 1. Design-Preserving PPTX Tailoring (when requested or auto-suggested)
+    if file_ext in [".pptx", ".ppt"] and effective_strategy != "ats_optimized":
         try:
             from src.parser import extract_resume_sections
             from src.ai_engine import tailor_full_resume
             from src.pdf_builder import build_full_tailored_resume
+            from src.universal_models import (
+                UniversalResume,
+                ContactInfo,
+                SkillCategories,
+                ExperienceItem,
+                ProjectItem,
+                EducationItem,
+                AdditionalSection,
+            )
 
             resume_data = extract_resume_sections(dest_path)
             tailor_profile = profile_dict or resume_data
@@ -187,6 +227,56 @@ async def tailor_resume_endpoint(
                 candidate_name=profile_dict.get("name", "") if profile_dict else "",
             )
 
+            # Also generate a pristine 100% ATS-compliant single-column PDF
+            ats_base = f"{base_filename}_ATS"
+            ats_resume = UniversalResume(
+                contact=ContactInfo(
+                    name=profile_dict.get("name", "") if profile_dict else "Candidate",
+                    email=profile_dict.get("email", "") if profile_dict else "",
+                    phone=profile_dict.get("phone", "") if profile_dict else "",
+                    linkedin=profile_dict.get("linkedin", "") if profile_dict else "",
+                    github=profile_dict.get("github", "") if profile_dict else "",
+                ),
+                skills=SkillCategories(
+                    programming_languages=getattr(tailored_res, "ordered_languages", []),
+                    frameworks_and_tools=getattr(tailored_res, "tools_lines", []),
+                    core_concepts=getattr(tailored_res, "core_concepts_lines", []),
+                ),
+                experience=[
+                    ExperienceItem(
+                        role="Technical Experience",
+                        company="Engineering Accomplishments",
+                        bullets=getattr(tailored_res, "experience_bullets", []),
+                    )
+                ],
+                projects=[
+                    ProjectItem(
+                        name=p.title_suffix.lstrip(" |").strip() if getattr(p, "title_suffix", "") else "Project",
+                        technologies=p.title_suffix.strip() if getattr(p, "title_suffix", "") else "",
+                        description=p.description if getattr(p, "description", "") else "",
+                    )
+                    for p in getattr(tailored_res, "academic_projects", [])
+                ],
+                education=[
+                    EducationItem(
+                        degree="Academic Background & Studies",
+                        institution="University / Higher Education",
+                        details=getattr(tailored_res, "coursework_line", ""),
+                    )
+                ],
+                additional_sections=[
+                    AdditionalSection(
+                        title="Leadership, Extracurricular & Military Experience",
+                        items=getattr(tailored_res, "military_bullets", []),
+                    )
+                ] if getattr(tailored_res, "military_bullets", []) else [],
+            )
+            generate_universal_resume_pdf(
+                resume=ats_resume,
+                output_dir=OUTPUTS_DIR,
+                base_name=ats_base,
+            )
+
             return JSONResponse(
                 content={
                     "status": "success",
@@ -196,6 +286,10 @@ async def tailor_resume_endpoint(
                     "preview_url": f"/api/preview/{base_filename}",
                     "diff_url": f"/api/diff/{base_filename}",
                     "download_url": f"/api/download/{base_filename}",
+                    "ats_preview_url": f"/api/preview/{ats_base}",
+                    "ats_download_url": f"/api/download/{ats_base}",
+                    "format_strategy": "preserve_design",
+                    "ats_report": format_report.model_dump(),
                 }
             )
         except Exception as err:
@@ -203,7 +297,7 @@ async def tailor_resume_endpoint(
             # log and proceed to universal fallback
             print(f"PPTX design-preserving engine notice: {err}. Falling back to universal builder.")
 
-    # 2. Universal Parsing & Tailoring for PDF, DOCX, or other formats
+    # 2. Universal Parsing & Tailoring for PDF, DOCX, or ATS-Optimized Formats
     raw_text = extract_text_from_file(dest_path)
     if not raw_text.strip():
         raise HTTPException(
@@ -246,6 +340,8 @@ async def tailor_resume_endpoint(
             "preview_url": f"/api/preview/{base_filename}",
             "diff_url": f"/api/diff/{base_filename}",
             "download_url": f"/api/download/{base_filename}",
+            "format_strategy": effective_strategy,
+            "ats_report": format_report.model_dump(),
         }
     )
 

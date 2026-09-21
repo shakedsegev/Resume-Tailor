@@ -31,6 +31,28 @@ def _clean_text(val: str) -> str:
     return re.sub(r"\s+", " ", val).strip().lower()
 
 
+def _section_category(sec_name: str) -> str:
+    """Categorizes a section name into standard buckets to prevent cross-section contamination."""
+    s = (sec_name or "").lower()
+    if any(k in s for k in ["exp", "work", "job", "career", "employ"]):
+        return "experience"
+    if any(k in s for k in ["proj", "academic"]):
+        return "projects"
+    if any(k in s for k in ["lang", "prog"]):
+        return "languages"
+    if any(k in s for k in ["tool", "framework", "tech", "librar"]):
+        return "tools"
+    if any(k in s for k in ["concept", "method", "course"]):
+        return "concepts"
+    if any(k in s for k in ["edu", "deg", "academ"]):
+        return "education"
+    if any(k in s for k in ["sum", "prof", "about", "object"]):
+        return "summary"
+    if any(k in s for k in ["mil", "lead", "addit", "extrac", "volunt"]):
+        return "additional"
+    return s.strip()
+
+
 def find_matching_change(
     text: str,
     section: str,
@@ -40,89 +62,139 @@ def find_matching_change(
     """
     Finds a matching ChangeAnnotation in changes_log for the given text,
     or falls back to comparing against original_fallback.
+    Strictly isolates section categories to prevent cross-section tooltip mismatch.
     Returns dict with keys: original, rationale, section.
     """
     cleaned_text = _clean_text(text)
     if not cleaned_text:
         return None
 
-    words_text = set(re.findall(r"\w+", cleaned_text))
-
-    best_match = None
-    best_score = 0.0
-
-    # 1. Search changes_log for best match
-    for c in changes_log:
-        t_text = getattr(c, "tailored_text", None) or (c.get("tailored_text", "") if isinstance(c, dict) else "")
-        o_text = getattr(c, "original_text", None) or (c.get("original_text", "") if isinstance(c, dict) else "")
-        rat = getattr(c, "rationale", None) or (c.get("rationale", "") if isinstance(c, dict) else "")
-        sec = getattr(c, "section", None) or (c.get("section", section) if isinstance(c, dict) else section)
-
-        cleaned_tailored = _clean_text(t_text)
-        if not cleaned_tailored:
-            continue
-
-        # Exact match
-        if cleaned_text == cleaned_tailored:
-            return {
-                "original": o_text or original_fallback or "Original resume phrasing",
-                "rationale": rat or "Tailored to align with target job description requirements.",
-                "section": sec or section,
-            }
-
-        # Substring match
-        if len(cleaned_tailored) >= 12 and (cleaned_tailored in cleaned_text or cleaned_text in cleaned_tailored):
-            score = 0.90
-            if score > best_score:
-                best_score = score
-                best_match = {
-                    "original": o_text or original_fallback or "Original resume phrasing",
-                    "rationale": rat or "Tailored to align with target job description requirements.",
-                    "section": sec or section,
-                }
-            continue
-
-        # Sequence similarity
-        ratio = SequenceMatcher(None, cleaned_text, cleaned_tailored).ratio()
-        if ratio >= 0.60 and ratio > best_score:
-            best_score = ratio
-            best_match = {
-                "original": o_text or original_fallback or "Original resume phrasing",
-                "rationale": rat or "Tailored to align with target job description requirements.",
-                "section": sec or section,
-            }
-            continue
-
-        # Token set overlap for longer sentences
-        words_tailored = set(re.findall(r"\w+", cleaned_tailored))
-        if len(words_tailored) >= 4:
-            overlap = len(words_text & words_tailored) / max(len(words_tailored), 1)
-            if overlap >= 0.65 and overlap > best_score:
-                best_score = overlap
-                best_match = {
-                    "original": o_text or original_fallback or "Original resume phrasing",
-                    "rationale": rat or "Tailored to align with target job description requirements.",
-                    "section": sec or section,
-                }
-
-    if best_match and best_score >= 0.55:
-        return best_match
-
-    # 2. Fallback: Compare directly with original_fallback if available
     cleaned_orig = _clean_text(original_fallback)
-    if cleaned_orig and cleaned_orig != cleaned_text:
-        # Check if original_fallback matches any c.original_text to steal its rationale
-        fallback_rat = "Substantively rewritten to emphasize technical accomplishments and alignment with target role."
+    # If original text is identical to current text, it was not changed
+    if cleaned_orig and cleaned_orig == cleaned_text:
+        return None
+
+    sec_cat = _section_category(section)
+
+    # 1. Programming Languages section handling
+    if sec_cat == "languages":
+        if not original_fallback:
+            # Check if this specific language was logged as changed under languages
+            for c in changes_log:
+                c_sec = _section_category(getattr(c, "section", "") or (c.get("section", "") if isinstance(c, dict) else ""))
+                if c_sec == "languages":
+                    c_tailored = _clean_text(getattr(c, "tailored_text", "") or (c.get("tailored_text", "") if isinstance(c, dict) else ""))
+                    if c_tailored == cleaned_text:
+                        orig = getattr(c, "original_text", "") or (c.get("original_text", "") if isinstance(c, dict) else "")
+                        rat = getattr(c, "rationale", "") or (c.get("rationale", "") if isinstance(c, dict) else "")
+                        return {
+                            "original": orig or "Not emphasized in original resume",
+                            "rationale": rat or "Prioritized to match target role requirements.",
+                            "section": "Programming Languages",
+                        }
+            return None
+        else:
+            # We have a specific fallback like "Rank #3 in original resume" or "Added from Master Profile"
+            rat = ""
+            for c in changes_log:
+                c_sec = _section_category(getattr(c, "section", "") or (c.get("section", "") if isinstance(c, dict) else ""))
+                if c_sec == "languages":
+                    c_tailored = _clean_text(getattr(c, "tailored_text", "") or (c.get("tailored_text", "") if isinstance(c, dict) else ""))
+                    if cleaned_text in c_tailored or c_tailored in cleaned_text:
+                        rat = getattr(c, "rationale", "") or (c.get("rationale", "") if isinstance(c, dict) else "")
+                        break
+            if not rat:
+                if "Master Profile" in original_fallback:
+                    rat = f"Added '{text}' from Master Profile to satisfy core technical requirements in the job description."
+                else:
+                    rat = f"Prioritized '{text}' to the top of the technical stack to match target job requirements."
+            return {
+                "original": original_fallback,
+                "rationale": rat,
+                "section": "Programming Languages",
+            }
+
+    # 2. When original_fallback is provided and differs from text
+    if original_fallback:
+        # Guarantee that 'original' is strictly original_fallback
+        matched_rat = ""
+        best_r = 0.0
         for c in changes_log:
-            o_text = getattr(c, "original_text", None) or (c.get("original_text", "") if isinstance(c, dict) else "")
-            rat = getattr(c, "rationale", None) or (c.get("rationale", "") if isinstance(c, dict) else "")
-            if _clean_text(o_text) == cleaned_orig and rat:
-                fallback_rat = rat
+            c_sec = _section_category(getattr(c, "section", "") or (c.get("section", "") if isinstance(c, dict) else ""))
+            if c_sec != sec_cat:
+                continue
+            c_tailored = _clean_text(getattr(c, "tailored_text", "") or (c.get("tailored_text", "") if isinstance(c, dict) else ""))
+            c_orig = _clean_text(getattr(c, "original_text", "") or (c.get("original_text", "") if isinstance(c, dict) else ""))
+            rat = getattr(c, "rationale", "") or (c.get("rationale", "") if isinstance(c, dict) else "")
+
+            # Exact match
+            if cleaned_text == c_tailored or (cleaned_orig and cleaned_orig == c_orig):
+                matched_rat = rat
                 break
+
+            # Sequence similarity match within same section
+            if c_tailored:
+                r1 = SequenceMatcher(None, cleaned_text, c_tailored).ratio()
+                if r1 > best_r and r1 >= 0.60:
+                    best_r = r1
+                    matched_rat = rat
+            if cleaned_orig and c_orig:
+                r2 = SequenceMatcher(None, cleaned_orig, c_orig).ratio()
+                if r2 > best_r and r2 >= 0.60:
+                    best_r = r2
+                    matched_rat = rat
+
+        if not matched_rat:
+            if sec_cat == "experience":
+                matched_rat = "Enhanced phrasing with quantifiable achievements, active verbs, and key technologies requested in the job description."
+            elif sec_cat == "projects":
+                matched_rat = "Emphasized relevant system architecture, tools, and technical delivery to align with target role requirements."
+            elif sec_cat == "tools":
+                matched_rat = "Updated frameworks and technologies to highlight key tools required for the position."
+            elif sec_cat == "concepts":
+                matched_rat = "Aligned core methodologies and domain concepts with the target job specifications."
+            elif sec_cat == "education":
+                matched_rat = "Highlighted relevant coursework and academic achievements pertinent to the position."
+            elif sec_cat == "summary":
+                matched_rat = "Reframed professional summary to highlight qualifications most relevant to the role."
+            else:
+                matched_rat = "Tailored phrasing to highlight qualifications and keywords relevant to the target job description."
 
         return {
             "original": original_fallback,
-            "rationale": fallback_rat,
+            "rationale": matched_rat,
+            "section": section,
+        }
+
+    # 3. When original_fallback is NOT provided (fallback to changes_log within section category)
+    best_c = None
+    best_score = 0.0
+    for c in changes_log:
+        c_sec = _section_category(getattr(c, "section", "") or (c.get("section", "") if isinstance(c, dict) else ""))
+        if c_sec != sec_cat:
+            continue
+        c_tailored = _clean_text(getattr(c, "tailored_text", "") or (c.get("tailored_text", "") if isinstance(c, dict) else ""))
+        if not c_tailored:
+            continue
+        if cleaned_text == c_tailored:
+            o_text = getattr(c, "original_text", "") or (c.get("original_text", "") if isinstance(c, dict) else "")
+            rat = getattr(c, "rationale", "") or (c.get("rationale", "") if isinstance(c, dict) else "")
+            return {
+                "original": o_text or "Original phrasing",
+                "rationale": rat or "Tailored to align with target job description requirements.",
+                "section": section,
+            }
+        r = SequenceMatcher(None, cleaned_text, c_tailored).ratio()
+        if r >= 0.75 and r > best_score:
+            best_score = r
+            best_c = c
+
+    if best_c:
+        o_text = getattr(best_c, "original_text", "") or (best_c.get("original_text", "") if isinstance(best_c, dict) else "")
+        rat = getattr(best_c, "rationale", "") or (best_c.get("rationale", "") if isinstance(best_c, dict) else "")
+        return {
+            "original": o_text or "Original phrasing",
+            "rationale": rat or "Tailored to align with target job description requirements.",
             "section": section,
         }
 
@@ -633,7 +705,7 @@ def build_interactive_resume_diff_html(
         })
 
     # 3. Technical Skills
-    # Check if languages were reordered or tailored
+    # Check if languages were added, reordered or tailored
     orig_langs = (
         original_resume.skills.programming_languages
         if original_resume
@@ -641,13 +713,19 @@ def build_interactive_resume_diff_html(
     )
     rendered_pills = []
     for idx, lang in enumerate(resume.skills.programming_languages):
-        # If the language was moved forward or appears in changes_log
-        is_prioritized = (
+        is_new = bool(orig_langs and (lang not in orig_langs))
+        is_prioritized = bool(
             orig_langs
             and lang in orig_langs
             and orig_langs.index(lang) > idx
         )
-        pill_fallback = f"Rank #{orig_langs.index(lang) + 1} in original resume" if is_prioritized else ""
+        if is_new:
+            pill_fallback = "Not present in uploaded resume (added from Master Profile)"
+        elif is_prioritized:
+            pill_fallback = f"Rank #{orig_langs.index(lang) + 1} in original resume"
+        else:
+            pill_fallback = ""
+
         pill_html = highlight_text(
             text=lang,
             section="Programming Languages",
@@ -695,11 +773,22 @@ def build_interactive_resume_diff_html(
     # 4. Projects
     rendered_projects = []
     for idx, proj in enumerate(resume.projects):
-        orig_proj = (
-            original_resume.projects[idx]
-            if original_resume and idx < len(original_resume.projects)
-            else None
-        )
+        orig_proj = None
+        if original_resume and original_resume.projects:
+            if idx < len(original_resume.projects) and SequenceMatcher(None, _clean_text(proj.name), _clean_text(original_resume.projects[idx].name)).ratio() >= 0.40:
+                orig_proj = original_resume.projects[idx]
+            else:
+                best_p = None
+                best_pr = 0.0
+                for op in original_resume.projects:
+                    r = SequenceMatcher(None, _clean_text(proj.name), _clean_text(op.name)).ratio()
+                    if r > best_pr:
+                        best_pr = r
+                        best_p = op
+                if best_pr >= 0.40:
+                    orig_proj = best_p
+                elif idx < len(original_resume.projects):
+                    orig_proj = original_resume.projects[idx]
 
         rendered_tech = ""
         if proj.technologies:
@@ -723,11 +812,25 @@ def build_interactive_resume_diff_html(
 
         rendered_bullets = []
         for b_idx, bullet in enumerate(proj.bullets):
-            orig_b = (
-                orig_proj.bullets[b_idx]
-                if orig_proj and b_idx < len(orig_proj.bullets)
-                else ""
-            )
+            orig_b = ""
+            if orig_proj and orig_proj.bullets:
+                if b_idx < len(orig_proj.bullets) and SequenceMatcher(None, _clean_text(bullet), _clean_text(orig_proj.bullets[b_idx])).ratio() >= 0.40:
+                    orig_b = orig_proj.bullets[b_idx]
+                else:
+                    best_ob = ""
+                    best_obr = 0.0
+                    for ob in orig_proj.bullets:
+                        r = SequenceMatcher(None, _clean_text(bullet), _clean_text(ob)).ratio()
+                        if r > best_obr:
+                            best_obr = r
+                            best_ob = ob
+                    if best_obr >= 0.40:
+                        orig_b = best_ob
+                    else:
+                        orig_b = "New accomplishment bullet added to highlight relevant technical delivery"
+            else:
+                orig_b = "New project accomplishment added for target role"
+
             b_html = highlight_text(
                 text=bullet,
                 section=f"Project Accomplishment: {proj.name}",
@@ -746,19 +849,44 @@ def build_interactive_resume_diff_html(
     # 5. Experience
     rendered_experience = []
     for idx, exp in enumerate(resume.experience):
-        orig_exp = (
-            original_resume.experience[idx]
-            if original_resume and idx < len(original_resume.experience)
-            else None
-        )
+        orig_exp = None
+        if original_resume and original_resume.experience:
+            if idx < len(original_resume.experience) and SequenceMatcher(None, _clean_text(exp.role), _clean_text(original_resume.experience[idx].role)).ratio() >= 0.40:
+                orig_exp = original_resume.experience[idx]
+            else:
+                best_e = None
+                best_er = 0.0
+                for oe in original_resume.experience:
+                    r = SequenceMatcher(None, _clean_text(f"{exp.role} {exp.company}"), _clean_text(f"{oe.role} {oe.company}")).ratio()
+                    if r > best_er:
+                        best_er = r
+                        best_e = oe
+                if best_er >= 0.40:
+                    orig_exp = best_e
+                elif idx < len(original_resume.experience):
+                    orig_exp = original_resume.experience[idx]
 
         rendered_bullets = []
         for b_idx, bullet in enumerate(exp.bullets):
-            orig_b = (
-                orig_exp.bullets[b_idx]
-                if orig_exp and b_idx < len(orig_exp.bullets)
-                else ""
-            )
+            orig_b = ""
+            if orig_exp and orig_exp.bullets:
+                if b_idx < len(orig_exp.bullets) and SequenceMatcher(None, _clean_text(bullet), _clean_text(orig_exp.bullets[b_idx])).ratio() >= 0.40:
+                    orig_b = orig_exp.bullets[b_idx]
+                else:
+                    best_ob = ""
+                    best_obr = 0.0
+                    for ob in orig_exp.bullets:
+                        r = SequenceMatcher(None, _clean_text(bullet), _clean_text(ob)).ratio()
+                        if r > best_obr:
+                            best_obr = r
+                            best_ob = ob
+                    if best_obr >= 0.40:
+                        orig_b = best_ob
+                    else:
+                        orig_b = "New experience bullet added to demonstrate required expertise"
+            else:
+                orig_b = "New experience bullet added to demonstrate required expertise"
+
             b_html = highlight_text(
                 text=bullet,
                 section=f"Experience: {exp.role} at {exp.company}",
@@ -785,11 +913,23 @@ def build_interactive_resume_diff_html(
 
         rendered_items = []
         for i_idx, item in enumerate(sec.items):
-            orig_item = (
-                orig_sec.items[i_idx]
-                if orig_sec and i_idx < len(orig_sec.items)
-                else ""
-            )
+            orig_item = ""
+            if orig_sec and orig_sec.items:
+                if i_idx < len(orig_sec.items) and SequenceMatcher(None, _clean_text(item), _clean_text(orig_sec.items[i_idx])).ratio() >= 0.40:
+                    orig_item = orig_sec.items[i_idx]
+                else:
+                    best_oi = ""
+                    best_oir = 0.0
+                    for oi in orig_sec.items:
+                        r = SequenceMatcher(None, _clean_text(item), _clean_text(oi)).ratio()
+                        if r > best_oir:
+                            best_oir = r
+                            best_oi = oi
+                    if best_oir >= 0.40:
+                        orig_item = best_oi
+                    else:
+                        orig_item = "New leadership accomplishment added"
+
             item_html = highlight_text(
                 text=item,
                 section=sec.title,
@@ -900,6 +1040,7 @@ def build_interactive_pptx_diff_html(
     orig_resume = UniversalResume(
         contact=ContactInfo(name=candidate_name or "Original Resume"),
         skills=SkillCategories(
+            programming_languages=original_data.get("programming_languages", []),
             frameworks_and_tools=original_data.get("tools_raw", []),
             core_concepts=original_data.get("concepts_raw", []),
         ),

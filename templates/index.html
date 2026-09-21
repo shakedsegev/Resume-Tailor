@@ -140,6 +140,45 @@
                 ✕
               </button>
             </div>
+
+            <!-- ATS Compatibility & Format Advisory Card -->
+            <div id="atsAdvisoryCard" class="hidden p-4 rounded-xl border space-y-3 transition-all bg-slate-50 border-slate-200">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                  <span id="atsScoreIcon" class="text-base">⚠️</span>
+                  <span class="text-xs font-bold text-slate-800" data-i18n="ats_advisory_title">ATS Parser Compatibility</span>
+                </div>
+                <span id="atsScoreBadge" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
+                  ATS Score: 58/100
+                </span>
+              </div>
+              
+              <p id="atsAdvisoryDesc" class="text-xs text-slate-600 leading-relaxed"></p>
+
+              <!-- Risk bullet list if any -->
+              <ul id="atsRiskList" class="text-[11px] text-amber-900 bg-amber-50/80 p-2.5 rounded-lg border border-amber-200/60 space-y-1 hidden"></ul>
+
+              <!-- Format Strategy Options -->
+              <div id="atsStrategyChooser" class="space-y-2 pt-1 border-t border-slate-200/60">
+                <p class="text-[11px] font-bold text-slate-700 uppercase tracking-wider" data-i18n="ats_choose_strategy">Choose Format Strategy:</p>
+                
+                <label class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-slate-200 hover:border-sky-400 bg-white cursor-pointer transition-all">
+                  <input type="radio" name="format_strategy" id="strategyAts" value="ats_optimized" checked class="mt-0.5 text-sky-600 focus:ring-sky-500">
+                  <div>
+                    <span class="block text-xs font-bold text-slate-800" data-i18n="ats_opt_recommended">🛡️ 100% ATS-Compliant Clean Format (Recommended)</span>
+                    <span class="block text-[11px] text-slate-500 mt-0.5" data-i18n="ats_opt_recommended_sub">Converts to standard single-column typography to guarantee 100% readability in Workday, Taleo, Greenhouse, and Lever.</span>
+                  </div>
+                </label>
+
+                <label id="preserveDesignOption" class="flex items-start space-x-2.5 p-2.5 rounded-lg border border-slate-200 hover:border-sky-400 bg-white cursor-pointer transition-all">
+                  <input type="radio" name="format_strategy" id="strategyPreserve" value="preserve_design" class="mt-0.5 text-sky-600 focus:ring-sky-500">
+                  <div>
+                    <span class="block text-xs font-bold text-slate-800" data-i18n="ats_opt_preserve">🎨 Preserve Original Visual Design</span>
+                    <span class="block text-[11px] text-slate-500 mt-0.5" data-i18n="ats_opt_preserve_sub">Maintains exact visual boxes, graphics, and layout (best for emailing directly to hiring managers).</span>
+                  </div>
+                </label>
+              </div>
+            </div>
           </div>
 
           <!-- STEP 2: Ground-Truth Profile Status -->
@@ -307,6 +346,15 @@
                 data-i18n="btn_open_tab"
               >
                 Open Tab ↗
+              </a>
+              <a
+                id="btnDownloadAtsPdf"
+                href="#"
+                download
+                class="hidden px-3.5 py-1.5 rounded-xl text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-all flex items-center gap-1.5"
+              >
+                <span>🛡️</span>
+                <span data-i18n="btn_download_ats_pdf">Download ATS PDF</span>
               </a>
               <a
                 id="btnDownloadPdf"
@@ -535,7 +583,14 @@
         wiz_q3_desc: "What architectures, protocols, or low-level details did you build that are not fully detailed on your resume?",
         wiz_q4: "4. Verified Metrics & Work Experience Achievements",
         wiz_q4_desc: "What exact numbers, turnaround times, or speedup metrics did you achieve?",
-        wiz_submit: "Save & Generate Master Profile"
+        wiz_submit: "Save & Generate Master Profile",
+        ats_advisory_title: "ATS Parser Compatibility & Format Advisory",
+        ats_choose_strategy: "Choose Format Strategy:",
+        ats_opt_recommended: "🛡️ 100% ATS-Compliant Clean Format (Recommended for Applications)",
+        ats_opt_recommended_sub: "Restructures into standard single-column typography to guarantee 100% readability in Workday, Taleo, Greenhouse, and Lever.",
+        ats_opt_preserve: "🎨 Preserve Original Visual Design",
+        ats_opt_preserve_sub: "Maintains exact visual boxes, graphics, and layout (best for emailing directly to hiring managers or human review).",
+        btn_download_ats_pdf: "Download ATS PDF"
       },
       he: {
         badge_design_preserving: "AI שומר עיצוב",
@@ -590,7 +645,14 @@
         wiz_q3_desc: "אילו ארכיטקטורות, פרוטוקולים או רכיבי Low-level בנית שאינם מפורטים במלואם בקורות החיים?",
         wiz_q4: "4. מדדים מאומתים והישגים תעסוקתיים",
         wiz_q4_desc: "אילו מספרים מדויקים, קיצורי זמנים או שיפורי ביצועים השגת?",
-        wiz_submit: "שמור והפק פרופיל ראשי"
+        wiz_submit: "שמור והפק פרופיל ראשי",
+        ats_advisory_title: "תאימות למערכות סינון קורות חיים (ATS) והמלצת פורמט",
+        ats_choose_strategy: "בחר אסטרטגיית פורמט:",
+        ats_opt_recommended: "🛡️ פורמט נקי ותואם 100% ל-ATS (מומלץ להגשת מועמדות)",
+        ats_opt_recommended_sub: "מבנה מחדש לעימוד טור יחיד סטנדרטי המבטיח קריאה ופענוח מושלמים ב-Workday, Taleo, Lever ו-Greenhouse.",
+        ats_opt_preserve: "🎨 שמירה על העיצוב המקורי",
+        ats_opt_preserve_sub: "שומר על תיבות העיצוב, הצבעים והגרפיקה המקורית (מושלם לשליחה ישירה למגייסים במייל).",
+        btn_download_ats_pdf: "הורד PDF מותאם ל-ATS"
       },
       es: {
         badge_design_preserving: "IA que Preserva el Diseño",
@@ -645,7 +707,14 @@
         wiz_q3_desc: "¿Qué arquitecturas, protocolos o detalles creaste que no están explicados en tu CV?",
         wiz_q4: "4. Métricas Verificadas y Logros Laborales",
         wiz_q4_desc: "¿Qué cifras exactas, reducciones de tiempo o mejoras de rendimiento lograste?",
-        wiz_submit: "Guardar y Generar Perfil Maestro"
+        wiz_submit: "Guardar y Generar Perfil Maestro",
+        ats_advisory_title: "Compatibilidad con Sistemas ATS y Asesor de Formato",
+        ats_choose_strategy: "Elegir estrategia de formato:",
+        ats_opt_recommended: "🛡️ Formato 100% Compatible con ATS (Recomendado)",
+        ats_opt_recommended_sub: "Reestructura a tipografía estándar de una columna para garantizar 100% de legibilidad en Workday, Taleo, Greenhouse y Lever.",
+        ats_opt_preserve: "🎨 Conservar Diseño Visual Original",
+        ats_opt_preserve_sub: "Mantiene cajas visuales y diseño gráfico exacto (ideal para enviar directo a reclutadores por correo).",
+        btn_download_ats_pdf: "Descargar PDF ATS"
       },
       zh: {
         badge_design_preserving: "保留排版智能AI",
@@ -700,7 +769,14 @@
         wiz_q3_desc: "您曾构建过哪些未在简历中详述的网络协议、并发模型或底层技术架构？",
         wiz_q4: "4. 已验证数据与工作绩效成果",
         wiz_q4_desc: "您曾达成过哪些具体的性能提升倍数、效率改进或奖项？",
-        wiz_submit: "保存并生成核心档案"
+        wiz_submit: "保存并生成核心档案",
+        ats_advisory_title: "ATS 系统解析兼容性与排版建议",
+        ats_choose_strategy: "选择排版输出策略：",
+        ats_opt_recommended: "🛡️ 100% ATS 兼容纯净排版（网申推荐）",
+        ats_opt_recommended_sub: "重构成标准单栏排版，确保在 Workday、Taleo、Greenhouse 及 Lever 等招聘系统中 100% 正确解析。",
+        ats_opt_preserve: "🎨 保留原始视觉设计",
+        ats_opt_preserve_sub: "保持原生图形框与美化排版（最适合邮件直投或人工初筛）。",
+        btn_download_ats_pdf: "下载 ATS 纯净版 PDF"
       },
       ar: {
         badge_design_preserving: "ذكاء اصطناعي يحفظ التصميم",
@@ -755,7 +831,14 @@
         wiz_q3_desc: "ما هي البروتوكولات أو البنى التحتية البرمجية التي بنيتها ولم تذكر بتفصيل في سيرتك؟",
         wiz_q4: "4. أرقام وإنجازات أداء موثقة",
         wiz_q4_desc: "ما هي الأرقام الدقيقة أو تحسينات السرعة التي حققتها في عملك؟",
-        wiz_submit: "حفظ وإنشاء الملف المرجعي"
+        wiz_submit: "حفظ وإنشاء الملف المرجعي",
+        ats_advisory_title: "توافقية أنظمة فحص السير الذاتية (ATS) وتوصية التنسيق",
+        ats_choose_strategy: "اختر استراتيجية التنسيق:",
+        ats_opt_recommended: "🛡️ تنسيق نظيف متوافق 100% مع ATS (موصى به للتقديم)",
+        ats_opt_recommended_sub: "إعادة الهيكلة إلى عمود واحد قياسي لضمان القراءة السلسة في Workday و Taleo و Lever.",
+        ats_opt_preserve: "🎨 الحفاظ على التصميم المرئي الأصلي",
+        ats_opt_preserve_sub: "يحافظ على المربعات والتصميم الرسومي (مثالي للإرسال المباشر لمدراء التوظيف عبر البريد).",
+        btn_download_ats_pdf: "تحميل PDF متوافق مع ATS"
       },
       fr: {
         badge_design_preserving: "IA préservant le design",
@@ -810,7 +893,14 @@
         wiz_q3_desc: "Quels protocoles ou architectures avez-vous conçus qui ne figurent pas sur votre CV ?",
         wiz_q4: "4. Métriques Vérifiées et Réussites",
         wiz_q4_desc: "Quels chiffres exacts ou gains de performance avez-vous obtenus ?",
-        wiz_submit: "Enregistrer et Générer le Profil Maître"
+        wiz_submit: "Enregistrer et Générer le Profil Maître",
+        ats_advisory_title: "Compatibilité ATS et Conseils de Format",
+        ats_choose_strategy: "Choisir la stratégie de format :",
+        ats_opt_recommended: "🛡️ Format 100% Compatible ATS (Recommandé pour postuler)",
+        ats_opt_recommended_sub: "Restructure en une seule colonne standard pour garantir une lecture parfaite par Workday, Taleo, Greenhouse et Lever.",
+        ats_opt_preserve: "🎨 Préserver le Design Visuel Original",
+        ats_opt_preserve_sub: "Conserve les blocs visuels et le design (idéal pour un envoi direct par courriel).",
+        btn_download_ats_pdf: "Télécharger le PDF ATS"
       },
       de: {
         badge_design_preserving: "Design-Schützende KI",
@@ -865,7 +955,14 @@
         wiz_q3_desc: "Welche Protokolle, Architekturen oder Low-Level-Details haben Sie entwickelt, die nicht im CV stehen?",
         wiz_q4: "4. Verifizierte Kennzahlen & Arbeitserfolge",
         wiz_q4_desc: "Welche exakten Zahlen, Zeitersparnisse oder Leistungsverbesserungen haben Sie erzielt?",
-        wiz_submit: "Speichern & Master-Profil generieren"
+        wiz_submit: "Speichern & Master-Profil generieren",
+        ats_advisory_title: "ATS-Kompatibilität & Format-Empfehlung",
+        ats_choose_strategy: "Format-Strategie wählen:",
+        ats_opt_recommended: "🛡️ 100% ATS-konformes Format (Empfohlen für Bewerbungen)",
+        ats_opt_recommended_sub: "Wandelt in ein einspaltiges Standardlayout um, um optimale Lesbarkeit in Workday, Taleo, Greenhouse und Lever zu sichern.",
+        ats_opt_preserve: "🎨 Ursprüngliches Design beibehalten",
+        ats_opt_preserve_sub: "Erhält visuelle Textblöcke und Styling (ideal für direkte E-Mails an Personalverantwortliche).",
+        btn_download_ats_pdf: "ATS-PDF herunterladen"
       }
     };
 
@@ -1113,12 +1210,74 @@
       if (resumeFileInput.files.length > 0) handleFile(resumeFileInput.files[0]);
     });
 
+    const atsAdvisoryCard = document.getElementById('atsAdvisoryCard');
+    const atsScoreIcon = document.getElementById('atsScoreIcon');
+    const atsScoreBadge = document.getElementById('atsScoreBadge');
+    const atsAdvisoryDesc = document.getElementById('atsAdvisoryDesc');
+    const atsRiskList = document.getElementById('atsRiskList');
+    const preserveDesignOption = document.getElementById('preserveDesignOption');
+    const strategyAts = document.getElementById('strategyAts');
+    const strategyPreserve = document.getElementById('strategyPreserve');
+    const btnDownloadAtsPdf = document.getElementById('btnDownloadAtsPdf');
+
     function handleFile(file) {
       selectedFile = file;
       fileName.textContent = file.name;
       fileSize.textContent = `${(file.size / 1024).toFixed(1)} KB`;
       dropzone.classList.add('hidden');
       fileStatusCard.classList.remove('hidden');
+      analyzeResumeFormat(file);
+    }
+
+    async function analyzeResumeFormat(file) {
+      atsAdvisoryCard.classList.remove('hidden');
+      atsScoreBadge.textContent = "Analyzing layout...";
+      atsScoreBadge.className = "text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600";
+      atsScoreIcon.textContent = "⏳";
+      atsAdvisoryDesc.textContent = "Scanning document layout, floating coordinate frames, and ATS parser safety...";
+      atsRiskList.innerHTML = '';
+      atsRiskList.classList.add('hidden');
+
+      try {
+        const fd = new FormData();
+        fd.append('resume_file', file);
+        const res = await fetch('/api/analyze-format', { method: 'POST', body: fd });
+        if (!res.ok) return;
+        const report = await res.json();
+        renderAtsReport(report);
+      } catch (err) {
+        console.warn("Format analysis notice:", err);
+      }
+    }
+
+    function renderAtsReport(report) {
+      atsAdvisoryCard.classList.remove('hidden');
+      atsScoreBadge.textContent = `ATS Score: ${report.ats_score}/100`;
+
+      if (report.needs_format_change) {
+        atsScoreBadge.className = "text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200";
+        atsScoreIcon.textContent = "⚠️";
+        atsAdvisoryDesc.textContent = `Detected ${report.layout_type}. This layout has formatting traits that may cause text scrambling in Workday, Taleo, Greenhouse, or Lever ATS parsers.`;
+
+        atsRiskList.innerHTML = '';
+        if (report.risks && report.risks.length > 0) {
+          report.risks.forEach(r => {
+            const li = document.createElement('li');
+            li.textContent = `• ${r}`;
+            atsRiskList.appendChild(li);
+          });
+          atsRiskList.classList.remove('hidden');
+        }
+        preserveDesignOption.classList.remove('hidden');
+        strategyAts.checked = true;
+      } else {
+        atsScoreBadge.className = "text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200";
+        atsScoreIcon.textContent = "✅";
+        atsAdvisoryDesc.textContent = `Detected ${report.layout_type}. Structure is linear and 100% parseable by modern ATS recruitment parsers.`;
+        atsRiskList.classList.add('hidden');
+        preserveDesignOption.classList.add('hidden');
+        strategyAts.checked = true;
+      }
     }
 
     btnRemoveFile.addEventListener('click', () => {
@@ -1126,6 +1285,9 @@
       resumeFileInput.value = '';
       dropzone.classList.remove('hidden');
       fileStatusCard.classList.add('hidden');
+      atsAdvisoryCard.classList.add('hidden');
+      atsRiskList.innerHTML = '';
+      atsRiskList.classList.add('hidden');
     });
 
     tailorForm.addEventListener('submit', async (e) => {
@@ -1151,6 +1313,9 @@
       formData.append('resume_file', selectedFile);
       formData.append('jd_text', jdText.value.trim());
       if (activeProfile) formData.append('profile_json', JSON.stringify(activeProfile));
+
+      const chosenStrategy = document.querySelector('input[name="format_strategy"]:checked')?.value || 'auto';
+      formData.append('format_strategy', chosenStrategy);
 
       const interval = setInterval(() => {
         const cur = parseInt(progressBar.style.width);
@@ -1227,6 +1392,10 @@
       lastTailoredData = null;
       dropzone.classList.remove('hidden');
       fileStatusCard.classList.add('hidden');
+      atsAdvisoryCard.classList.add('hidden');
+      atsRiskList.innerHTML = '';
+      atsRiskList.classList.add('hidden');
+      btnDownloadAtsPdf.classList.add('hidden');
       resultsView.classList.add('hidden');
       placeholderView.classList.remove('hidden');
       progressCard.classList.add('hidden');
@@ -1272,6 +1441,13 @@
       }
       btnDownloadPdf.href = data.download_url;
       btnOpenNewTab.href = data.preview_url;
+
+      if (data.ats_download_url) {
+        btnDownloadAtsPdf.href = data.ats_download_url;
+        btnDownloadAtsPdf.classList.remove('hidden');
+      } else {
+        btnDownloadAtsPdf.classList.add('hidden');
+      }
     }
   </script>
 </body>

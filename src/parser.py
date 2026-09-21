@@ -81,5 +81,14 @@ def extract_resume_sections(resume_path: Path) -> dict[str, Any]:
             ps = shape.text_frame.paragraphs
             data["tools_raw"] = [ps[i].text.strip() for i in range(2, 6) if i < len(ps)]
             data["concepts_raw"] = [ps[i].text.strip() for i in range(8, 10) if i < len(ps)]
+        elif shape.name == "Group 51" and hasattr(shape, "shapes"):
+            langs = []
+            for g in shape.shapes:
+                if hasattr(g, "shapes"):
+                    for sub in g.shapes:
+                        if sub.has_text_frame and sub.text_frame.text.strip():
+                            langs.append(sub.text_frame.text.strip())
+            if langs:
+                data["programming_languages"] = langs
 
     return data
