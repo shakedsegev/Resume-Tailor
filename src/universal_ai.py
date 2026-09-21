@@ -116,13 +116,19 @@ When a Candidate Master Profile is provided, actively synthesize and enrich the 
    - In 'original_text', specify what was there originally (or 'Added from Master Profile' if newly incorporated).
    - In 'tailored_text', specify the new text.
    - In 'rationale', explain why it was added or rewritten and which JD keyword or profile achievement it aligns with.
+
+7. PROACTIVE OPTIMIZATION & ZERO-LAZINESS MANDATE:
+   - Aim for the ABSOLUTE BEST possible tailored resume for this target JD.
+   - Do NOT leave bullet points untouched or unoptimized if they can be sharpened with active engineering verbs, clearer quantifiable impact, or relevant JD keywords.
+   - For every single bullet, actively evaluate: "How can this bullet be rewritten to showcase maximum candidate strength for this JD while staying 100% true to verified facts?"
+   - In FitAnalysis: Systematically categorize matches based on JD priority (core must-have qualifications in 'match', adjacent skills in 'partial', missing requirements in 'gap').
 """
 
     config = types.GenerateContentConfig(
         system_instruction=SYSTEM_INSTRUCTION,
         response_mime_type="application/json",
         response_schema=UniversalTailoredOutput,
-        temperature=0.3,
+        temperature=0.15,
     )
 
     response = _generate_with_fallback(client, prompt, config)

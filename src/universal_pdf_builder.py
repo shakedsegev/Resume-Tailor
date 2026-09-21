@@ -21,7 +21,7 @@ MODERN_TECH_TEMPLATE = """<!DOCTYPE html>
 <style>
   @page {
     size: A4 portrait;
-    margin: 10mm 12mm;
+    margin: {{ density.page_margin | default('8mm 11mm') }};
   }
   * {
     box-sizing: border-box;
@@ -32,17 +32,17 @@ MODERN_TECH_TEMPLATE = """<!DOCTYPE html>
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     color: #1e293b;
     background: #ffffff;
-    font-size: 9pt;
-    line-height: 1.35;
+    font-size: {{ density.base_font_size | default('8.8pt') }};
+    line-height: {{ density.line_height | default('1.30') }};
   }
   header {
     text-align: center;
     border-bottom: 2px solid #0284c7;
-    padding-bottom: 6px;
-    margin-bottom: 8px;
+    padding-bottom: 5px;
+    margin-bottom: {{ density.section_margin_bottom | default('6px') }};
   }
   h1 {
-    font-size: 20pt;
+    font-size: {{ density.name_size | default('18pt') }};
     font-weight: 800;
     letter-spacing: -0.5px;
     color: #0f172a;
@@ -50,7 +50,7 @@ MODERN_TECH_TEMPLATE = """<!DOCTYPE html>
   }
   .contact-bar {
     margin-top: 3px;
-    font-size: 8.5pt;
+    font-size: {{ density.contact_font_size | default('8.2pt') }};
     color: #475569;
     display: flex;
     justify-content: center;
@@ -63,29 +63,29 @@ MODERN_TECH_TEMPLATE = """<!DOCTYPE html>
     font-weight: 500;
   }
   .section {
-    margin-bottom: 8px;
+    margin-bottom: {{ density.section_margin_bottom | default('6px') }};
   }
   .section-title {
-    font-size: 10pt;
+    font-size: {{ density.section_title_size | default('9.5pt') }};
     font-weight: 700;
     color: #0284c7;
     text-transform: uppercase;
     letter-spacing: 0.8px;
     border-bottom: 1px solid #e2e8f0;
     padding-bottom: 2px;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
     display: flex;
     align-items: center;
     gap: 6px;
   }
   .item {
-    margin-bottom: 5px;
+    margin-bottom: {{ density.item_margin_bottom | default('4px') }};
   }
   .item-header {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    font-size: 9pt;
+    font-size: {{ density.base_font_size | default('8.8pt') }};
   }
   .item-title {
     font-weight: 700;
@@ -100,26 +100,26 @@ MODERN_TECH_TEMPLATE = """<!DOCTYPE html>
     color: #0369a1;
   }
   .item-date {
-    font-size: 8pt;
+    font-size: {{ density.date_font_size | default('8pt') }};
     color: #64748b;
     font-weight: 500;
     white-space: nowrap;
   }
   ul {
     list-style-type: disc;
-    padding-left: 15px;
+    padding-left: 14px;
     margin-top: 2px;
   }
   li {
-    margin-bottom: 2px;
+    margin-bottom: {{ density.bullet_margin_bottom | default('1.5px') }};
     color: #334155;
     text-align: justify;
   }
   .skills-grid {
     display: grid;
-    grid-template-columns: 140px 1fr;
-    row-gap: 3px;
-    font-size: 8.8pt;
+    grid-template-columns: 130px 1fr;
+    row-gap: {{ density.skills_row_gap | default('2.5px') }};
+    font-size: {{ density.base_font_size | default('8.8pt') }};
   }
   .skill-label {
     font-weight: 700;
@@ -131,15 +131,15 @@ MODERN_TECH_TEMPLATE = """<!DOCTYPE html>
   .pills {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: 3px;
   }
   .pill {
     background: #f1f5f9;
     color: #0f172a;
     border: 1px solid #cbd5e1;
-    padding: 1px 6px;
+    padding: 1px 5px;
     border-radius: 4px;
-    font-size: 8pt;
+    font-size: {{ density.pill_font_size | default('8pt') }};
     font-weight: 600;
   }
 </style>
@@ -266,17 +266,93 @@ MODERN_TECH_TEMPLATE = """<!DOCTYPE html>
 """
 
 
+DENSITY_LEVELS = [
+    {
+        "name": "Standard",
+        "page_margin": "8mm 11mm",
+        "base_font_size": "8.8pt",
+        "line_height": "1.30",
+        "name_size": "18pt",
+        "contact_font_size": "8.2pt",
+        "section_title_size": "9.5pt",
+        "section_margin_bottom": "6px",
+        "item_margin_bottom": "4px",
+        "bullet_margin_bottom": "2px",
+        "date_font_size": "8pt",
+        "skills_row_gap": "2.5px",
+        "pill_font_size": "8pt",
+    },
+    {
+        "name": "Compact",
+        "page_margin": "6.5mm 9.5mm",
+        "base_font_size": "8.3pt",
+        "line_height": "1.25",
+        "name_size": "16.5pt",
+        "contact_font_size": "7.8pt",
+        "section_title_size": "9pt",
+        "section_margin_bottom": "4.5px",
+        "item_margin_bottom": "3px",
+        "bullet_margin_bottom": "1.5px",
+        "date_font_size": "7.6pt",
+        "skills_row_gap": "2px",
+        "pill_font_size": "7.6pt",
+    },
+    {
+        "name": "High Density",
+        "page_margin": "5mm 8mm",
+        "base_font_size": "7.8pt",
+        "line_height": "1.20",
+        "name_size": "15pt",
+        "contact_font_size": "7.5pt",
+        "section_title_size": "8.5pt",
+        "section_margin_bottom": "3.5px",
+        "item_margin_bottom": "2px",
+        "bullet_margin_bottom": "1px",
+        "date_font_size": "7.2pt",
+        "skills_row_gap": "1.5px",
+        "pill_font_size": "7.2pt",
+    },
+    {
+        "name": "Ultra Dense",
+        "page_margin": "4mm 7mm",
+        "base_font_size": "7.4pt",
+        "line_height": "1.15",
+        "name_size": "13.5pt",
+        "contact_font_size": "7.2pt",
+        "section_title_size": "8pt",
+        "section_margin_bottom": "2.5px",
+        "item_margin_bottom": "1.5px",
+        "bullet_margin_bottom": "0.5px",
+        "date_font_size": "6.8pt",
+        "skills_row_gap": "1px",
+        "pill_font_size": "6.8pt",
+    },
+]
+
+
+def count_pdf_pages(pdf_path: Path) -> int:
+    """Reads PDF and returns total page count."""
+    try:
+        import pypdf
+        reader = pypdf.PdfReader(str(pdf_path))
+        return len(reader.pages)
+    except Exception:
+        return 1
+
+
 def render_resume_to_html(
     resume: UniversalResume,
     output_html_path: Path,
     template_str: str = MODERN_TECH_TEMPLATE,
+    density: Optional[dict] = None,
 ) -> Path:
     """Renders UniversalResume into a styled HTML file."""
     output_html_path = output_html_path.resolve()
     output_html_path.parent.mkdir(parents=True, exist_ok=True)
 
+    active_density = density or DENSITY_LEVELS[0]
     template = Template(template_str)
-    rendered_html = template.render(resume=resume)
+    rendered_html = template.render(resume=resume, density=active_density)
     output_html_path.write_text(rendered_html, encoding="utf-8")
     return output_html_path
 
@@ -310,9 +386,13 @@ def generate_universal_resume_pdf(
     resume: UniversalResume,
     output_dir: Path,
     base_name: str = "tailored_resume",
+    force_single_page: bool = True,
 ) -> tuple[Path, Path]:
     """
-    Renders UniversalResume to HTML and compiles to PDF.
+    Renders UniversalResume to HTML and compiles to vector PDF.
+    If force_single_page is True, dynamically steps through density tiers
+    (Standard -> Compact -> High Density -> Ultra Dense) and prunes trailing
+    bullets if necessary to guarantee the PDF strictly fits on exactly 1 page.
     Returns (html_path, pdf_path).
     """
     output_dir = output_dir.resolve()
@@ -321,7 +401,57 @@ def generate_universal_resume_pdf(
     html_path = output_dir / f"{base_name}.html"
     pdf_path = output_dir / f"{base_name}.pdf"
 
-    render_resume_to_html(resume, html_path)
-    render_html_to_pdf(html_path, pdf_path)
+    if not force_single_page:
+        render_resume_to_html(resume, html_path, density=DENSITY_LEVELS[0])
+        render_html_to_pdf(html_path, pdf_path)
+        return html_path, pdf_path
+
+    # Step through density tiers
+    active_resume = resume.model_copy(deep=True)
+    pages = 2
+    for density in DENSITY_LEVELS:
+        render_resume_to_html(active_resume, html_path, density=density)
+        render_html_to_pdf(html_path, pdf_path)
+        pages = count_pdf_pages(pdf_path)
+        if pages <= 1:
+            return html_path, pdf_path
+
+    # If still > 1 page even at Ultra Dense, systematically prune lowest-priority
+    # trailing bullets until exactly 1 page
+    while pages > 1:
+        pruned = False
+        longest_exp = None
+        max_bullets = 2
+        for exp in active_resume.experience:
+            if len(exp.bullets) > max_bullets:
+                longest_exp = exp
+                max_bullets = len(exp.bullets)
+
+        if longest_exp:
+            longest_exp.bullets.pop()
+            pruned = True
+        else:
+            longest_proj = None
+            max_p_bullets = 2
+            for proj in active_resume.projects:
+                if len(proj.bullets) > max_p_bullets:
+                    longest_proj = proj
+                    max_p_bullets = len(proj.bullets)
+            if longest_proj:
+                longest_proj.bullets.pop()
+                pruned = True
+            elif active_resume.additional_sections:
+                for sec in reversed(active_resume.additional_sections):
+                    if len(sec.items) > 1:
+                        sec.items.pop()
+                        pruned = True
+                        break
+
+        if not pruned:
+            break
+
+        render_resume_to_html(active_resume, html_path, density=DENSITY_LEVELS[-1])
+        render_html_to_pdf(html_path, pdf_path)
+        pages = count_pdf_pages(pdf_path)
 
     return html_path, pdf_path

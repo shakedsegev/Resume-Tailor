@@ -275,6 +275,7 @@ async def tailor_resume_endpoint(
                 resume=ats_resume,
                 output_dir=OUTPUTS_DIR,
                 base_name=ats_base,
+                force_single_page=format_report.is_single_page,
             )
 
             return JSONResponse(
@@ -319,6 +320,7 @@ async def tailor_resume_endpoint(
         resume=tailored_output.tailored_resume,
         output_dir=OUTPUTS_DIR,
         base_name=base_filename,
+        force_single_page=format_report.is_single_page,
     )
 
     # Build interactive changes view with complete resume and green marker highlights

@@ -17,6 +17,8 @@ class ATSFormatReport(BaseModel):
     layout_type: str = Field(description="Detected layout classification")
     is_ats_compliant: bool = Field(description="True if format safely passes all major ATS parsers")
     needs_format_change: bool = Field(description="True if original format risks ATS parser failures")
+    is_single_page: bool = Field(default=True, description="True if original document is 1 page / slide")
+    original_page_count: int = Field(default=1, description="Detected page/slide count of original document")
     risks: list[str] = Field(default_factory=list, description="Specific ATS parser risks identified")
     recommendations: list[str] = Field(default_factory=list, description="Suggested actions to maximize parsing")
     suggested_strategy: str = Field(default="ats_optimized", description="'ats_optimized' or 'preserve_design'")
@@ -27,8 +29,10 @@ def analyze_pptx_format(pptx_path: Path) -> ATSFormatReport:
     """Analyzes a PowerPoint presentation template for ATS parser risks."""
     from pptx import Presentation
 
+    slide_count = 1
     try:
         prs = Presentation(str(pptx_path))
+        slide_count = max(1, len(prs.slides))
         slide = prs.slides[0] if prs.slides else None
         num_shapes = len(slide.shapes) if slide else 0
         has_groups = any(getattr(s, "has_text_frame", False) is False and hasattr(s, "shapes") for s in slide.shapes) if slide else False
@@ -51,6 +55,8 @@ def analyze_pptx_format(pptx_path: Path) -> ATSFormatReport:
         layout_type="Canva Multi-Box Presentation Layout",
         is_ats_compliant=False,
         needs_format_change=True,
+        is_single_page=(slide_count <= 1),
+        original_page_count=slide_count,
         risks=risks,
         recommendations=recs,
         suggested_strategy="ats_optimized",
@@ -72,8 +78,10 @@ def analyze_pdf_format(pdf_path: Path) -> ATSFormatReport:
     is_multi_column = False
     has_standard_headers = True
 
+    page_count = 1
     try:
         reader = pypdf.PdfReader(str(pdf_path))
+        page_count = max(1, len(reader.pages))
         text = "\n".join((p.extract_text() or "") for p in reader.pages)
         
         # Check standard headers
@@ -112,6 +120,8 @@ def analyze_pdf_format(pdf_path: Path) -> ATSFormatReport:
         layout_type=layout_name,
         is_ats_compliant=not needs_change,
         needs_format_change=needs_change,
+        is_single_page=(page_count <= 1),
+        original_page_count=page_count,
         risks=risks,
         recommendations=recs,
         suggested_strategy=suggested,
@@ -131,14 +141,20 @@ def analyze_docx_format(docx_path: Path) -> ATSFormatReport:
     risks = []
     recs = []
     has_tables = False
+    word_count = 0
 
     try:
         doc = docx.Document(str(docx_path))
         has_tables = len(doc.tables) > 0
+        all_text = " ".join(p.text for p in doc.paragraphs)
+        word_count = len(all_text.split())
         if has_tables:
             risks.append("Document uses layout tables which some older ATS systems (Taleo) struggle to parse cleanly.")
     except Exception:
         pass
+
+    is_single_page = word_count <= 550
+    page_count = 1 if is_single_page else max(2, (word_count // 450) + 1)
 
     if has_tables:
         score = 80
@@ -156,6 +172,8 @@ def analyze_docx_format(docx_path: Path) -> ATSFormatReport:
         layout_type=layout_name,
         is_ats_compliant=not needs_change,
         needs_format_change=needs_change,
+        is_single_page=is_single_page,
+        original_page_count=page_count,
         risks=risks,
         recommendations=recs,
         suggested_strategy="ats_optimized" if needs_change else "preserve_design",

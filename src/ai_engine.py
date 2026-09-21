@@ -172,18 +172,20 @@ Candidate Profile:
 Target Job Description:
 {job_description}
 
-Provide an honest, objective breakdown following the schema:
-- match: Must-have requirements the candidate legitimately covers
-- partial: Requirements covered via adjacent or transferable skills
-- gap: Requirements lacking from the candidate's background
-- pitch_angle: Recommended 1-2 sentence framing angle for this application
+Provide a systematic, objective breakdown:
+- match: Primary must-have requirements the candidate legitimately covers with verified skills or experience.
+- partial: Requirements covered via adjacent or transferable skills.
+- gap: Important requirements lacking from the candidate's background.
+- pitch_angle: Recommended 1-2 sentence framing angle positioning the candidate's strongest advantages for this application.
+
+Order items in each category strictly from highest to lowest relevance to the role.
 """
 
     config = types.GenerateContentConfig(
         system_instruction=SYSTEM_INSTRUCTION,
         response_mime_type="application/json",
         response_schema=FitAnalysis,
-        temperature=0.2,
+        temperature=0.15,
     )
 
     response = _generate_with_fallback(client, prompt, config)
@@ -229,7 +231,7 @@ Rules:
         system_instruction=SYSTEM_INSTRUCTION,
         response_mime_type="application/json",
         response_schema=TailoredBullets,
-        temperature=0.3,
+        temperature=0.15,
     )
 
     response = _generate_with_fallback(client, prompt, config)
@@ -269,7 +271,7 @@ Rules:
         system_instruction=SYSTEM_INSTRUCTION,
         response_mime_type="application/json",
         response_schema=TailoredProjects,
-        temperature=0.2,
+        temperature=0.15,
     )
 
     response = _generate_with_fallback(client, prompt, config)
@@ -351,15 +353,24 @@ You MUST strictly obey these exact limits:
    - Each bullet strictly MAX 135 characters.
 
 STRICT CONTENT GUARDRAILS:
-1. ZERO FABRICATION: Only surface skills, tools, and experiences the candidate actually has. Do NOT invent technologies or credentials.
-2. PRESERVE METRICS: Keep all numbers, grades, metrics exactly as stated.
+1. ZERO FABRICATION & ZERO HALLUCINATIONS:
+   - Absolute strict factual integrity: Every skill, technology, tool, company, degree, metric, and achievement MUST be grounded in either the Current Resume Content OR the Candidate Profile.
+   - NEVER invent technologies, responsibilities, or credentials that the candidate does not have.
+2. PRESERVE METRICS:
+   - Keep all numbers, percentages, grades, turnaround times, and metrics exactly as stated.
+3. PROACTIVE OPTIMIZATION & ZERO-LAZINESS MANDATE:
+   - Aim for the ABSOLUTE BEST possible tailored resume for this target JD while strictly respecting rules 1 & 2.
+   - Actively elevate, sharpen, and align every bullet point and description where legitimate background context or JD keywords exist.
+   - Do NOT lazily return unedited text or skip eligible bullets when there is clear opportunity to highlight verified alignment with the job description.
+4. SYSTEMATIC FIT ANALYSIS:
+   - Order items in each category strictly from highest to lowest relevance to the role.
 """
 
     config = types.GenerateContentConfig(
         system_instruction=SYSTEM_INSTRUCTION,
         response_mime_type="application/json",
         response_schema=FullTailoredResume,
-        temperature=0.35,
+        temperature=0.15,
     )
 
     response = _generate_with_fallback(client, prompt, config)

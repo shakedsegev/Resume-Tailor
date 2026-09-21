@@ -58,11 +58,94 @@ def test_universal_pdf_generation(tmp_path):
         ],
     )
 
-    html_p, pdf_p = generate_universal_resume_pdf(resume, tmp_path, "test_resume")
+    html_p, pdf_p = generate_universal_resume_pdf(resume, tmp_path, "test_resume", force_single_page=True)
     assert html_p.exists()
     assert html_p.stat().st_size > 0
     assert pdf_p.exists()
     assert pdf_p.stat().st_size > 0
+
+    import pypdf
+    reader = pypdf.PdfReader(str(pdf_p))
+    assert len(reader.pages) == 1
+
+
+def test_single_page_density_guardian_dense_resume(tmp_path):
+    from src.universal_pdf_builder import count_pdf_pages
+    # Create a dense resume with lots of bullets
+    resume = UniversalResume(
+        contact=ContactInfo(
+            name="Alex Developer",
+            email="alex@example.com",
+            phone="+1-555-0199",
+            location="New York, NY",
+            linkedin="https://linkedin.com/in/alexdev",
+            github="https://github.com/alexdev",
+        ),
+        summary="Principal Software Engineer with extensive experience building high-throughput distributed systems, microservice architectures, and real-time data pipelines.",
+        skills=SkillCategories(
+            programming_languages=["Python", "C++", "Java", "Go", "TypeScript", "Rust", "SQL", "Bash"],
+            frameworks_and_tools=["Docker", "Kubernetes", "AWS", "Kafka", "PostgreSQL", "Redis", "Terraform", "Git"],
+            core_concepts=["Distributed Systems", "Concurrency", "High Availability", "Microservices", "Design Patterns"],
+        ),
+        experience=[
+            ExperienceItem(
+                role="Lead Infrastructure Architect",
+                company="Tech Global Systems",
+                date_range="2021 - Present",
+                bullets=[
+                    "Spearheaded cloud migration of 45+ enterprise microservices to Kubernetes, achieving 99.99% system uptime.",
+                    "Designed event-driven streaming pipeline leveraging Apache Kafka processing 250M events daily with sub-second latency.",
+                    "Implemented zero-trust security architecture across distributed Kubernetes clusters reducing vulnerability exposure by 70%.",
+                    "Mentored team of 14 engineers across 3 time zones, establishing high engineering standards and CI/CD best practices.",
+                ],
+            ),
+            ExperienceItem(
+                role="Senior Software Engineer",
+                company="DataCore Solutions",
+                date_range="2018 - 2021",
+                bullets=[
+                    "Architected high-concurrency caching layer in Go and Redis, slashing database query load by 60%.",
+                    "Refactored legacy monolithic billing engine into scalable distributed microservices.",
+                    "Optimized SQL indexing strategies and transaction isolation levels across multi-tenant PostgreSQL databases.",
+                ],
+            ),
+        ],
+        projects=[
+            ProjectItem(
+                name="Distributed Consensus Key-Value Store",
+                technologies="Go, Raft, gRPC, Protobuf",
+                description="Engineered distributed fault-tolerant Raft key-value database supporting linearizable reads and cluster resizing.",
+                bullets=["Benchmarked 85,000 write ops/sec across 5-node cluster with zero data loss under simulated network partitions."],
+            ),
+            ProjectItem(
+                name="Real-Time Network Telemetry Engine",
+                technologies="Python, eBPF, ClickHouse",
+                description="Low-overhead Linux kernel packet inspection and flow metric visualization pipeline.",
+                bullets=["Captured packet-level performance telemetry with less than 1.5% CPU overhead."],
+            ),
+        ],
+        education=[
+            EducationItem(
+                degree="M.Sc. in Computer Science",
+                institution="Columbia University",
+                date_range="2016 - 2018",
+                gpa="3.95",
+                details="Specialization in Distributed Systems & Network Architecture.",
+            ),
+            EducationItem(
+                degree="B.Sc. in Computer Science",
+                institution="New York University",
+                date_range="2012 - 2016",
+                gpa="3.90",
+                details="Magna Cum Laude.",
+            ),
+        ],
+    )
+
+    html_p, pdf_p = generate_universal_resume_pdf(resume, tmp_path, "dense_resume", force_single_page=True)
+    assert pdf_p.exists()
+    pages = count_pdf_pages(pdf_p)
+    assert pages == 1, f"Expected 1 page but got {pages} pages!"
 
 
 def test_tailor_universal_resume_signature():
@@ -72,3 +155,4 @@ def test_tailor_universal_resume_signature():
     assert "profile" in sig.parameters
     assert "resume" in sig.parameters
     assert "job_description" in sig.parameters
+
