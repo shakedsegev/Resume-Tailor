@@ -101,7 +101,7 @@
           </p>
         </div>
 
-        <form id="tailorForm" class="space-y-6">
+        <form id="tailorForm" class="space-y-6" novalidate>
           
           <!-- STEP 1: Upload Designed Resume -->
           <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
@@ -113,7 +113,7 @@
 
             <!-- Dropzone -->
             <div id="dropzone" class="border-2 border-dashed border-slate-300 hover:border-sky-500 transition-colors rounded-xl p-5 text-center cursor-pointer bg-slate-50/50 hover:bg-sky-50/30">
-              <input type="file" id="resumeFileInput" name="resume_file" accept=".pdf,.docx,.doc,.pptx,.ppt,.txt" class="hidden" required>
+              <input type="file" id="resumeFileInput" name="resume_file" accept=".pdf,.docx,.doc,.pptx,.ppt,.txt" class="hidden">
               <div class="flex flex-col items-center justify-center space-y-2">
                 <div class="w-10 h-10 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center text-xl">
                   📄
@@ -1204,7 +1204,15 @@
     dropzone.addEventListener('drop', (e) => {
       e.preventDefault();
       dropzone.classList.remove('border-sky-500', 'bg-sky-50/50');
-      if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+      if (e.dataTransfer.files.length > 0) {
+        const file = e.dataTransfer.files[0];
+        try {
+          const dt = new DataTransfer();
+          dt.items.add(file);
+          resumeFileInput.files = dt.files;
+        } catch (_) {}
+        handleFile(file);
+      }
     });
     resumeFileInput.addEventListener('change', () => {
       if (resumeFileInput.files.length > 0) handleFile(resumeFileInput.files[0]);
@@ -1226,6 +1234,8 @@
       fileSize.textContent = `${(file.size / 1024).toFixed(1)} KB`;
       dropzone.classList.add('hidden');
       fileStatusCard.classList.remove('hidden');
+      btnSubmit.disabled = false;
+      btnSubmit.classList.remove('opacity-70', 'cursor-not-allowed');
       analyzeResumeFormat(file);
     }
 
@@ -1273,7 +1283,7 @@
       } else {
         atsScoreBadge.className = "text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200";
         atsScoreIcon.textContent = "✅";
-        atsAdvisoryDesc.textContent = `Detected ${report.layout_type}. Structure is linear and 100% parseable by modern ATS recruitment parsers.`;
+        atsAdvisoryDesc.textContent = `Detected ${report.layout_type}. Your document layout is already 100% ATS-friendly! Now paste your target Job Description in Step 2 below and click "Tailor & Preserve Design" to customize your bullet points, technical skills, and achievements for this specific role.`;
         atsRiskList.classList.add('hidden');
         preserveDesignOption.classList.add('hidden');
         strategyAts.checked = true;
@@ -1283,6 +1293,8 @@
     btnRemoveFile.addEventListener('click', () => {
       selectedFile = null;
       resumeFileInput.value = '';
+      btnSubmit.disabled = false;
+      btnSubmit.classList.remove('opacity-70', 'cursor-not-allowed');
       dropzone.classList.remove('hidden');
       fileStatusCard.classList.add('hidden');
       atsAdvisoryCard.classList.add('hidden');
@@ -1294,11 +1306,14 @@
       e.preventDefault();
 
       if (!selectedFile) {
-        alert("Please upload your resume file (Canva PPTX, Word DOCX, or PDF).");
+        alert("Please select or upload your resume file in Step 1.");
+        dropzone.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
       if (!jdText.value.trim()) {
-        alert("Please paste a target Job Description.");
+        alert("Please paste the target Job Description in Step 2 so the AI can tailor your achievements and skills for this role.");
+        jdText.focus();
+        jdText.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
 
@@ -1308,7 +1323,7 @@
       placeholderView.classList.remove('hidden');
       resultsView.classList.add('hidden');
 
-      updateProgress(20, "Extracting Document Layout", "Preserving native fonts, colors, and badge graphics...");
+      updateProgress(20, "Extracting Document Layout", "Preserving native typography and structure...");
       const formData = new FormData();
       formData.append('resume_file', selectedFile);
       formData.append('jd_text', jdText.value.trim());
@@ -1336,7 +1351,7 @@
           throw new Error(err.detail || "Tailoring failed");
         }
         const data = await res.json();
-        updateProgress(100, "Complete!", "Design preserved & tailored successfully.");
+        updateProgress(100, "Complete!", "Resume tailored successfully.");
 
         setTimeout(() => {
           progressCard.classList.add('hidden');
@@ -1390,6 +1405,8 @@
       resumeFileInput.value = '';
       jdText.value = '';
       lastTailoredData = null;
+      btnSubmit.disabled = false;
+      btnSubmit.classList.remove('opacity-70', 'cursor-not-allowed');
       dropzone.classList.remove('hidden');
       fileStatusCard.classList.add('hidden');
       atsAdvisoryCard.classList.add('hidden');
