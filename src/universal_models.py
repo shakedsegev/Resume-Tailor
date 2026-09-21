@@ -97,6 +97,56 @@ class UniversalTailoredOutput(BaseModel):
     changes_log: list[ChangeAnnotation] = Field(default_factory=list)
 
 
+def extract_course_grades(details: str) -> dict[str, tuple[str, str]]:
+    """Extracts course-to-grade mappings from coursework details string."""
+    if not details:
+        return {}
+    import re
+    grades: dict[str, tuple[str, str]] = {}
+    items = re.split(r"[,\|;\n]+", details)
+    for it in items:
+        it = it.strip()
+        if not it:
+            continue
+        m = re.search(
+            r"([A-Za-z0-9\s&/\+\-]+?)\s*(?:\(([0-9]{2,3}(?:\.[0-9]+)?(?:\s*%)?)\)|[:=–—\-]\s*([0-9]{2,3}(?:\.[0-9]+)?(?:\s*%)?))$",
+            it,
+        )
+        if m:
+            course = m.group(1).strip()
+            grade = (m.group(2) or m.group(3)).strip()
+            course = re.split(r"[\.]", course)[-1].strip()
+            course = re.sub(
+                r"^(?:Selected|Core|Relevant)?\s*(?:CS\s*)?Coursework\s*[:=–—\-]?\s*",
+                "",
+                course,
+                flags=re.IGNORECASE,
+            ).strip()
+            if course and len(course) > 2 and not course.lower().startswith("gpa"):
+                grades[course.lower()] = (course, f"({grade})")
+    return grades
+
+
+def restore_course_grades(tailored_details: str, original_details: str) -> str:
+    """
+    Guarantees that individual course grades present in the source resume or profile
+    are never stripped when coursework is tailored or reordered for the target JD.
+    """
+    if not tailored_details or not original_details:
+        return tailored_details
+    import re
+    orig_grades = extract_course_grades(original_details)
+    if not orig_grades:
+        return tailored_details
+    res = tailored_details
+    for c_key, (c_name, g_str) in orig_grades.items():
+        pattern = re.compile(
+            r"\b" + re.escape(c_name) + r"\b(?!\s*[\(:=–—\-]\s*[0-9])", re.IGNORECASE
+        )
+        res = pattern.sub(f"{c_name} {g_str}", res)
+    return res
+
+
 def clean_gpa_val(val: str) -> str:
     """Normalizes GPA string to prevent duplicate 'GPA: GPA' prefixes."""
     if not val:

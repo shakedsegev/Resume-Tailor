@@ -216,3 +216,21 @@ def test_candidate_agnostic_sanitizer():
     assert len(cert_sec.items) == 2
 
 
+def test_restore_course_grades():
+    from src.universal_models import restore_course_grades, extract_course_grades
+
+    orig = "Core CS Coursework: Intro to CS (91), Computational Models (90), Probability & Statistics (100), Computer Architecture (91), Data Structures, Systems Programming."
+    tailored = "Computer Architecture, Systems Programming, Data Structures, Computational Models, Probability & Statistics."
+
+    restored = restore_course_grades(tailored, orig)
+    assert "(91)" in restored
+    assert "(90)" in restored
+    assert "(100)" in restored
+    assert "Computer Architecture (91)" in restored
+    assert "Computational Models (90)" in restored
+    assert "Probability & Statistics (100)" in restored
+    # Courses without grades originally should not have grades
+    assert "Systems Programming (9" not in restored
+
+
+

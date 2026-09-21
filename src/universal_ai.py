@@ -16,6 +16,7 @@ from src.universal_models import (
     UniversalTailoredOutput,
     FitAnalysis,
     sanitize_universal_resume,
+    restore_course_grades,
 )
 
 
@@ -112,10 +113,11 @@ When a Candidate Master Profile is provided, actively synthesize and enrich the 
    - In 'bullets', provide 1-2 distinct engineering accomplishment bullets detailing specific implementation challenges, concurrency, performance benchmarks, or protocols.
    - STRICT ANTI-REDUNDANCY: Bullets MUST NOT duplicate or rephrase the description! Each bullet must provide new, unique technical information.
 
-4. PROFESSIONAL SUMMARY & EDUCATION (STRICT GPA ISOLATION):
+4. PROFESSIONAL SUMMARY & EDUCATION (STRICT GPA ISOLATION & COURSE GRADE PRESERVATION):
    - Align summary to the target role, highlighting technical identity, systems programming focus, and engineering impact.
    - NEVER repeat GPA or numerical grades in the Professional Summary! GPA belongs exclusively in the Education section. Mentioning GPA twice appears repetitive and self-conscious to recruiters.
    - In Education: retain exact institution, degree, date range. In 'education[0].gpa', provide ONLY the numerical score or concise grade (e.g. '83.5', '92', '3.85'). Do NOT include 'GPA:' prefix in this field. Prioritize the top 5-6 coursework subjects most relevant to the JD.
+   - PRESERVE INDIVIDUAL COURSE GRADES: If the candidate lists individual course grades/scores (e.g. 'Computer Architecture (91)', 'Systems Programming (95)', 'Introduction to CS: 96'), ALWAYS preserve those specific grades attached to their respective courses when selecting or reordering coursework. Never strip course grades!
 
 5. MANDATORY SECTION GROUPING & ZERO DUPLICATE HEADERS:
    - Every domain, category, or topic MUST be grouped together under ONE SINGLE HEADER. Never output two sections with the same or similar headers.
@@ -152,5 +154,18 @@ When a Candidate Master Profile is provided, actively synthesize and enrich the 
 
     response = _generate_with_fallback(client, prompt, config)
     output = UniversalTailoredOutput.model_validate_json(response.text)
+
+    # Programmatically guarantee course grades from original resume or profile are never lost
+    for idx, edu in enumerate(output.tailored_resume.education):
+        orig_details = ""
+        if resume.education and idx < len(resume.education):
+            orig_details = resume.education[idx].details
+        if not orig_details and profile and "education" in profile:
+            prof_edu = profile["education"]
+            if isinstance(prof_edu, list) and idx < len(prof_edu):
+                orig_details = prof_edu[idx].get("coursework", "") or prof_edu[idx].get("details", "")
+        if orig_details:
+            edu.details = restore_course_grades(edu.details, orig_details)
+
     output.tailored_resume = sanitize_universal_resume(output.tailored_resume)
     return output
