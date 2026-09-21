@@ -219,3 +219,7 @@ __marimo__/
 base_resume.json
 profile.json
 .vscode/
+*.pptx
+*.pdf
+outputs/*
+!outputs/.gitkeep
