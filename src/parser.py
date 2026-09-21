@@ -5,6 +5,7 @@ from src.models import ResumeShape
 from src.models import ResumeContent
 from pathlib import Path
 import json
+from typing import Any
 
 # pyrefly: ignore [missing-import]
 from pptx import Presentation
@@ -37,3 +38,48 @@ def save_resume(resume_content: ResumeContent, output_path: Path) -> None:
     """
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(asdict(resume_content), f, indent=4, ensure_ascii=False)
+
+
+def extract_resume_sections(resume_path: Path) -> dict[str, Any]:
+    """
+    Extracts structured, section-level content from the resume presentation template.
+    Returns dictionary with experience, projects, education coursework, military bullets,
+    and technical tools/concepts.
+    """
+    resume_path = resume_path.resolve()
+    if not resume_path.exists():
+        raise FileNotFoundError(f"Resume template not found: {resume_path}")
+
+    prs = Presentation(resume_path)
+    slide = prs.slides[0]
+    data: dict[str, Any] = {}
+
+    for shape in slide.shapes:
+        if shape.name == "TextBox 36" and shape.has_text_frame:
+            data["experience_bullets"] = [
+                p.text.strip() for p in shape.text_frame.paragraphs[2:] if p.text.strip()
+            ]
+        elif shape.name == "TextBox 43" and shape.has_text_frame:
+            projects = []
+            ps = shape.text_frame.paragraphs
+            for i in range(0, len(ps), 2):
+                if i + 1 < len(ps):
+                    projects.append({
+                        "title_line": ps[i].text.strip(),
+                        "description": ps[i + 1].text.strip(),
+                    })
+            data["academic_projects"] = projects
+        elif shape.name == "TextBox 34" and shape.has_text_frame:
+            ps = shape.text_frame.paragraphs
+            if len(ps) >= 3:
+                data["coursework"] = ps[2].text.strip()
+        elif shape.name == "TextBox 38" and shape.has_text_frame:
+            data["military_bullets"] = [
+                p.text.strip() for p in shape.text_frame.paragraphs[1:] if p.text.strip()
+            ]
+        elif shape.name == "TextBox 50" and shape.has_text_frame:
+            ps = shape.text_frame.paragraphs
+            data["tools_raw"] = [ps[i].text.strip() for i in range(2, 6) if i < len(ps)]
+            data["concepts_raw"] = [ps[i].text.strip() for i in range(8, 10) if i < len(ps)]
+
+    return data

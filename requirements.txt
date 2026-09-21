@@ -7,3 +7,4 @@ typing_extensions==4.16.0
 xlsxwriter==3.2.9
 google-genai==2.24.0
 python-dotenv==1.2.3
+pytest==9.1.1
