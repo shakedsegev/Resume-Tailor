@@ -4,7 +4,7 @@ import pytest
 from src.pdf_builder import reorder_pill_groups, apply_full_tailoring
 from src.ai_engine import TailoredProject
 
-TEMPLATE_PATH = Path("template.pptx") if Path("template.pptx").exists() else Path("Shaked Segev - CV.pptx")
+TEMPLATE_PATH = Path("template.pptx")
 
 
 class DummyTailored:

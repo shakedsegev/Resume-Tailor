@@ -4,7 +4,7 @@ from src.ats_analyzer import analyze_resume_format, ATSFormatReport
 from src.web_app import app
 
 client = TestClient(app)
-TEMPLATE_PATH = Path("template.pptx") if Path("template.pptx").exists() else Path("Shaked Segev - CV.pptx")
+TEMPLATE_PATH = Path("template.pptx")
 
 
 def test_analyze_pptx_format(tmp_path):

@@ -2,7 +2,7 @@ from pathlib import Path
 import pytest
 from src.parser import extract_resume_sections, parse_resume
 
-TEMPLATE_PATH = Path("template.pptx") if Path("template.pptx").exists() else Path("Shaked Segev - CV.pptx")
+TEMPLATE_PATH = Path("template.pptx")
 
 
 @pytest.mark.skipif(not TEMPLATE_PATH.exists(), reason="Template PPTX not available")
