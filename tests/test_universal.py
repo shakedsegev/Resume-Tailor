@@ -233,4 +233,82 @@ def test_restore_course_grades():
     assert "Systems Programming (9" not in restored
 
 
+def test_compute_multi_metric_fit():
+    from src.universal_models import FitAnalysis, compute_multi_metric_fit
+
+    jd_text = """
+    We are looking for a Software Engineer with strong proficiency in Python, Docker, Kubernetes, C++, and PostgreSQL.
+    Experience in distributed systems, microservices, and CI/CD is required.
+    """
+    resume_text = """
+    Software Engineer with experience in Python, Docker, PostgreSQL, and distributed systems.
+    Built microservices and scalable backend applications using modern practices.
+    """
+
+    initial_fit = FitAnalysis(
+        match_score=0,
+        match=["Proficient in Python and backend services", "Experience with distributed systems"],
+        partial=["Familiarity with containerization (Docker)"],
+        gap=["C++ low-level systems programming", "Kubernetes cluster administration"],
+        recommendation="Strong candidate with minor gaps in C++ and Kubernetes orchestration.",
+        experience_score=80,
+    )
+
+    result = compute_multi_metric_fit(initial_fit, resume_text, jd_text)
+
+    # 1. Keywords verification
+    stats = result.keyword_stats
+    assert stats["total_count"] > 0
+    assert stats["found_count"] > 0
+    assert "python" in stats["matched_keywords"]
+    assert "docker" in stats["matched_keywords"]
+    assert "c++" in stats["missing_keywords"]
+    assert result.keyword_score == round((stats["found_count"] / stats["total_count"]) * 100)
+
+    # 2. Requirements score verification: 2 strong, 1 partial, 2 gaps -> (2*1.0 + 1*0.5)/5 = 2.5/5 = 50%
+    assert result.requirements_score == 50
+
+    # 3. Experience score preservation/bounds
+    assert result.experience_score == 80
+
+    # 4. Composite score check: round(0.40 * kw + 0.35 * 50 + 0.25 * 80)
+    expected_composite = round(0.40 * result.keyword_score + 0.35 * result.requirements_score + 0.25 * result.experience_score)
+    assert result.match_score == expected_composite
+
+    # 5. Determinism check: same inputs yield exact same outputs
+    fit_copy = FitAnalysis(
+        match_score=0,
+        match=["Proficient in Python and backend services", "Experience with distributed systems"],
+        partial=["Familiarity with containerization (Docker)"],
+        gap=["C++ low-level systems programming", "Kubernetes cluster administration"],
+        recommendation="Strong candidate with minor gaps in C++ and Kubernetes orchestration.",
+        experience_score=80,
+    )
+    result_repeat = compute_multi_metric_fit(fit_copy, resume_text, jd_text)
+    assert result_repeat.match_score == result.match_score
+    assert result_repeat.keyword_score == result.keyword_score
+    assert result_repeat.requirements_score == result.requirements_score
+    assert result_repeat.experience_score == result.experience_score
+    assert result_repeat.keyword_stats == result.keyword_stats
+
+
+def test_compute_multi_metric_fit_empty_edge_cases():
+    from src.universal_models import FitAnalysis, compute_multi_metric_fit
+
+    empty_fit = FitAnalysis(
+        match_score=0,
+        match=[],
+        partial=[],
+        gap=[],
+        recommendation="",
+    )
+    # Should not raise ZeroDivisionError with empty texts and empty lists
+    res = compute_multi_metric_fit(empty_fit, "", "")
+    assert 0 <= res.keyword_score <= 100
+    assert 0 <= res.requirements_score <= 100
+    assert 0 <= res.experience_score <= 100
+    assert 0 <= res.match_score <= 100
+
+
+
 

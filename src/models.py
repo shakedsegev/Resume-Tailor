@@ -4,7 +4,7 @@ Completely generic and extensible representations of candidate profiles,
 resumes, and ATS tailoring analyses.
 """
 
-from typing import Optional
+from typing import Optional, Any
 from dataclasses import dataclass, field
 from pydantic import BaseModel, Field
 
@@ -104,7 +104,23 @@ class FitAnalysis(BaseModel):
     """ATS Fit Analysis comparing candidate against a Job Description."""
     match_score: int = Field(
         default=85,
-        description="Estimated match percentage between 0 and 100 based on core qualifications.",
+        description="Overall composite ATS readiness score between 0 and 100.",
+    )
+    keyword_score: int = Field(
+        default=85,
+        description="Deterministic keyword & technical skills match percentage (0-100).",
+    )
+    requirements_score: int = Field(
+        default=85,
+        description="Core qualifications & requirements coverage percentage (0-100).",
+    )
+    experience_score: int = Field(
+        default=85,
+        description="Experience & impact alignment percentage (0-100).",
+    )
+    keyword_stats: dict[str, Any] = Field(
+        default_factory=dict,
+        description="Stats on keywords: found_count, total_count, matched_keywords, missing_keywords",
     )
     match: list[str] = Field(
         default_factory=list,

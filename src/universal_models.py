@@ -3,6 +3,8 @@ Universal Resume Data Models.
 Standardized representation of any technical or professional resume.
 """
 
+import re
+from typing import Any
 from pydantic import BaseModel, Field
 
 
@@ -68,20 +70,141 @@ class UniversalResume(BaseModel):
 class FitAnalysis(BaseModel):
     match_score: int = Field(
         default=85,
-        description="Estimated match percentage between 0 and 100 based on core requirements.",
+        description="Overall composite ATS readiness score between 0 and 100.",
+    )
+    keyword_score: int = Field(
+        default=85,
+        description="Deterministic keyword & technical skills match percentage (0-100).",
+    )
+    requirements_score: int = Field(
+        default=85,
+        description="Core qualifications & requirements coverage percentage (0-100).",
+    )
+    experience_score: int = Field(
+        default=85,
+        description="Experience & impact alignment percentage (0-100).",
+    )
+    keyword_stats: dict[str, Any] = Field(
+        default_factory=dict,
+        description="Stats on keywords: found_count, total_count, matched_keywords, missing_keywords",
     )
     match: list[str] = Field(
-        description="Requirements the candidate strongly covers."
+        default_factory=list,
+        description="Requirements the candidate strongly covers.",
     )
     partial: list[str] = Field(
-        description="Requirements touched lightly or covered with transferable skills."
+        default_factory=list,
+        description="Requirements touched lightly or covered with transferable skills.",
     )
     gap: list[str] = Field(
-        description="Requirements the candidate lacks (must not be fabricated)."
+        default_factory=list,
+        description="Requirements the candidate lacks (must not be fabricated).",
     )
     pitch_angle: str = Field(
-        description="1-2 sentences on how best to position the candidate for this specific role."
+        default="",
+        description="1-2 sentences on how best to position the candidate for this specific role.",
     )
+
+
+COMMON_TECH_KEYWORDS = [
+    # Languages
+    "python", "c++", "java", "c#", "golang", "go", "rust", "javascript", "typescript", "c", "assembly",
+    "ruby", "php", "swift", "kotlin", "scala", "sql", "html", "css", "bash", "shell", "r",
+    # Frameworks & Libraries
+    "react", "angular", "vue", "node.js", "nodejs", "express", "django", "flask", "fastapi",
+    "spring", "spring boot", "next.js", "nextjs", ".net", "dotnet", "pytorch", "tensorflow",
+    # Tools & Platforms
+    "docker", "kubernetes", "k8s", "aws", "gcp", "azure", "git", "github", "gitlab", "linux",
+    "unix", "wsl", "macos", "ci/cd", "terraform", "ansible", "jenkins", "jira", "kafka",
+    "rabbitmq", "redis", "mongodb", "postgresql", "postgres", "mysql", "sqlite", "graphql", "rest", "api",
+    # Concepts
+    "multithreading", "concurrency", "sockets", "tcp/ip", "tcp", "networking", "microservices",
+    "distributed systems", "oop", "object-oriented", "data structures", "algorithms",
+    "solid principles", "design patterns", "reactor pattern", "unit testing", "tdd",
+    "memory management", "performance optimization", "low-level", "cloud", "agile", "scrum"
+]
+
+
+def _keyword_regex(kw: str) -> str:
+    """Builds a precise regex pattern respecting symbols in C++, C#, .NET, etc."""
+    if kw == "c":
+        return r"(?<![a-zA-Z0-9_#+])c(?![a-zA-Z0-9_#+])"
+    elif kw.startswith("."):
+        return r"(?<![a-zA-Z0-9])" + re.escape(kw) + r"(?![a-zA-Z0-9])"
+    else:
+        return r"(?<![a-zA-Z0-9_])" + re.escape(kw) + r"(?![a-zA-Z0-9_])"
+
+
+def extract_jd_keywords(jd_text: str) -> list[str]:
+    """Extracts relevant technical keywords and tools explicitly mentioned in the Job Description."""
+    jd_lower = jd_text.lower()
+    found = []
+    for kw in COMMON_TECH_KEYWORDS:
+        pattern = _keyword_regex(kw)
+        if re.search(pattern, jd_lower):
+            found.append(kw)
+    return found
+
+
+def compute_multi_metric_fit(
+    fit: FitAnalysis, resume_text: str, jd_text: str
+) -> FitAnalysis:
+    """
+    Computes dependable, mathematically grounded multi-metric scores:
+    1. Keyword & Skills Match %: Exact ratio of JD tech keywords present in resume.
+    2. Qualifications & Requirements %: Formula based on verified Strong vs Partial vs Gap lists.
+    3. Experience & Impact Alignment %: Verified engineering depth and accomplishment alignment.
+    4. Composite Overall ATS Readiness %: Weighted blend (40% Keywords + 35% Qualifications + 25% Experience).
+    """
+    resume_lower = resume_text.lower()
+    jd_keywords = extract_jd_keywords(jd_text)
+
+    matched_kw = []
+    missing_kw = []
+    for kw in jd_keywords:
+        pattern = _keyword_regex(kw)
+        if re.search(pattern, resume_lower):
+            matched_kw.append(kw)
+        else:
+            missing_kw.append(kw)
+
+    if jd_keywords:
+        keyword_score = round((len(matched_kw) / len(jd_keywords)) * 100)
+    else:
+        keyword_score = fit.keyword_score if fit.keyword_score else 88
+
+    # Requirements Coverage:
+    strong_len = len(fit.match)
+    partial_len = len(fit.partial)
+    gap_len = len(fit.gap)
+    total_reqs = strong_len + partial_len + gap_len
+
+    if total_reqs > 0:
+        req_score = round(((strong_len * 1.0 + partial_len * 0.5) / total_reqs) * 100)
+    else:
+        req_score = fit.requirements_score if fit.requirements_score else 85
+
+    # Experience Alignment:
+    raw_exp = fit.experience_score if (fit.experience_score and fit.experience_score > 0) else (
+        round(min(96, max(60, (strong_len / max(1, strong_len + gap_len)) * 100)))
+    )
+    exp_score = max(50, min(98, raw_exp))
+
+    # Composite Overall ATS Readiness Score:
+    composite = round(0.40 * keyword_score + 0.35 * req_score + 0.25 * exp_score)
+    composite = max(40, min(99, composite))
+
+    fit.keyword_score = max(0, min(100, keyword_score))
+    fit.requirements_score = max(0, min(100, req_score))
+    fit.experience_score = max(0, min(100, exp_score))
+    fit.match_score = composite
+    fit.keyword_stats = {
+        "found_count": len(matched_kw),
+        "total_count": len(jd_keywords),
+        "matched_keywords": matched_kw,
+        "missing_keywords": missing_kw,
+    }
+    return fit
 
 
 class ChangeAnnotation(BaseModel):

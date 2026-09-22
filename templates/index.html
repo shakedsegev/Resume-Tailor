@@ -267,8 +267,59 @@
                 <span class="text-[10px] font-bold text-sky-600 uppercase tracking-wider" data-i18n="fit_assessment">ATS Strategic Assessment</span>
                 <h3 class="text-base font-bold text-slate-900" data-i18n="job_fit_analysis">Job Fit Analysis</h3>
               </div>
-              <div class="flex items-center space-x-2 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-xl">
-                <span class="text-emerald-700 font-bold text-xs" id="matchScoreBadge">88% Match</span>
+              <div class="flex items-center space-x-2 bg-emerald-50 border border-emerald-200 px-3.5 py-1.5 rounded-xl shadow-sm">
+                <span class="text-emerald-700 font-bold text-xs sm:text-sm" id="matchScoreBadge">89% Overall ATS Readiness</span>
+              </div>
+            </div>
+
+            <!-- 360° Multi-Metric Match Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <!-- Metric 1: Keyword & Skills Match -->
+              <div class="bg-slate-50/80 border border-slate-200/80 rounded-xl p-3 space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-bold text-slate-700 flex items-center gap-1.5">
+                    <span>🔤</span> <span data-i18n="metric_keyword_title">Keywords & Skills</span>
+                  </span>
+                  <span id="keywordScoreBadge" class="text-xs font-bold text-sky-700 px-2 py-0.5 rounded-md bg-sky-100/70 border border-sky-200">
+                    --%
+                  </span>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                  <div id="keywordProgressBar" class="bg-sky-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%;"></div>
+                </div>
+                <p id="keywordSubtitle" class="text-[10px] text-slate-500 truncate">Technical skills matched to JD</p>
+              </div>
+
+              <!-- Metric 2: Core Qualifications Match -->
+              <div class="bg-slate-50/80 border border-slate-200/80 rounded-xl p-3 space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-bold text-slate-700 flex items-center gap-1.5">
+                    <span>📋</span> <span data-i18n="metric_req_title">Qualifications</span>
+                  </span>
+                  <span id="reqScoreBadge" class="text-xs font-bold text-emerald-700 px-2 py-0.5 rounded-md bg-emerald-100/70 border border-emerald-200">
+                    --%
+                  </span>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                  <div id="reqProgressBar" class="bg-emerald-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%;"></div>
+                </div>
+                <p id="reqSubtitle" class="text-[10px] text-slate-500 truncate">Core requirements coverage</p>
+              </div>
+
+              <!-- Metric 3: Experience Alignment -->
+              <div class="bg-slate-50/80 border border-slate-200/80 rounded-xl p-3 space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-bold text-slate-700 flex items-center gap-1.5">
+                    <span>💼</span> <span data-i18n="metric_exp_title">Experience & Impact</span>
+                  </span>
+                  <span id="expScoreBadge" class="text-xs font-bold text-indigo-700 px-2 py-0.5 rounded-md bg-indigo-100/70 border border-indigo-200">
+                    --%
+                  </span>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                  <div id="expProgressBar" class="bg-indigo-500 h-1.5 rounded-full transition-all duration-500" style="width: 0%;"></div>
+                </div>
+                <p id="expSubtitle" class="text-[10px] text-slate-500 truncate">Demonstrated engineering depth</p>
               </div>
             </div>
 
@@ -590,7 +641,10 @@
         ats_opt_recommended_sub: "Restructures into standard single-column typography to guarantee 100% readability in Workday, Taleo, Greenhouse, and Lever.",
         ats_opt_preserve: "🎨 Preserve Original Visual Design",
         ats_opt_preserve_sub: "Maintains exact visual boxes, graphics, and layout (best for emailing directly to hiring managers or human review).",
-        btn_download_ats_pdf: "Download ATS PDF"
+        btn_download_ats_pdf: "Download ATS PDF",
+        metric_keyword_title: "Keywords & Skills",
+        metric_req_title: "Qualifications",
+        metric_exp_title: "Experience & Impact"
       },
       he: {
         badge_design_preserving: "AI שומר עיצוב",
@@ -652,7 +706,10 @@
         ats_opt_recommended_sub: "מבנה מחדש לעימוד טור יחיד סטנדרטי המבטיח קריאה ופענוח מושלמים ב-Workday, Taleo, Lever ו-Greenhouse.",
         ats_opt_preserve: "🎨 שמירה על העיצוב המקורי",
         ats_opt_preserve_sub: "שומר על תיבות העיצוב, הצבעים והגרפיקה המקורית (מושלם לשליחה ישירה למגייסים במייל).",
-        btn_download_ats_pdf: "הורד PDF מותאם ל-ATS"
+        btn_download_ats_pdf: "הורד PDF מותאם ל-ATS",
+        metric_keyword_title: "מילות מפתח ומיומנויות",
+        metric_req_title: "דרישות והסמכות",
+        metric_exp_title: "ניסיון והשפעה"
       },
       es: {
         badge_design_preserving: "IA que Preserva el Diseño",
@@ -714,7 +771,10 @@
         ats_opt_recommended_sub: "Reestructura a tipografía estándar de una columna para garantizar 100% de legibilidad en Workday, Taleo, Greenhouse y Lever.",
         ats_opt_preserve: "🎨 Conservar Diseño Visual Original",
         ats_opt_preserve_sub: "Mantiene cajas visuales y diseño gráfico exacto (ideal para enviar directo a reclutadores por correo).",
-        btn_download_ats_pdf: "Descargar PDF ATS"
+        btn_download_ats_pdf: "Descargar PDF ATS",
+        metric_keyword_title: "Palabras clave y habilidades",
+        metric_req_title: "Cualificaciones básicas",
+        metric_exp_title: "Experiencia e impacto"
       },
       zh: {
         badge_design_preserving: "保留排版智能AI",
@@ -776,7 +836,10 @@
         ats_opt_recommended_sub: "重构成标准单栏排版，确保在 Workday、Taleo、Greenhouse 及 Lever 等招聘系统中 100% 正确解析。",
         ats_opt_preserve: "🎨 保留原始视觉设计",
         ats_opt_preserve_sub: "保持原生图形框与美化排版（最适合邮件直投或人工初筛）。",
-        btn_download_ats_pdf: "下载 ATS 纯净版 PDF"
+        btn_download_ats_pdf: "下载 ATS 纯净版 PDF",
+        metric_keyword_title: "关键词与技术栈匹配",
+        metric_req_title: "核心任职资格覆盖",
+        metric_exp_title: "经验成果与业务深度"
       },
       ar: {
         badge_design_preserving: "ذكاء اصطناعي يحفظ التصميم",
@@ -838,7 +901,10 @@
         ats_opt_recommended_sub: "إعادة الهيكلة إلى عمود واحد قياسي لضمان القراءة السلسة في Workday و Taleo و Lever.",
         ats_opt_preserve: "🎨 الحفاظ على التصميم المرئي الأصلي",
         ats_opt_preserve_sub: "يحافظ على المربعات والتصميم الرسومي (مثالي للإرسال المباشر لمدراء التوظيف عبر البريد).",
-        btn_download_ats_pdf: "تحميل PDF متوافق مع ATS"
+        btn_download_ats_pdf: "تحميل PDF متوافق مع ATS",
+        metric_keyword_title: "الكلمات المفتاحية والمهارات",
+        metric_req_title: "المؤهلات والمتطلبات",
+        metric_exp_title: "الخبرة والتأثير المهني"
       },
       fr: {
         badge_design_preserving: "IA préservant le design",
@@ -900,7 +966,10 @@
         ats_opt_recommended_sub: "Restructure en une seule colonne standard pour garantir une lecture parfaite par Workday, Taleo, Greenhouse et Lever.",
         ats_opt_preserve: "🎨 Préserver le Design Visuel Original",
         ats_opt_preserve_sub: "Conserve les blocs visuels et le design (idéal pour un envoi direct par courriel).",
-        btn_download_ats_pdf: "Télécharger le PDF ATS"
+        btn_download_ats_pdf: "Télécharger le PDF ATS",
+        metric_keyword_title: "Mots-clés & Compétences",
+        metric_req_title: "Qualifications Clés",
+        metric_exp_title: "Expérience & Impact"
       },
       de: {
         badge_design_preserving: "Design-Schützende KI",
@@ -962,7 +1031,11 @@
         ats_opt_recommended_sub: "Wandelt in ein einspaltiges Standardlayout um, um optimale Lesbarkeit in Workday, Taleo, Greenhouse und Lever zu sichern.",
         ats_opt_preserve: "🎨 Ursprüngliches Design beibehalten",
         ats_opt_preserve_sub: "Erhält visuelle Textblöcke und Styling (ideal für direkte E-Mails an Personalverantwortliche).",
-        btn_download_ats_pdf: "ATS-PDF herunterladen"
+        btn_download_ats_pdf: "ATS-PDF herunterladen",
+        metric_keyword_title: "Schlüsselwörter & Skills",
+        metric_req_title: "Kernqualifikationen",
+        metric_exp_title: "Erfahrung & Wirkung"
+      }
       }
     };
 
@@ -1457,8 +1530,47 @@
       placeholderView.classList.add('hidden');
       resultsView.classList.remove('hidden');
 
-      const fit = data.fit_analysis;
-      matchScoreBadge.textContent = `${fit.match_score || 88}% Match`;
+      const fit = data.fit_analysis || {};
+      const overall = fit.match_score || 88;
+      matchScoreBadge.textContent = `${overall}% Overall ATS Readiness`;
+
+      // 1. Keyword & Skills Match
+      const kwScore = fit.keyword_score != null ? fit.keyword_score : overall;
+      const elKwBadge = document.getElementById('keywordScoreBadge');
+      const elKwBar = document.getElementById('keywordProgressBar');
+      const elKwSub = document.getElementById('keywordSubtitle');
+      if (elKwBadge) elKwBadge.textContent = `${kwScore}%`;
+      if (elKwBar) elKwBar.style.width = `${kwScore}%`;
+      const kwStats = fit.keyword_stats || {};
+      if (elKwSub) {
+        if (kwStats.total_count) {
+          elKwSub.textContent = `${kwStats.found_count} of ${kwStats.total_count} tech keywords matched`;
+        } else {
+          elKwSub.textContent = "Technical skills matched to JD";
+        }
+      }
+
+      // 2. Core Qualifications & Requirements
+      const reqScore = fit.requirements_score != null ? fit.requirements_score : overall;
+      const elReqBadge = document.getElementById('reqScoreBadge');
+      const elReqBar = document.getElementById('reqProgressBar');
+      const elReqSub = document.getElementById('reqSubtitle');
+      if (elReqBadge) elReqBadge.textContent = `${reqScore}%`;
+      if (elReqBar) elReqBar.style.width = `${reqScore}%`;
+      const strongLen = (fit.match || []).length;
+      const partLen = (fit.partial || []).length;
+      const gapLen = (fit.gap || []).length;
+      if (elReqSub) elReqSub.textContent = `${strongLen} Strong · ${partLen} Partial · ${gapLen} Gaps`;
+
+      // 3. Experience & Impact Alignment
+      const expScore = fit.experience_score != null ? fit.experience_score : overall;
+      const elExpBadge = document.getElementById('expScoreBadge');
+      const elExpBar = document.getElementById('expProgressBar');
+      const elExpSub = document.getElementById('expSubtitle');
+      if (elExpBadge) elExpBadge.textContent = `${expScore}%`;
+      if (elExpBar) elExpBar.style.width = `${expScore}%`;
+      if (elExpSub) elExpSub.textContent = expScore >= 85 ? "High accomplishment alignment" : "Solid engineering alignment";
+
       pitchAngleText.textContent = fit.pitch_angle || "Positioning candidate based on core competencies.";
 
       matchList.innerHTML = '';

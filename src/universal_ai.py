@@ -17,6 +17,7 @@ from src.universal_models import (
     FitAnalysis,
     sanitize_universal_resume,
     restore_course_grades,
+    compute_multi_metric_fit,
 )
 
 
@@ -149,7 +150,7 @@ When a Candidate Master Profile is provided, actively synthesize and enrich the 
         system_instruction=SYSTEM_INSTRUCTION,
         response_mime_type="application/json",
         response_schema=UniversalTailoredOutput,
-        temperature=0.15,
+        temperature=0.05,
     )
 
     response = _generate_with_fallback(client, prompt, config)
@@ -168,4 +169,21 @@ When a Candidate Master Profile is provided, actively synthesize and enrich the 
             edu.details = restore_course_grades(edu.details, orig_details)
 
     output.tailored_resume = sanitize_universal_resume(output.tailored_resume)
+
+    # Deterministically calculate 360° multi-metric job fit
+    tailored_text_corpus = (
+        (output.tailored_resume.summary or "") + " " +
+        " ".join(output.tailored_resume.skills.programming_languages) + " " +
+        " ".join(output.tailored_resume.skills.frameworks_and_tools) + " " +
+        " ".join(output.tailored_resume.skills.core_concepts) + " " +
+        " ".join(output.tailored_resume.skills.spoken_languages) + " " +
+        " ".join(b for exp in output.tailored_resume.experience for b in exp.bullets) + " " +
+        " ".join((p.description or "") + " " + " ".join(p.bullets) + " " + (p.technologies or "") for p in output.tailored_resume.projects) + " " +
+        " ".join((edu.details or "") for edu in output.tailored_resume.education)
+    )
+    output.fit_analysis = compute_multi_metric_fit(
+        output.fit_analysis,
+        resume_text=tailored_text_corpus,
+        jd_text=job_description,
+    )
     return output

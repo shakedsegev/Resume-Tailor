@@ -189,7 +189,10 @@ Order items in each category strictly from highest to lowest relevance to the ro
     )
 
     response = _generate_with_fallback(client, prompt, config)
-    return FitAnalysis.model_validate_json(response.text)
+    fit = FitAnalysis.model_validate_json(response.text)
+    from src.universal_models import compute_multi_metric_fit
+    profile_text = json.dumps(profile)
+    return compute_multi_metric_fit(fit, resume_text=profile_text, jd_text=job_description)
 
 
 def tailor_experience_bullets(
@@ -370,8 +373,19 @@ STRICT CONTENT GUARDRAILS:
         system_instruction=SYSTEM_INSTRUCTION,
         response_mime_type="application/json",
         response_schema=FullTailoredResume,
-        temperature=0.15,
+        temperature=0.05,
     )
 
     response = _generate_with_fallback(client, prompt, config)
-    return FullTailoredResume.model_validate_json(response.text)
+    res = FullTailoredResume.model_validate_json(response.text)
+    from src.universal_models import compute_multi_metric_fit
+    corpus = (
+        " ".join(res.ordered_languages) + " " +
+        " ".join(res.tools_lines) + " " +
+        " ".join(res.core_concepts_lines) + " " +
+        " ".join(res.experience_bullets) + " " +
+        " ".join(p.description for p in res.academic_projects) + " " +
+        res.coursework_line
+    )
+    res.fit_analysis = compute_multi_metric_fit(res.fit_analysis, resume_text=corpus, jd_text=job_description)
+    return res
