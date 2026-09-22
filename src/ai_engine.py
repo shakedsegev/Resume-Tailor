@@ -17,8 +17,8 @@ from pydantic import BaseModel, Field
 load_dotenv()
 
 # Default model priorities (can be overridden via GEMINI_MODEL in .env)
-DEFAULT_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
-FALLBACK_MODELS = ["gemini-3.5-flash-lite", "gemini-3.6-flash"]
+DEFAULT_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
+FALLBACK_MODELS = ["gemini-3.5-flash-lite", "gemini-3.8-flash"]
 
 SYSTEM_INSTRUCTION = """
 You are an expert ATS (Applicant Tracking System) optimization and technical resume tailoring specialist.

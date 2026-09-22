@@ -1448,8 +1448,15 @@
         const res = await fetch('/api/tailor', { method: 'POST', body: formData });
         clearInterval(interval);
         if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.detail || "Tailoring failed");
+          let errMsg = "Tailoring failed";
+          try {
+            const err = await res.json();
+            errMsg = err.detail || errMsg;
+          } catch (_) {
+            const raw = await res.text();
+            errMsg = raw || `Server error (${res.status})`;
+          }
+          throw new Error(errMsg);
         }
         const data = await res.json();
         updateProgress(100, "Complete!", "Resume tailored successfully.");

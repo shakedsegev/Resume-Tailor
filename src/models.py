@@ -100,6 +100,19 @@ class CandidateProfile(BaseModel):
     target_roles: list[str] = Field(default_factory=list)
 
 
+class KeywordStats(BaseModel):
+    found_count: int = 0
+    total_count: int = 0
+    matched_keywords: list[str] = Field(default_factory=list)
+    missing_keywords: list[str] = Field(default_factory=list)
+
+    def __getitem__(self, item: str):
+        return getattr(self, item)
+
+    def get(self, item: str, default=None):
+        return getattr(self, item, default)
+
+
 class FitAnalysis(BaseModel):
     """ATS Fit Analysis comparing candidate against a Job Description."""
     match_score: int = Field(
@@ -118,8 +131,8 @@ class FitAnalysis(BaseModel):
         default=85,
         description="Experience & impact alignment percentage (0-100).",
     )
-    keyword_stats: dict[str, Any] = Field(
-        default_factory=dict,
+    keyword_stats: KeywordStats = Field(
+        default_factory=KeywordStats,
         description="Stats on keywords: found_count, total_count, matched_keywords, missing_keywords",
     )
     match: list[str] = Field(

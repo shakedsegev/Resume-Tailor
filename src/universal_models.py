@@ -67,6 +67,19 @@ class UniversalResume(BaseModel):
     additional_sections: list[AdditionalSection] = Field(default_factory=list)
 
 
+class KeywordStats(BaseModel):
+    found_count: int = 0
+    total_count: int = 0
+    matched_keywords: list[str] = Field(default_factory=list)
+    missing_keywords: list[str] = Field(default_factory=list)
+
+    def __getitem__(self, item: str):
+        return getattr(self, item)
+
+    def get(self, item: str, default=None):
+        return getattr(self, item, default)
+
+
 class FitAnalysis(BaseModel):
     match_score: int = Field(
         default=85,
@@ -84,8 +97,8 @@ class FitAnalysis(BaseModel):
         default=85,
         description="Experience & impact alignment percentage (0-100).",
     )
-    keyword_stats: dict[str, Any] = Field(
-        default_factory=dict,
+    keyword_stats: KeywordStats = Field(
+        default_factory=KeywordStats,
         description="Stats on keywords: found_count, total_count, matched_keywords, missing_keywords",
     )
     match: list[str] = Field(
@@ -198,12 +211,12 @@ def compute_multi_metric_fit(
     fit.requirements_score = max(0, min(100, req_score))
     fit.experience_score = max(0, min(100, exp_score))
     fit.match_score = composite
-    fit.keyword_stats = {
-        "found_count": len(matched_kw),
-        "total_count": len(jd_keywords),
-        "matched_keywords": matched_kw,
-        "missing_keywords": missing_kw,
-    }
+    fit.keyword_stats = KeywordStats(
+        found_count=len(matched_kw),
+        total_count=len(jd_keywords),
+        matched_keywords=matched_kw,
+        missing_keywords=missing_kw,
+    )
     return fit
 
 
