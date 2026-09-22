@@ -387,6 +387,29 @@ def render_html_to_pdf(html_path: Path, output_pdf_path: Path) -> Path:
     return output_pdf_path
 
 
+def estimate_initial_density_idx(res: UniversalResume) -> int:
+    """
+    Estimates the optimal initial density tier based on resume content volume
+    to avoid repeatedly launching headless Chrome for density tiers that are
+    obviously too loose for the content size.
+    """
+    total_bullets = (
+        sum(len(e.bullets) for e in res.experience)
+        + sum(len(p.bullets) for p in res.projects)
+        + sum(len(s.items) for s in res.additional_sections)
+    )
+    text_len = (
+        len(res.summary or "")
+        + sum(len(b) for e in res.experience for b in e.bullets)
+        + sum(len(b) for p in res.projects for b in p.bullets)
+    )
+    if total_bullets >= 14 or text_len > 2200:
+        return 2  # High Density
+    elif total_bullets >= 9 or text_len > 1500:
+        return 1  # Compact
+    return 0  # Standard
+
+
 def generate_universal_resume_pdf(
     resume: UniversalResume,
     output_dir: Path,
@@ -412,10 +435,11 @@ def generate_universal_resume_pdf(
         render_html_to_pdf(html_path, pdf_path)
         return html_path, pdf_path
 
-    # Step through density tiers
+    # Step through density tiers starting from estimated optimal tier
     active_resume = resume.model_copy(deep=True)
     pages = 2
-    for density in DENSITY_LEVELS:
+    start_idx = estimate_initial_density_idx(active_resume)
+    for density in DENSITY_LEVELS[start_idx:]:
         render_resume_to_html(active_resume, html_path, density=density)
         render_html_to_pdf(html_path, pdf_path)
         pages = count_pdf_pages(pdf_path)

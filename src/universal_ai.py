@@ -54,10 +54,12 @@ Rules:
         system_instruction=SYSTEM_INSTRUCTION,
         response_mime_type="application/json",
         response_schema=UniversalResume,
-        temperature=0.1,
+        temperature=0.0,
     )
 
-    response = _generate_with_fallback(client, prompt, config)
+    response = _generate_with_fallback(
+        client, prompt, config, preferred_model="gemini-3.5-flash-lite"
+    )
     parsed = UniversalResume.model_validate_json(response.text)
     return sanitize_universal_resume(parsed)
 
