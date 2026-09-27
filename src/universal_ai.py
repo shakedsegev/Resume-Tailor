@@ -61,6 +61,12 @@ Rules:
         client, prompt, config, preferred_model="gemini-3.5-flash-lite"
     )
     parsed = UniversalResume.model_validate_json(response.text)
+    from src.universal_models import extract_social_links, is_generic_social_url
+    raw_links = extract_social_links(raw_text)
+    if (not parsed.contact.linkedin or is_generic_social_url(parsed.contact.linkedin)) and "linkedin" in raw_links:
+        parsed.contact.linkedin = raw_links["linkedin"]
+    if (not parsed.contact.github or is_generic_social_url(parsed.contact.github)) and "github" in raw_links:
+        parsed.contact.github = raw_links["github"]
     return sanitize_universal_resume(parsed)
 
 
@@ -276,7 +282,7 @@ Candidate Master Profile & Ground Truth (Verified Extended Background & Newer Ex
     passes_to_run = TOURNAMENT_STRATEGIES[: max(1, min(5, tournament_passes))]
     candidates: list[UniversalTailoredOutput] = []
 
-    for strat in passes_to_run:
+    def _execute_pass(strat: dict) -> Optional[UniversalTailoredOutput]:
         prompt = f"""
 You are an elite technical resume strategist and ATS optimization expert.
 Tailor the candidate's resume for the target Job Description to achieve the HIGHEST POSSIBLE ATS MATCH while maintaining 100% factual truth.
@@ -371,22 +377,20 @@ When a Candidate Master Profile is provided, actively synthesize and enrich the 
                     edu.details = restore_course_grades(edu.details, orig_details)
 
             # Ensure LinkedIn / GitHub links from profile or original resume are populated
+            from src.universal_models import is_generic_social_url
             if profile:
-                prof_personal = profile.get("personal_info") or profile
+                prof_personal = profile.get("personal") or profile.get("personal_info") or profile
                 if isinstance(prof_personal, dict):
-                    if not candidate_output.tailored_resume.contact.linkedin and prof_personal.get(
-                        "linkedin"
-                    ):
-                        candidate_output.tailored_resume.contact.linkedin = prof_personal.get(
-                            "linkedin"
-                        )
-                    if not candidate_output.tailored_resume.contact.github and prof_personal.get(
-                        "github"
-                    ):
-                        candidate_output.tailored_resume.contact.github = prof_personal.get("github")
-            if not candidate_output.tailored_resume.contact.linkedin and resume.contact.linkedin:
+                    cand_li = prof_personal.get("linkedin")
+                    if cand_li and not is_generic_social_url(cand_li):
+                        candidate_output.tailored_resume.contact.linkedin = cand_li
+                    cand_gh = prof_personal.get("github")
+                    if cand_gh and not is_generic_social_url(cand_gh):
+                        candidate_output.tailored_resume.contact.github = cand_gh
+
+            if (not candidate_output.tailored_resume.contact.linkedin or is_generic_social_url(candidate_output.tailored_resume.contact.linkedin)) and resume.contact.linkedin and not is_generic_social_url(resume.contact.linkedin):
                 candidate_output.tailored_resume.contact.linkedin = resume.contact.linkedin
-            if not candidate_output.tailored_resume.contact.github and resume.contact.github:
+            if (not candidate_output.tailored_resume.contact.github or is_generic_social_url(candidate_output.tailored_resume.contact.github)) and resume.contact.github and not is_generic_social_url(resume.contact.github):
                 candidate_output.tailored_resume.contact.github = resume.contact.github
 
             candidate_output.tailored_resume = sanitize_universal_resume(
@@ -425,10 +429,23 @@ When a Candidate Master Profile is provided, actively synthesize and enrich the 
                 resume_text=candidate_text_corpus,
                 jd_text=job_description,
             )
-            candidates.append(candidate_output)
+            return candidate_output
         except Exception as e:
-            # If a single tournament pass fails, log and continue if other passes succeeded
             print(f"Tournament pass {strat['pass_num']} error: {e}")
+            return None
+
+    if len(passes_to_run) == 1:
+        res_single = _execute_pass(passes_to_run[0])
+        if res_single:
+            candidates.append(res_single)
+    else:
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        with ThreadPoolExecutor(max_workers=min(len(passes_to_run), 5)) as executor:
+            future_to_strat = {executor.submit(_execute_pass, s): s for s in passes_to_run}
+            for future in as_completed(future_to_strat):
+                res_cand = future.result()
+                if res_cand:
+                    candidates.append(res_cand)
 
     if not candidates:
         raise RuntimeError("All tournament passes failed to generate tailored output.")

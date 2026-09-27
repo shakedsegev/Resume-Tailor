@@ -23,10 +23,32 @@ def convert_pptx_to_pdf(pptx_path: Path, pdf_path: Path) -> Path:
 
     pdf_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # 1. Try Keynote (Standard on macOS, very fast & clean vector PDF export)
+    # 1. Try Microsoft PowerPoint in true headless mode (open without window - zero GUI popups)
+    powerpoint_script = f'''
+    tell application "Microsoft PowerPoint"
+        set thePath to POSIX file "{pptx_path}"
+        open thePath without window
+        save active presentation in POSIX file "{pdf_path}" as save as PDF
+        close active presentation saving no
+    end tell
+    '''
+    res_ppt = subprocess.run(["osascript", "-e", powerpoint_script], capture_output=True, text=True)
+
+    if res_ppt.returncode == 0 and pdf_path.exists() and pdf_path.stat().st_size > 0:
+        return pdf_path
+
+    # 2. Fallback to Apple Keynote with process visibility hidden
     keynote_script = f'''
     tell application "Keynote"
         set theDoc to open POSIX file "{pptx_path}"
+    end tell
+    tell application "System Events"
+        if exists (process "Keynote") then
+            set visible of process "Keynote" to false
+        end if
+    end tell
+    tell application "Keynote"
+        delay 0.5
         export theDoc to POSIX file "{pdf_path}" as PDF
         close theDoc saving no
     end tell
@@ -36,23 +58,10 @@ def convert_pptx_to_pdf(pptx_path: Path, pdf_path: Path) -> Path:
     if res.returncode == 0 and pdf_path.exists() and pdf_path.stat().st_size > 0:
         return pdf_path
 
-    # 2. Fallback to Microsoft PowerPoint if Keynote is unavailable or encountered an issue
-    powerpoint_script = f'''
-    tell application "Microsoft PowerPoint"
-        set theDoc to open POSIX file "{pptx_path}"
-        save theDoc in POSIX file "{pdf_path}" as save as PDF
-        close theDoc saving no
-    end tell
-    '''
-    res_ppt = subprocess.run(["osascript", "-e", powerpoint_script], capture_output=True, text=True)
-
-    if res_ppt.returncode == 0 and pdf_path.exists() and pdf_path.stat().st_size > 0:
-        return pdf_path
-
     raise RuntimeError(
         f"PDF conversion failed.\n"
-        f"Keynote error: {res.stderr.strip()}\n"
-        f"PowerPoint error: {res_ppt.stderr.strip()}"
+        f"PowerPoint error: {res_ppt.stderr.strip()}\n"
+        f"Keynote error: {res.stderr.strip()}"
     )
 
 

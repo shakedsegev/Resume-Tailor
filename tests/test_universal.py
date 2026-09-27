@@ -479,6 +479,103 @@ def test_recompile_pdf_endpoint(tmp_path):
     assert (OUTPUTS_DIR / f"{base_name}.pdf").exists()
 
 
+def test_is_generic_social_url():
+    from src.universal_models import is_generic_social_url
+    assert is_generic_social_url("https://github.com") is True
+    assert is_generic_social_url("https://github.com/") is True
+    assert is_generic_social_url("https://github.com/GitHub") is True
+    assert is_generic_social_url("https://linkedin.com") is True
+    assert is_generic_social_url("https://linkedin.com/in/LinkedIn") is True
+    assert is_generic_social_url("https://linkedin.com/in/") is True
+    assert is_generic_social_url("github") is True
+    assert is_generic_social_url("") is True
+
+    # Real personal URLs should not be marked generic
+    assert is_generic_social_url("https://github.com/shakedsegev") is False
+    assert is_generic_social_url("https://www.linkedin.com/in/shaked-segev-424178298/") is False
+    assert is_generic_social_url("https://linkedin.com/in/alexmorgan") is False
+
+
+def test_format_social_display():
+    from src.universal_models import format_social_display
+    assert format_social_display("https://github.com/shakedsegev", "github") == "github.com/shakedsegev"
+    assert format_social_display("https://www.linkedin.com/in/shaked-segev-424178298/", "linkedin") == "linkedin.com/in/shaked-segev-424178298"
+    assert format_social_display("https://github.com", "github") == "Github"
+    assert format_social_display("", "linkedin") == ""
+
+
+def test_recompile_pdf_score_preservation(tmp_path):
+    from fastapi.testclient import TestClient
+    from src.web_app import app, OUTPUTS_DIR
+    from src.universal_models import FitAnalysis
+
+    client = TestClient(app)
+    base_name = "test_score_preservation_session"
+    jd_content = "Looking for a Python and Go backend engineer with Docker and Concurrency experience."
+    (OUTPUTS_DIR / f"{base_name}_jd.txt").write_text(jd_content, encoding="utf-8")
+
+    initial_fit = FitAnalysis(
+        match=["Python backend engineering", "Go concurrent services", "Docker containerization"],
+        partial=["Kubernetes clusters"],
+        gap=[],
+        match_score=96,
+        keyword_score=100,
+        requirements_score=95,
+        experience_score=94,
+        pitch_angle="High-alignment candidate across core distributed systems.",
+    )
+    (OUTPUTS_DIR / f"{base_name}_fit.json").write_text(initial_fit.model_dump_json(indent=2), encoding="utf-8")
+
+    resume_payload = {
+        "contact": {
+            "name": "Shaked Segev",
+            "title": "Software Engineer",
+            "email": "shaked@example.com",
+            "phone": "+972-555-0100",
+            "location": "Tel Aviv, Israel",
+            "linkedin": "https://linkedin.com/in/shaked-segev-424178298",
+            "github": "https://github.com/shakedsegev",
+        },
+        "summary": "Software engineer with background in Python and Go concurrent services and Docker.",
+        "skills": {
+            "programming_languages": ["Python", "Go"],
+            "frameworks_and_tools": ["Docker"],
+            "core_concepts": ["Concurrency"],
+            "spoken_languages": ["English"],
+        },
+        "experience": [
+            {
+                "role": "Backend Engineer",
+                "company": "Tech Corp",
+                "date_range": "2022 - Present",
+                "location": "Tel Aviv",
+                "bullets": ["Engineered high-throughput Go and Python backend microservices."],
+            }
+        ],
+        "projects": [],
+        "education": [],
+        "additional_sections": [],
+    }
+
+    # Recompile with only contact info modified
+    response = client.post(
+        "/api/recompile-pdf",
+        json={
+            "filename_base": base_name,
+            "resume": resume_payload,
+            "jd_text": jd_content,
+        },
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    # The score should remain preserved (>= 94%), NOT plummet to 91% or 84%!
+    assert data["fit_analysis"]["match_score"] >= 94
+    assert data["tailored_resume"]["contact"]["github"] == "https://github.com/shakedsegev"
+    assert data["tailored_resume"]["contact"]["linkedin"] == "https://linkedin.com/in/shaked-segev-424178298"
+
+
+
 
 
 

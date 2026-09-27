@@ -23,6 +23,7 @@ from src.universal_models import (
     SkillCategories,
     UniversalResume,
     sanitize_universal_resume,
+    format_social_display,
 )
 
 
@@ -499,8 +500,8 @@ INTERACTIVE_RESUME_TEMPLATE = """<!DOCTYPE html>
     {% if resume.contact.phone %}<span>📞 {{ resume.contact.phone }}</span>{% endif %}
     {% if resume.contact.email %}<span>✉️ <a href="mailto:{{ resume.contact.email }}">{{ resume.contact.email }}</a></span>{% endif %}
     {% if resume.contact.location %}<span>📍 {{ resume.contact.location }}</span>{% endif %}
-    {% if resume.contact.linkedin %}<span>🔗 <a href="{{ resume.contact.linkedin }}" target="_blank">LinkedIn</a></span>{% endif %}
-    {% if resume.contact.github %}<span>💻 <a href="{{ resume.contact.github }}" target="_blank">GitHub</a></span>{% endif %}
+    {% if resume.contact.linkedin %}<span>🔗 <a href="{{ resume.contact.linkedin }}" target="_blank">{{ format_social_display(resume.contact.linkedin, 'LinkedIn') }}</a></span>{% endif %}
+    {% if resume.contact.github %}<span>💻 <a href="{{ resume.contact.github }}" target="_blank">{{ format_social_display(resume.contact.github, 'GitHub') }}</a></span>{% endif %}
   </div>
 </header>
 
@@ -979,6 +980,7 @@ def build_interactive_resume_diff_html(
         rendered_projects=rendered_projects,
         rendered_experience=rendered_experience,
         rendered_additional=rendered_additional,
+        format_social_display=format_social_display,
     )
 
     output_html_path.write_text(html_content, encoding="utf-8")

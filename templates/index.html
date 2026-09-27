@@ -424,6 +424,15 @@
                 <span data-i18n="btn_download_ats_pdf">Download ATS PDF</span>
               </a>
               <a
+                id="btnDownloadPptx"
+                href="#"
+                download
+                class="hidden px-3.5 py-1.5 rounded-xl text-xs font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-all flex items-center gap-1.5"
+              >
+                <span>📊</span>
+                <span data-i18n="btn_download_pptx">Download PPTX</span>
+              </a>
+              <a
                 id="btnDownloadPdf"
                 href="#"
                 download
@@ -485,26 +494,21 @@
           </div>
 
           <div class="space-y-3 pt-2">
-            <!-- Fully Styled English Dropzone (No Native Browser Locale Buttons) -->
+            <!-- Fully Styled English Dropzone (Supports Multiple Files) -->
             <div id="profileDropzone" class="border-2 border-dashed border-slate-300 hover:border-sky-500 transition-colors rounded-xl p-4 text-center cursor-pointer bg-slate-50/50 hover:bg-sky-50/30">
-              <input type="file" id="profileFileInput" accept=".txt,.json,.md,.pdf,.docx" class="hidden">
+              <input type="file" id="profileFileInput" accept=".txt,.json,.md,.pdf,.docx" multiple class="hidden">
               <div class="flex items-center justify-center space-x-2 text-xs font-medium text-slate-700">
                 <span>📄</span>
-                <span class="text-sky-600 font-semibold" data-i18n="opt_a_click">Click to select document</span>
+                <span class="text-sky-600 font-semibold" data-i18n="opt_a_click">Click to select files</span>
                 <span data-i18n="opt_a_drag">or drag & drop</span>
               </div>
               <p class="text-[10px] text-slate-400 mt-1" data-i18n="opt_a_types">
-                PDF, Word DOCX, Markdown, JSON, or TXT
+                PDF, Word DOCX, Markdown, JSON, or TXT (select one or more)
               </p>
             </div>
 
-            <div id="profileFileStatusCard" class="hidden p-2.5 bg-sky-50 border border-sky-200 rounded-xl flex items-center justify-between">
-              <div class="flex items-center space-x-2 overflow-hidden">
-                <span>📎</span>
-                <span id="profileFileName" class="text-xs font-semibold text-slate-800 truncate">notes.pdf</span>
-              </div>
-              <button type="button" id="btnRemoveProfileFile" class="text-xs text-slate-400 hover:text-rose-600 font-bold p-1">✕</button>
-            </div>
+            <!-- List of Selected Files (Supports multiple files with individual removal) -->
+            <div id="profileFilesList" class="hidden space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
 
             <textarea id="profileNotesText" rows="4" placeholder="Or paste background text, unlisted project details, and verified accomplishments here..." data-i18n-ph="opt_a_placeholder" class="w-full text-xs rounded-xl border-slate-200 p-3 bg-slate-50/50 border placeholder:text-slate-400"></textarea>
             <button id="btnUploadProfile" class="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-slate-800 hover:bg-slate-900 transition-colors" data-i18n="opt_a_btn">
@@ -821,11 +825,11 @@
         btn_open_tab: "Open Tab ↗",
         profile_header_title: "Candidate Master Profile (Ground Truth)",
         profile_header_desc: "Your Master Profile is your personal database of verified projects, unlisted engineering nuances, technical architectures, and exact metrics. The AI uses this ground truth to highlight keywords without ever fabricating facts.",
-        opt_a_title: "Option A: Upload Background Notes",
-        opt_a_desc: "Upload notes, markdown, LinkedIn text, or a profile document. The AI converts it into a structured ground truth.",
-        opt_a_click: "Click to select document",
+        opt_a_title: "Option A: Upload Background Notes / Files",
+        opt_a_desc: "Upload notes, markdown, LinkedIn export, or profile documents. The AI synthesizes them into a structured ground truth.",
+        opt_a_click: "Click to select document(s)",
         opt_a_drag: "or drag & drop",
-        opt_a_types: "PDF, Word DOCX, Markdown, JSON, or TXT",
+        opt_a_types: "PDF, Word DOCX, Markdown, JSON, or TXT (multi-file supported)",
         opt_a_placeholder: "Or paste background text, unlisted project details, and verified accomplishments here...",
         opt_a_btn: "Convert to Master Profile with AI",
         opt_b_title: "Option B: Questionnaire Wizard",
@@ -849,6 +853,7 @@
         ats_opt_preserve: "🎨 Preserve Original Visual Design",
         ats_opt_preserve_sub: "Maintains exact visual boxes, graphics, and layout (best for emailing directly to hiring managers or human review).",
         btn_download_ats_pdf: "Download ATS PDF",
+        btn_download_pptx: "Download PPTX",
         metric_keyword_title: "Keywords & Skills",
         metric_req_title: "Qualifications",
         metric_exp_title: "Experience & Impact",
@@ -903,11 +908,11 @@
         btn_open_tab: "פתח בלשונית ↗",
         profile_header_title: "פרופיל ראשי של המועמד (מקור אמת)",
         profile_header_desc: "הפרופיל הראשי הוא מאגר המידע המאומת של הפרויקטים, הניואנסים ההנדסיים, והמדדים המדויקים שלך. המערכת משתמשת במקור אמת זה כדי להתאים מילות מפתח מבלי להמציא עובדות.",
-        opt_a_title: "אפשרות א': העלאת מסמך רקע / הערות",
-        opt_a_desc: "העלה הערות, קובץ Markdown, טקסט מלינקדאין או מסמך פרופיל. ה-AI ימיר אותו לפרופיל מאומת ומובנה.",
-        opt_a_click: "לחץ לבחירת מסמך",
+        opt_a_title: "אפשרות א': העלאת מסמכי רקע / קבצים",
+        opt_a_desc: "העלה קובץ אחד או יותר: הערות, Markdown, לינקדאין או קורות חיים קודמים. ה-AI ימזג אותם לפרופיל מאומת ומובנה.",
+        opt_a_click: "לחץ לבחירת מסמך/מסמכים",
         opt_a_drag: "או גרור לכאן",
-        opt_a_types: "PDF, Word DOCX, Markdown, JSON, או TXT",
+        opt_a_types: "PDF, Word DOCX, Markdown, JSON, או TXT (תמיכה בריבוי קבצים)",
         opt_a_placeholder: "או הדבק כאן הערות רקע, פרטי פרויקטים שלא רשומים בקורות החיים והישגים מאומתים...",
         opt_a_btn: "המר לפרופיל ראשי באמצעות AI",
         opt_b_title: "אפשרות ב': אשף שאלון אינטראקטיבי",
@@ -931,6 +936,7 @@
         ats_opt_preserve: "🎨 שמירה על העיצוב המקורי",
         ats_opt_preserve_sub: "שומר על תיבות העיצוב, הצבעים והגרפיקה המקורית (מושלם לשליחה ישירה למגייסים במייל).",
         btn_download_ats_pdf: "הורד PDF מותאם ל-ATS",
+        btn_download_pptx: "הורד קובץ PPTX",
         metric_keyword_title: "מילות מפתח ומיומנויות",
         metric_req_title: "דרישות והסמכות",
         metric_exp_title: "ניסיון והשפעה",
@@ -1443,16 +1449,14 @@
       }
     }
 
-    // Master Profile Upload (Option A) - Custom Dropzone (No Native Browser Locale Text)
+    // Master Profile Upload (Option A) - Custom Dropzone (Supports Multiple Files)
     const profileDropzone = document.getElementById('profileDropzone');
     const profileFileInput = document.getElementById('profileFileInput');
-    const profileFileStatusCard = document.getElementById('profileFileStatusCard');
-    const profileFileName = document.getElementById('profileFileName');
-    const btnRemoveProfileFile = document.getElementById('btnRemoveProfileFile');
+    const profileFilesList = document.getElementById('profileFilesList');
     const profileNotesText = document.getElementById('profileNotesText');
     const btnUploadProfile = document.getElementById('btnUploadProfile');
 
-    let selectedProfileFile = null;
+    let selectedProfileFiles = [];
 
     profileDropzone.addEventListener('click', () => profileFileInput.click());
     profileDropzone.addEventListener('dragover', (e) => {
@@ -1465,31 +1469,63 @@
     profileDropzone.addEventListener('drop', (e) => {
       e.preventDefault();
       profileDropzone.classList.remove('border-sky-500', 'bg-sky-50/50');
-      if (e.dataTransfer.files.length > 0) handleProfileFile(e.dataTransfer.files[0]);
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        addProfileFiles(Array.from(e.dataTransfer.files));
+      }
     });
     profileFileInput.addEventListener('change', () => {
-      if (profileFileInput.files.length > 0) handleProfileFile(profileFileInput.files[0]);
+      if (profileFileInput.files && profileFileInput.files.length > 0) {
+        addProfileFiles(Array.from(profileFileInput.files));
+        profileFileInput.value = '';
+      }
     });
 
-    function handleProfileFile(file) {
-      selectedProfileFile = file;
-      profileFileName.textContent = file.name;
-      profileDropzone.classList.add('hidden');
-      profileFileStatusCard.classList.remove('hidden');
+    function formatFileSize(bytes) {
+      if (!bytes || bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return (bytes / Math.pow(k, i)).toFixed(1) + ' ' + sizes[i];
     }
 
-    btnRemoveProfileFile.addEventListener('click', () => {
-      selectedProfileFile = null;
-      profileFileInput.value = '';
-      profileDropzone.classList.remove('hidden');
-      profileFileStatusCard.classList.add('hidden');
-    });
+    function addProfileFiles(files) {
+      for (const file of files) {
+        if (!selectedProfileFiles.some(f => f.name === file.name && f.size === file.size)) {
+          selectedProfileFiles.push(file);
+        }
+      }
+      renderProfileFiles();
+    }
+
+    window.removeProfileFile = function(index) {
+      selectedProfileFiles.splice(index, 1);
+      renderProfileFiles();
+    };
+
+    function renderProfileFiles() {
+      if (selectedProfileFiles.length === 0) {
+        profileFilesList.innerHTML = '';
+        profileFilesList.classList.add('hidden');
+        return;
+      }
+      profileFilesList.classList.remove('hidden');
+      profileFilesList.innerHTML = selectedProfileFiles.map((file, idx) => `
+        <div class="flex items-center justify-between p-2 bg-sky-50/80 border border-sky-200 rounded-xl text-xs transition-all">
+          <div class="flex items-center space-x-2 min-w-0 pr-2">
+            <span class="text-sky-600 shrink-0">📎</span>
+            <span class="font-medium text-slate-800 truncate" title="${file.name}">${file.name}</span>
+            <span class="text-[10px] text-slate-400 shrink-0 font-normal">(${formatFileSize(file.size)})</span>
+          </div>
+          <button type="button" onclick="removeProfileFile(${idx})" class="text-slate-400 hover:text-rose-600 font-bold px-1.5 py-0.5 rounded transition-colors shrink-0" title="Remove file">✕</button>
+        </div>
+      `).join('');
+    }
 
     btnUploadProfile.addEventListener('click', async () => {
       const notes = profileNotesText.value.trim();
 
-      if (!selectedProfileFile && !notes) {
-        alert("Please select a profile file or paste background notes.");
+      if (selectedProfileFiles.length === 0 && !notes) {
+        alert("Please select at least one profile file or paste background notes.");
         return;
       }
 
@@ -1497,12 +1533,21 @@
       btnUploadProfile.textContent = "Analyzing & Building Profile...";
 
       const formData = new FormData();
-      if (selectedProfileFile) formData.append('profile_file', selectedProfileFile);
+      selectedProfileFiles.forEach(file => {
+        formData.append('profile_files', file);
+      });
       if (notes) formData.append('notes_text', notes);
 
       try {
         const res = await fetch('/api/profile/upload', { method: 'POST', body: formData });
-        if (!res.ok) throw new Error("Profile conversion failed");
+        if (!res.ok) {
+          let errDetail = "Profile conversion failed";
+          try {
+            const errData = await res.json();
+            if (errData && errData.detail) errDetail = errData.detail;
+          } catch (e) {}
+          throw new Error(errDetail);
+        }
         activeProfile = await res.json();
         updateProfileDisplay();
         alert("Master Profile successfully generated!");
@@ -1626,6 +1671,7 @@
     const strategyAts = document.getElementById('strategyAts');
     const strategyPreserve = document.getElementById('strategyPreserve');
     const btnDownloadAtsPdf = document.getElementById('btnDownloadAtsPdf');
+    const btnDownloadPptx = document.getElementById('btnDownloadPptx');
 
     function handleFile(file) {
       selectedFile = file;
@@ -1688,7 +1734,7 @@
           atsAdvisoryDesc.textContent = `Detected ${report.layout_type}. This presentation layout has formatting traits that may cause text scrambling in Workday, Taleo, Greenhouse, or Lever ATS parsers. Choose below whether to generate a 100% ATS-compliant clean format or preserve the visual Canva presentation layout.`;
           atsStrategyChooser.classList.remove('hidden');
           preserveDesignOption.classList.remove('hidden');
-          strategyAts.checked = true;
+          strategyPreserve.checked = true;
         } else {
           atsAdvisoryDesc.textContent = `Detected ${report.layout_type}. This layout has formatting traits that may cause text scrambling in Workday, Taleo, Greenhouse, or Lever ATS parsers. Our engine will compile it into a clean, 100% ATS-compliant single-column vector layout.`;
           atsStrategyChooser.classList.add('hidden');
@@ -1704,7 +1750,7 @@
           atsAdvisoryDesc.textContent = `Detected ${report.layout_type}. Your presentation template is ready to tailor. Choose below whether to generate a 100% ATS-compliant clean format or preserve the visual Canva presentation layout.`;
           atsStrategyChooser.classList.remove('hidden');
           preserveDesignOption.classList.remove('hidden');
-          strategyAts.checked = true;
+          strategyPreserve.checked = true;
         } else {
           atsAdvisoryDesc.textContent = `Detected ${report.layout_type}. Your document layout is already 100% ATS-friendly! Now paste your target Job Description in Step 2 below and click "Tailor & Preserve Design" to customize your bullet points, technical skills, and achievements for this specific role.`;
           atsStrategyChooser.classList.add('hidden');
@@ -1925,14 +1971,22 @@
       });
     }
 
+    function isGenericSocialUrl(url) {
+      if (!url) return true;
+      const clean = url.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, '');
+      return ['linkedin.com', 'linkedin.com/in', 'linkedin.com/in/linkedin', 'linkedin.com/in/in', 'github.com', 'github.com/github', 'github'].includes(clean);
+    }
+
     function populateLiveEditor(resume) {
       if (!resume) return;
       document.getElementById('edContactName').value = resume.contact?.name || '';
       document.getElementById('edContactEmail').value = resume.contact?.email || '';
       document.getElementById('edContactPhone').value = resume.contact?.phone || '';
       document.getElementById('edContactLocation').value = resume.contact?.location || '';
-      document.getElementById('edContactLinkedin').value = resume.contact?.linkedin || '';
-      document.getElementById('edContactGithub').value = resume.contact?.github || '';
+      const li = resume.contact?.linkedin || '';
+      document.getElementById('edContactLinkedin').value = isGenericSocialUrl(li) ? '' : li;
+      const gh = resume.contact?.github || '';
+      document.getElementById('edContactGithub').value = isGenericSocialUrl(gh) ? '' : gh;
       document.getElementById('edSummary').value = resume.summary || '';
       document.getElementById('edSkillsLanguages').value = (resume.skills?.programming_languages || []).join(', ');
       document.getElementById('edSkillsTools').value = (resume.skills?.frameworks_and_tools || []).join(', ');
@@ -2080,6 +2134,8 @@
       const origBtnContent = btnApplyEdits.innerHTML;
       btnApplyEdits.innerHTML = '<span>⏳</span> <span>Recompiling PDF...</span>';
 
+      const wasViewingPdf = btnViewPdf.classList.contains('text-slate-900') || btnViewPdf.classList.contains('bg-white');
+
       try {
         const res = await fetch('/api/recompile-pdf', {
           method: 'POST',
@@ -2100,14 +2156,7 @@
         }
         const data = await res.json();
         editorModal.classList.add('hidden');
-        displayResults(data);
-        // Force refresh iframe preview
-        const currentSrc = previewIframe.src;
-        if (currentSrc && currentSrc !== 'about:blank') {
-          const u = new URL(currentSrc, window.location.origin);
-          u.searchParams.set('t', Date.now());
-          previewIframe.src = u.toString();
-        }
+        displayResults(data, wasViewingPdf);
       } catch (err) {
         alert(`Error recompiling PDF: ${err.message}`);
       } finally {
@@ -2226,7 +2275,7 @@
       btnViewPdf.classList.remove('bg-white', 'text-slate-900', 'shadow-sm');
       btnViewPdf.classList.add('text-slate-600');
       if (lastTailoredData?.diff_url) {
-        previewIframe.src = lastTailoredData.diff_url;
+        previewIframe.src = `${lastTailoredData.diff_url}?t=${Date.now()}`;
       }
     });
 
@@ -2236,7 +2285,7 @@
       btnViewDiff.classList.remove('bg-white', 'text-emerald-700', 'shadow-sm');
       btnViewDiff.classList.add('text-slate-600');
       if (lastTailoredData?.preview_url) {
-        previewIframe.src = `${lastTailoredData.preview_url}#toolbar=0&navpanes=0&view=FitH`;
+        previewIframe.src = `${lastTailoredData.preview_url}?t=${Date.now()}#toolbar=0&navpanes=0&view=FitH`;
       }
     });
 
@@ -2256,6 +2305,9 @@
       preserveDesignOption.classList.add('hidden');
       strategyAts.checked = true;
       btnDownloadAtsPdf.classList.add('hidden');
+      btnDownloadPptx.classList.add('hidden');
+      btnEditContent?.classList.remove('hidden');
+      btnRunTournament?.classList.remove('hidden');
       resultsView.classList.add('hidden');
       placeholderView.classList.remove('hidden');
       progressCard.classList.add('hidden');
@@ -2263,7 +2315,7 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    function displayResults(data) {
+    function displayResults(data, preferPdf = false) {
       lastTailoredData = data;
       placeholderView.classList.add('hidden');
       resultsView.classList.remove('hidden');
@@ -2332,20 +2384,41 @@
         gapList.appendChild(li);
       });
 
-      // Default to the interactive highlighted diff view so the user can hover and see what changed and why
-      if (data.diff_url) {
-        btnViewDiff.click();
-      } else {
+      // Choose tab based on preference or availability
+      if (preferPdf || !data.diff_url) {
         btnViewPdf.click();
+      } else {
+        btnViewDiff.click();
       }
       btnDownloadPdf.href = data.download_url;
       btnOpenNewTab.href = data.preview_url;
 
-      if (data.ats_download_url) {
-        btnDownloadAtsPdf.href = data.ats_download_url;
-        btnDownloadAtsPdf.classList.remove('hidden');
-      } else {
+      const isPreserveDesign = data.format_strategy === "preserve_design";
+
+      if (isPreserveDesign) {
+        // PPTX Preserved Design Mode: hide ATS download, edit content, and 5-pass tournament
+        btnEditContent?.classList.add('hidden');
+        btnRunTournament?.classList.add('hidden');
         btnDownloadAtsPdf.classList.add('hidden');
+
+        if (data.download_pptx_url) {
+          btnDownloadPptx.href = data.download_pptx_url;
+          btnDownloadPptx.classList.remove('hidden');
+        } else {
+          btnDownloadPptx.classList.add('hidden');
+        }
+      } else {
+        // ATS Mode (PDF, DOCX, or user-selected ATS Clean): keep all ATS features active
+        btnEditContent?.classList.remove('hidden');
+        btnRunTournament?.classList.remove('hidden');
+        btnDownloadPptx.classList.add('hidden');
+
+        if (data.ats_download_url) {
+          btnDownloadAtsPdf.href = data.ats_download_url;
+          btnDownloadAtsPdf.classList.remove('hidden');
+        } else {
+          btnDownloadAtsPdf.classList.add('hidden');
+        }
       }
     }
   </script>

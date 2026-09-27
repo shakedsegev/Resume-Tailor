@@ -11,20 +11,40 @@ from pptx import Presentation
 
 
 def extract_text_from_pdf(pdf_path: Path) -> str:
-    """Extracts text from all pages of a PDF file."""
+    """Extracts text and embedded hyperlink URIs from all pages of a PDF file."""
     reader = pypdf.PdfReader(str(pdf_path))
     extracted = []
+    links = []
     for idx, page in enumerate(reader.pages):
         text = page.extract_text() or ""
         if text.strip():
             extracted.append(text.strip())
+        if "/Annots" in page:
+            try:
+                annots = page["/Annots"]
+                annots_list = annots.get_object() if hasattr(annots, "get_object") else annots
+                for annot in annots_list:
+                    obj = annot.get_object() if hasattr(annot, "get_object") else annot
+                    if isinstance(obj, dict) and "/A" in obj:
+                        action = obj["/A"].get_object() if hasattr(obj["/A"], "get_object") else obj["/A"]
+                        if isinstance(action, dict) and "/URI" in action:
+                            uri = str(action["/URI"]).strip()
+                            if uri and uri not in links:
+                                links.append(uri)
+            except Exception:
+                pass
+
+    if links:
+        extracted.append("Extracted Document Links:\n" + "\n".join(links))
+
     return "\n\n".join(extracted)
 
 
 def extract_text_from_docx(docx_path: Path) -> str:
-    """Extracts text from paragraphs and tables of a DOCX file."""
+    """Extracts text and hyperlinks from paragraphs and tables of a DOCX file."""
     doc = docx.Document(str(docx_path))
     extracted = []
+    links = []
     for p in doc.paragraphs:
         if p.text.strip():
             extracted.append(p.text.strip())
@@ -33,6 +53,16 @@ def extract_text_from_docx(docx_path: Path) -> str:
             row_text = [cell.text.strip() for cell in row.cells if cell.text.strip()]
             if row_text:
                 extracted.append(" | ".join(row_text))
+    try:
+        for rel in doc.part.rels.values():
+            if "hyperlink" in getattr(rel, "reltype", ""):
+                target = getattr(rel, "target_ref", "")
+                if target and target.startswith("http") and target not in links:
+                    links.append(target)
+    except Exception:
+        pass
+    if links:
+        extracted.append("Extracted Document Links:\n" + "\n".join(links))
     return "\n".join(extracted)
 
 

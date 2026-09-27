@@ -99,6 +99,14 @@ class CandidateProfile(BaseModel):
     additional_background: list[BackgroundHighlight] = Field(default_factory=list)
     target_roles: list[str] = Field(default_factory=list)
 
+    @property
+    def personal_info(self) -> PersonalInfo:
+        return self.personal
+
+    @personal_info.setter
+    def personal_info(self, val: PersonalInfo) -> None:
+        self.personal = val
+
 
 class KeywordStats(BaseModel):
     found_count: int = 0

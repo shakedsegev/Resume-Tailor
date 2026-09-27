@@ -79,35 +79,65 @@ async def get_sample_profile():
 
 @app.post("/api/profile/upload")
 async def upload_profile_endpoint(
+    profile_files: list[UploadFile] = File(default=[]),
     profile_file: Optional[UploadFile] = File(None),
     notes_text: Optional[str] = Form(None),
 ):
     """
-    Parses any background document (notes, markdown, text, PDF, DOCX, JSON)
-    and converts it into a standardized CandidateProfile ground truth.
+    Parses one or more background documents (notes, markdown, text, PDF, DOCX, JSON)
+    and optional text notes, then synthesizes them into a unified standardized CandidateProfile.
     """
-    raw_content = ""
-    if profile_file:
-        file_ext = Path(profile_file.filename or "notes.txt").suffix
-        dest_path = UPLOADS_DIR / f"profile_{uuid.uuid4().hex[:8]}{file_ext}"
-        content_bytes = await profile_file.read()
-        dest_path.write_bytes(content_bytes)
+    all_files: list[UploadFile] = []
+    if profile_files:
+        for f in profile_files:
+            if f and f.filename and f.filename.strip():
+                all_files.append(f)
+    if profile_file and profile_file.filename and profile_file.filename.strip():
+        if profile_file not in all_files:
+            all_files.append(profile_file)
 
-        if file_ext.lower() == ".json":
+    extracted_sections: list[str] = []
+
+    # If exactly 1 file was provided and it's already a valid CandidateProfile JSON,
+    # preserve the instant fast path without needing LLM synthesis:
+    if len(all_files) == 1 and not (notes_text and notes_text.strip()):
+        single_file = all_files[0]
+        ext = Path(single_file.filename or "").suffix.lower()
+        if ext == ".json":
+            dest_path = UPLOADS_DIR / f"profile_{uuid.uuid4().hex[:8]}.json"
+            content_bytes = await single_file.read()
+            dest_path.write_bytes(content_bytes)
             try:
                 data = json.loads(content_bytes.decode("utf-8"))
                 profile = CandidateProfile.model_validate(data)
                 return JSONResponse(content=profile.model_dump())
             except Exception:
-                pass
+                txt = content_bytes.decode("utf-8", errors="ignore")
+                if txt.strip():
+                    extracted_sections.append(f"=== Source Document: {single_file.filename} ===\n{txt.strip()}")
 
-        raw_content = extract_text_from_file(dest_path)
-    elif notes_text and notes_text.strip():
-        raw_content = notes_text.strip()
-    else:
+    # Extract text from all files
+    for f in all_files:
+        # Check if already processed in fast-path fallback
+        if extracted_sections and len(all_files) == 1:
+            break
+        file_ext = Path(f.filename or "notes.txt").suffix.lower()
+        dest_path = UPLOADS_DIR / f"profile_{uuid.uuid4().hex[:8]}{file_ext}"
+        content_bytes = await f.read()
+        dest_path.write_bytes(content_bytes)
+
+        txt = extract_text_from_file(dest_path, filename=f.filename)
+        if txt.strip():
+            extracted_sections.append(f"=== Source Document: {f.filename} ===\n{txt.strip()}")
+
+    if notes_text and notes_text.strip():
+        extracted_sections.append(f"=== Additional Background Notes ===\n{notes_text.strip()}")
+
+    raw_content = "\n\n".join(extracted_sections).strip()
+    if not raw_content:
         raise HTTPException(
             status_code=400,
-            detail="Please provide a profile document or paste background notes."
+            detail="Please provide at least one profile document or paste background notes."
         )
 
     try:
@@ -312,6 +342,18 @@ async def tailor_resume_endpoint(
                 force_single_page=format_report.is_single_page,
             )
 
+            # Save fit analysis, jd text, and parsed resume for live diff & live editor support
+            (OUTPUTS_DIR / f"{base_filename}_fit.json").write_text(
+                tailored_res.fit_analysis.model_dump_json(indent=2), encoding="utf-8"
+            )
+            (OUTPUTS_DIR / f"{base_filename}_jd.txt").write_text(jd_text.strip(), encoding="utf-8")
+            (OUTPUTS_DIR / f"{base_filename}_orig_parsed.json").write_text(
+                ats_resume.model_dump_json(indent=2), encoding="utf-8"
+            )
+            (OUTPUTS_DIR / f"{base_filename}_resume.json").write_text(
+                ats_resume.model_dump_json(indent=2), encoding="utf-8"
+            )
+
             return JSONResponse(
                 content={
                     "status": "success",
@@ -321,10 +363,10 @@ async def tailor_resume_endpoint(
                     "preview_url": f"/api/preview/{base_filename}",
                     "diff_url": f"/api/diff/{base_filename}",
                     "download_url": f"/api/download/{base_filename}",
-                    "ats_preview_url": f"/api/preview/{ats_base}",
-                    "ats_download_url": f"/api/download/{ats_base}",
+                    "download_pptx_url": f"/api/download_pptx/{base_filename}",
                     "format_strategy": "preserve_design",
                     "ats_report": format_report.model_dump(),
+                    "tailored_resume": ats_resume.model_dump(),
                 }
             )
         except Exception as err:
@@ -375,6 +417,9 @@ async def tailor_resume_endpoint(
     )
     (OUTPUTS_DIR / f"{base_filename}_resume.json").write_text(
         tailored_output.tailored_resume.model_dump_json(indent=2), encoding="utf-8"
+    )
+    (OUTPUTS_DIR / f"{base_filename}_fit.json").write_text(
+        tailored_output.fit_analysis.model_dump_json(indent=2), encoding="utf-8"
     )
     (OUTPUTS_DIR / f"{base_filename}_jd.txt").write_text(
         jd_text.strip(), encoding="utf-8"
@@ -431,13 +476,23 @@ async def recompile_pdf_endpoint(payload: RecompileRequest):
         jd = jd_file.read_text(encoding="utf-8")
     jd = jd or ""
 
-    # 4. Calculate multi-metric fit
-    fit_analysis = FitAnalysis(
-        match=[],
-        partial=[],
-        gap=[],
-        pitch_angle="Positioning candidate based on verified live edits.",
-    )
+    # 4. Calculate multi-metric fit using persisted fit analysis or fallback
+    fit_file = OUTPUTS_DIR / f"{safe_name}_fit.json"
+    fit_analysis = None
+    if fit_file.exists():
+        try:
+            fit_analysis = FitAnalysis.model_validate_json(fit_file.read_text(encoding="utf-8"))
+        except Exception:
+            fit_analysis = None
+
+    if not fit_analysis:
+        fit_analysis = FitAnalysis(
+            match=[],
+            partial=[],
+            gap=[],
+            pitch_angle="Positioning candidate based on verified live edits.",
+        )
+
     tailored_text_corpus = (
         (updated_resume.summary or "")
         + " "
@@ -467,6 +522,10 @@ async def recompile_pdf_endpoint(payload: RecompileRequest):
         resume_text=tailored_text_corpus,
         jd_text=jd,
     )
+    try:
+        fit_file.write_text(fit_analysis.model_dump_json(indent=2), encoding="utf-8")
+    except Exception:
+        pass
 
     # 5. Update interactive diff view if original parsed resume exists
     orig_parsed_path = OUTPUTS_DIR / f"{safe_name}_orig_parsed.json"
@@ -560,6 +619,20 @@ async def download_html(base_filename: str):
         path=html_path,
         media_type="text/html",
         filename=f"{safe_name}.html",
+    )
+
+
+@app.get("/api/download_pptx/{base_filename}")
+async def download_pptx(base_filename: str):
+    """Downloads the tailored presentation (.pptx) file with preserved visual layout."""
+    safe_name = Path(base_filename).name
+    pptx_path = OUTPUTS_DIR / f"{safe_name}.pptx"
+    if not pptx_path.exists():
+        raise HTTPException(status_code=404, detail="PPTX file not found.")
+    return FileResponse(
+        path=pptx_path,
+        media_type="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        filename=f"{safe_name}.pptx",
     )
 
 

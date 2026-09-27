@@ -9,7 +9,11 @@ import subprocess
 from typing import Optional
 from jinja2 import Template
 # pyrefly: ignore [missing-import]
-from src.universal_models import UniversalResume, sanitize_universal_resume
+from src.universal_models import (
+    UniversalResume,
+    sanitize_universal_resume,
+    format_social_display,
+)
 
 
 CHROME_PATH = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
@@ -153,8 +157,8 @@ MODERN_TECH_TEMPLATE = """<!DOCTYPE html>
     {% if resume.contact.phone %}<span>📞 {{ resume.contact.phone }}</span>{% endif %}
     {% if resume.contact.email %}<span>✉️ <a href="mailto:{{ resume.contact.email }}">{{ resume.contact.email }}</a></span>{% endif %}
     {% if resume.contact.location %}<span>📍 {{ resume.contact.location }}</span>{% endif %}
-    {% if resume.contact.linkedin %}<span>🔗 <a href="{{ resume.contact.linkedin }}" target="_blank">LinkedIn</a></span>{% endif %}
-    {% if resume.contact.github %}<span>💻 <a href="{{ resume.contact.github }}" target="_blank">GitHub</a></span>{% endif %}
+    {% if resume.contact.linkedin %}<span>🔗 <a href="{{ resume.contact.linkedin }}" target="_blank">{{ format_social_display(resume.contact.linkedin, 'LinkedIn') }}</a></span>{% endif %}
+    {% if resume.contact.github %}<span>💻 <a href="{{ resume.contact.github }}" target="_blank">{{ format_social_display(resume.contact.github, 'GitHub') }}</a></span>{% endif %}
   </div>
 </header>
 
@@ -357,7 +361,11 @@ def render_resume_to_html(
 
     active_density = density or DENSITY_LEVELS[0]
     template = Template(template_str)
-    rendered_html = template.render(resume=resume, density=active_density)
+    rendered_html = template.render(
+        resume=resume,
+        density=active_density,
+        format_social_display=format_social_display,
+    )
     output_html_path.write_text(rendered_html, encoding="utf-8")
     return output_html_path
 

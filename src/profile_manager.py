@@ -26,7 +26,8 @@ def convert_document_to_profile(
 
     prompt = f"""
 You are an expert career profiler and technical background analyst.
-Extract all verified background information from the candidate's notes or document into the CandidateProfile schema.
+Extract and synthesize all verified background information from the candidate's notes, resumes, or documents into the CandidateProfile schema.
+If multiple source documents are provided, merge overlapping experiences or projects intelligently without duplicating entries.
 
 Source Text:
 {document_text}
@@ -50,12 +51,17 @@ Extraction Guidelines:
 
     response = _generate_with_fallback(client, prompt, config)
     prof = CandidateProfile.model_validate_json(response.text)
-    from src.universal_models import extract_social_links
+    from src.universal_models import extract_social_links, is_generic_social_url
     raw_links = extract_social_links(document_text)
-    if not prof.personal_info.linkedin and "linkedin" in raw_links:
-        prof.personal_info.linkedin = raw_links["linkedin"]
-    if not prof.personal_info.github and "github" in raw_links:
-        prof.personal_info.github = raw_links["github"]
+    if (not prof.personal.linkedin or is_generic_social_url(prof.personal.linkedin)) and "linkedin" in raw_links:
+        prof.personal.linkedin = raw_links["linkedin"]
+    elif prof.personal.linkedin and is_generic_social_url(prof.personal.linkedin):
+        prof.personal.linkedin = ""
+
+    if (not prof.personal.github or is_generic_social_url(prof.personal.github)) and "github" in raw_links:
+        prof.personal.github = raw_links["github"]
+    elif prof.personal.github and is_generic_social_url(prof.personal.github):
+        prof.personal.github = ""
     return prof
 
 
@@ -88,13 +94,18 @@ Rules:
 
     response = _generate_with_fallback(client, prompt, config)
     prof = CandidateProfile.model_validate_json(response.text)
-    from src.universal_models import extract_social_links
+    from src.universal_models import extract_social_links, is_generic_social_url
     combined_answers = " ".join(str(v) for v in answers.values())
     raw_links = extract_social_links(combined_answers)
-    if not prof.personal_info.linkedin and "linkedin" in raw_links:
-        prof.personal_info.linkedin = raw_links["linkedin"]
-    if not prof.personal_info.github and "github" in raw_links:
-        prof.personal_info.github = raw_links["github"]
+    if (not prof.personal.linkedin or is_generic_social_url(prof.personal.linkedin)) and "linkedin" in raw_links:
+        prof.personal.linkedin = raw_links["linkedin"]
+    elif prof.personal.linkedin and is_generic_social_url(prof.personal.linkedin):
+        prof.personal.linkedin = ""
+
+    if (not prof.personal.github or is_generic_social_url(prof.personal.github)) and "github" in raw_links:
+        prof.personal.github = raw_links["github"]
+    elif prof.personal.github and is_generic_social_url(prof.personal.github):
+        prof.personal.github = ""
     return prof
 
 

@@ -33,19 +33,7 @@ HARD RULES:
 """
 
 
-class FitAnalysis(BaseModel):
-    match: list[str] = Field(
-        description="List of JD requirements the candidate strongly covers."
-    )
-    partial: list[str] = Field(
-        description="Requirements touched lightly or covered with transferable skills."
-    )
-    gap: list[str] = Field(
-        description="Requirements the candidate lacks (must not be fabricated)."
-    )
-    pitch_angle: str = Field(
-        description="1-2 sentences on how best to position the candidate for this specific role."
-    )
+from src.universal_models import FitAnalysis
 
 
 class TailoredBullets(BaseModel):

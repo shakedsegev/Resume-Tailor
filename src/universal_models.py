@@ -19,6 +19,44 @@ class ContactInfo(BaseModel):
     website: str = ""
 
 
+def is_generic_social_url(url: str) -> bool:
+    """
+    Returns True if the URL points to a generic website homepage rather than a candidate's personal profile.
+    e.g. 'https://github.com', 'https://linkedin.com', 'https://linkedin.com/in/LinkedIn', 'https://github.com/GitHub'
+    """
+    if not url:
+        return True
+    clean = url.strip().rstrip("/").lower()
+    clean = re.sub(r"^https?://", "", clean)
+    clean = re.sub(r"^www\.", "", clean)
+
+    # Generic LinkedIn targets
+    if clean in {
+        "linkedin.com",
+        "linkedin.com/in",
+        "linkedin.com/in/linkedin",
+        "linkedin.com/in/in",
+        "linkedin.com/company",
+        "linkedin.com/feed",
+        "linkedin",
+    }:
+        return True
+    if clean.startswith("linkedin.com") and len(clean.split("/")) <= 2 and clean.split("/")[-1] in {"", "in", "feed", "jobs", "home"}:
+        return True
+
+    # Generic GitHub targets
+    if clean in {
+        "github.com",
+        "github.com/github",
+        "github.com/home",
+        "github.com/login",
+        "github",
+    }:
+        return True
+
+    return False
+
+
 def normalize_url(url: str, default_domain: str = "") -> str:
     """Ensures URLs are well-formed absolute https:// links for active clickable PDF hyperlinks."""
     if not url:
@@ -39,17 +77,37 @@ def normalize_url(url: str, default_domain: str = "") -> str:
     return f"https://{clean}"
 
 
+def format_social_display(url: str, network: str = "") -> str:
+    """
+    Formats a full profile URL into a clean, recruiter-friendly display string for PDF & HTML rendering.
+    e.g. 'https://www.linkedin.com/in/shaked-segev-424178298/' -> 'linkedin.com/in/shaked-segev-424178298'
+         'https://github.com/shakedsegev' -> 'github.com/shakedsegev'
+    """
+    if not url:
+        return ""
+    if is_generic_social_url(url):
+        return network.capitalize() if network else ""
+    clean = url.strip().rstrip("/")
+    clean = re.sub(r"^https?://", "", clean)
+    clean = re.sub(r"^www\.", "", clean)
+    return clean
+
+
 def extract_social_links(text: str) -> dict[str, str]:
     """Extracts LinkedIn and GitHub URLs from raw text or profile notes."""
     links: dict[str, str] = {}
     if not text:
         return links
-    m_li = re.search(r"(?:https?://)?(?:www\.)?linkedin\.com/in/[a-zA-Z0-9_\-]+/?", text, re.IGNORECASE)
+    m_li = re.search(r"(?:https?://)?(?:www\.)?linkedin\.com/in/[a-zA-Z0-9_\-\.%]+/?", text, re.IGNORECASE)
     if m_li:
-        links["linkedin"] = normalize_url(m_li.group(0), "linkedin.com/in")
-    m_gh = re.search(r"(?:https?://)?(?:www\.)?github\.com/[a-zA-Z0-9_\-]+/?", text, re.IGNORECASE)
+        cand = normalize_url(m_li.group(0), "linkedin.com/in")
+        if not is_generic_social_url(cand):
+            links["linkedin"] = cand
+    m_gh = re.search(r"(?:https?://)?(?:www\.)?github\.com/[a-zA-Z0-9_\-\.%]+/?", text, re.IGNORECASE)
     if m_gh:
-        links["github"] = normalize_url(m_gh.group(0), "github.com")
+        cand = normalize_url(m_gh.group(0), "github.com")
+        if not is_generic_social_url(cand):
+            links["github"] = cand
     return links
 
 
@@ -226,13 +284,15 @@ def compute_multi_metric_fit(
     gap_len = len(fit.gap)
     total_reqs = strong_len + partial_len + gap_len
 
+    req_curr = getattr(fit, "requirements_score", None)
     if total_reqs > 0:
         req_score = round(((strong_len * 1.0 + partial_len * 0.5) / total_reqs) * 100)
     else:
-        req_score = fit.requirements_score if fit.requirements_score else 85
+        req_score = req_curr if req_curr else 85
 
     # Experience Alignment:
-    raw_exp = fit.experience_score if (fit.experience_score and fit.experience_score > 0) else (
+    exp_curr = getattr(fit, "experience_score", None)
+    raw_exp = exp_curr if (exp_curr and exp_curr > 0) else (
         round(min(96, max(60, (strong_len / max(1, strong_len + gap_len)) * 100)))
     )
     exp_score = max(50, min(98, raw_exp))
@@ -241,16 +301,16 @@ def compute_multi_metric_fit(
     composite = round(0.40 * keyword_score + 0.35 * req_score + 0.25 * exp_score)
     composite = max(40, min(99, composite))
 
-    fit.keyword_score = max(0, min(100, keyword_score))
-    fit.requirements_score = max(0, min(100, req_score))
-    fit.experience_score = max(0, min(100, exp_score))
-    fit.match_score = composite
-    fit.keyword_stats = KeywordStats(
+    setattr(fit, "keyword_score", max(0, min(100, keyword_score)))
+    setattr(fit, "requirements_score", max(0, min(100, req_score)))
+    setattr(fit, "experience_score", max(0, min(100, exp_score)))
+    setattr(fit, "match_score", composite)
+    setattr(fit, "keyword_stats", KeywordStats(
         found_count=len(matched_kw),
         total_count=len(jd_keywords),
         matched_keywords=matched_kw,
         missing_keywords=missing_kw,
-    )
+    ))
     return fit
 
 
@@ -435,11 +495,17 @@ def sanitize_universal_resume(resume: UniversalResume) -> UniversalResume:
             )
             edu.details = re.sub(r"\|\s*\|+", "|", edu.details).strip(" |")
 
-    # 3. Normalize contact social URLs to clickable https:// links
+    # 3. Normalize contact social URLs to clickable https:// links, clearing any generic homepages
     if resume.contact.linkedin:
-        resume.contact.linkedin = normalize_url(resume.contact.linkedin, "linkedin.com/in")
+        if is_generic_social_url(resume.contact.linkedin):
+            resume.contact.linkedin = ""
+        else:
+            resume.contact.linkedin = normalize_url(resume.contact.linkedin, "linkedin.com/in")
     if resume.contact.github:
-        resume.contact.github = normalize_url(resume.contact.github, "github.com")
+        if is_generic_social_url(resume.contact.github):
+            resume.contact.github = ""
+        else:
+            resume.contact.github = normalize_url(resume.contact.github, "github.com")
 
     # 4. Check additional_sections against spoken languages
     kept_sections: list[AdditionalSection] = []
