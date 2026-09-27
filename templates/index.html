@@ -378,8 +378,8 @@
               </button>
             </div>
 
-            <!-- Action Buttons: Reset, Open, Download -->
-            <div class="flex items-center space-x-2.5">
+            <!-- Action Buttons: Reset, Open, Edit, Tournament, Download -->
+            <div class="flex items-center flex-wrap gap-2">
               <button
                 type="button"
                 id="btnReset"
@@ -398,6 +398,22 @@
               >
                 Open Tab ↗
               </a>
+              <button
+                type="button"
+                id="btnEditContent"
+                class="px-3.5 py-1.5 rounded-xl text-xs font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-all flex items-center gap-1.5 shadow-sm"
+              >
+                <span>✏️</span>
+                <span data-i18n="btn_edit_content">Edit Content</span>
+              </button>
+              <button
+                type="button"
+                id="btnRunTournament"
+                class="px-3.5 py-1.5 rounded-xl text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-all flex items-center gap-1.5 shadow-sm"
+              >
+                <span>🏆</span>
+                <span data-i18n="btn_run_tournament">Deep 5-Pass Tournament</span>
+              </button>
               <a
                 id="btnDownloadAtsPdf"
                 href="#"
@@ -578,6 +594,197 @@
     </div>
   </div>
 
+  <!-- Deep 5-Pass AI Tournament Confirmation Modal -->
+  <div id="tournamentModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+          <span>🏆</span> <span data-i18n="tournament_modal_title">Deep 5-Pass AI Tournament</span>
+        </h3>
+        <button id="btnCloseTournamentModal" class="text-slate-400 hover:text-slate-600 font-bold p-1">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs text-slate-600 leading-relaxed">
+        <p data-i18n="tournament_modal_desc">
+          This will run a 5-pass AI cross-evaluation tournament, testing 5 distinct tailoring angles and synthesizing the highest-scoring candidate.
+        </p>
+        <div class="p-3.5 bg-indigo-50 border border-indigo-200 rounded-xl flex items-center gap-2.5 text-indigo-900 font-medium">
+          <span class="text-base">⏱️</span>
+          <span data-i18n="tournament_runtime_note">Estimated runtime: approximately 45–50 seconds.</span>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end space-x-3 pt-2">
+        <button
+          type="button"
+          id="btnCancelTournament"
+          class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors"
+          data-i18n="btn_cancel"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          id="btnProceedTournament"
+          class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 shadow-md shadow-indigo-500/20 transition-all flex items-center gap-1.5"
+          data-i18n="btn_proceed_tournament"
+        >
+          <span>🏆</span>
+          <span>Proceed (Run 5 Passes)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live Content Editor Modal -->
+  <div id="editorModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-4xl w-full flex flex-col shadow-2xl border border-slate-200 max-h-[90vh] overflow-hidden">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/70">
+        <div>
+          <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+            <span>✏️</span> <span data-i18n="editor_modal_title">Live Resume Content Editor</span>
+          </h3>
+          <p class="text-xs text-slate-500 mt-0.5" data-i18n="editor_modal_subtitle">
+            Edit contact links, summary, skills, or bullets. Fast 1-second recompilation without re-running AI.
+          </p>
+        </div>
+        <button id="btnCloseEditorModal" class="text-slate-400 hover:text-slate-600 font-bold p-1 rounded-lg">✕</button>
+      </div>
+
+      <!-- Modal Body (Scrollable) -->
+      <form id="editorForm" class="p-6 overflow-y-auto space-y-6 text-xs custom-scrollbar">
+        <!-- 1. Contact Information & Links -->
+        <fieldset class="border border-slate-200 rounded-xl p-4 bg-slate-50/40 space-y-3">
+          <legend class="font-bold text-slate-800 px-2 flex items-center gap-1 text-xs">
+            <span>👤</span> <span data-i18n="editor_contact_legend">Contact Information & Links</span>
+          </legend>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Full Name</label>
+              <input type="text" id="edContactName" class="w-full p-2 border border-slate-200 rounded-lg text-xs bg-white">
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Email</label>
+              <input type="email" id="edContactEmail" class="w-full p-2 border border-slate-200 rounded-lg text-xs bg-white">
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Phone</label>
+              <input type="text" id="edContactPhone" class="w-full p-2 border border-slate-200 rounded-lg text-xs bg-white">
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Location</label>
+              <input type="text" id="edContactLocation" class="w-full p-2 border border-slate-200 rounded-lg text-xs bg-white">
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <div>
+              <label class="block font-semibold text-sky-700 mb-1 flex items-center gap-1">
+                <span>🔗</span> <span>LinkedIn URL / Handle</span>
+              </label>
+              <input type="text" id="edContactLinkedin" placeholder="https://linkedin.com/in/username" class="w-full p-2 border border-sky-200 rounded-lg text-xs bg-white">
+            </div>
+            <div>
+              <label class="block font-semibold text-indigo-700 mb-1 flex items-center gap-1">
+                <span>💻</span> <span>GitHub URL / Handle</span>
+              </label>
+              <input type="text" id="edContactGithub" placeholder="https://github.com/username" class="w-full p-2 border border-indigo-200 rounded-lg text-xs bg-white">
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- 2. Professional Summary -->
+        <fieldset class="border border-slate-200 rounded-xl p-4 bg-slate-50/40 space-y-2">
+          <legend class="font-bold text-slate-800 px-2 flex items-center gap-1 text-xs">
+            <span>📝</span> <span data-i18n="editor_summary_legend">Professional Summary</span>
+          </legend>
+          <textarea id="edSummary" rows="2" class="w-full p-2.5 border border-slate-200 rounded-lg text-xs leading-relaxed bg-white"></textarea>
+        </fieldset>
+
+        <!-- 3. Technical Skills -->
+        <fieldset class="border border-slate-200 rounded-xl p-4 bg-slate-50/40 space-y-3">
+          <legend class="font-bold text-slate-800 px-2 flex items-center gap-1 text-xs">
+            <span>🛠️</span> <span data-i18n="editor_skills_legend">Technical Skills (Comma Separated)</span>
+          </legend>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Programming Languages</label>
+              <input type="text" id="edSkillsLanguages" class="w-full p-2 border border-slate-200 rounded-lg text-xs bg-white">
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Frameworks & Tools</label>
+              <input type="text" id="edSkillsTools" class="w-full p-2 border border-slate-200 rounded-lg text-xs bg-white">
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Core Concepts</label>
+              <input type="text" id="edSkillsConcepts" class="w-full p-2 border border-slate-200 rounded-lg text-xs bg-white">
+            </div>
+            <div>
+              <label class="block font-semibold text-slate-700 mb-1">Spoken Languages</label>
+              <input type="text" id="edSkillsSpoken" class="w-full p-2 border border-slate-200 rounded-lg text-xs bg-white">
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- 4. Work Experience Bullets -->
+        <fieldset class="border border-slate-200 rounded-xl p-4 bg-slate-50/40 space-y-3">
+          <legend class="font-bold text-slate-800 px-2 flex items-center gap-1 text-xs">
+            <span>💼</span> <span data-i18n="editor_experience_legend">Work Experience & Bullets</span>
+          </legend>
+          <div id="edExperienceContainer" class="space-y-4"></div>
+        </fieldset>
+
+        <!-- 5. Academic & Side Projects -->
+        <fieldset class="border border-slate-200 rounded-xl p-4 bg-slate-50/40 space-y-3">
+          <legend class="font-bold text-slate-800 px-2 flex items-center gap-1 text-xs">
+            <span>🚀</span> <span data-i18n="editor_projects_legend">Projects</span>
+          </legend>
+          <div id="edProjectsContainer" class="space-y-4"></div>
+        </fieldset>
+
+        <!-- 6. Education -->
+        <fieldset class="border border-slate-200 rounded-xl p-4 bg-slate-50/40 space-y-3">
+          <legend class="font-bold text-slate-800 px-2 flex items-center gap-1 text-xs">
+            <span>🎓</span> <span data-i18n="editor_education_legend">Education & Coursework</span>
+          </legend>
+          <div id="edEducationContainer" class="space-y-3"></div>
+        </fieldset>
+
+        <!-- 7. Additional Sections -->
+        <fieldset class="border border-slate-200 rounded-xl p-4 bg-slate-50/40 space-y-3">
+          <legend class="font-bold text-slate-800 px-2 flex items-center gap-1 text-xs">
+            <span>🎖️</span> <span data-i18n="editor_additional_legend">Additional Sections (Leadership, Military, Awards)</span>
+          </legend>
+          <div id="edAdditionalContainer" class="space-y-3"></div>
+        </fieldset>
+      </form>
+
+      <!-- Modal Footer -->
+      <div class="flex items-center justify-between border-t border-slate-100 px-6 py-3.5 bg-slate-50/80">
+        <span id="editorFeedback" class="text-xs font-semibold text-emerald-600 hidden">✓ Recompiled successfully!</span>
+        <div class="flex items-center space-x-3 ml-auto">
+          <button
+            type="button"
+            id="btnCancelEditor"
+            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors"
+            data-i18n="btn_cancel"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            id="btnApplyEdits"
+            class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-amber-600 via-sky-600 to-indigo-600 hover:from-amber-700 hover:to-indigo-700 shadow-md shadow-sky-500/20 transition-all flex items-center gap-1.5"
+            data-i18n="editor_apply_btn"
+          >
+            <span>⚡</span>
+            <span>Apply Edits & Recompile PDF</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // Multilingual Translations Dictionary
     const TRANSLATIONS = {
@@ -644,7 +851,24 @@
         btn_download_ats_pdf: "Download ATS PDF",
         metric_keyword_title: "Keywords & Skills",
         metric_req_title: "Qualifications",
-        metric_exp_title: "Experience & Impact"
+        metric_exp_title: "Experience & Impact",
+        btn_edit_content: "Edit Content",
+        btn_run_tournament: "Deep 5-Pass AI Tournament",
+        tournament_modal_title: "Deep 5-Pass AI Tournament",
+        tournament_modal_desc: "This will run 5 diverse AI tailoring strategies and synthesize the highest-scoring candidate. This process takes ~50 seconds. Do you want to proceed?",
+        tournament_runtime_note: "Estimated runtime: approximately 45–50 seconds.",
+        btn_cancel: "Cancel",
+        btn_proceed_tournament: "Proceed (Run 5 Passes)",
+        editor_modal_title: "Live Resume Content Editor",
+        editor_modal_subtitle: "Edit contact links, summary, skills, or bullets. Fast 1-second recompilation without re-running AI.",
+        editor_apply_btn: "Apply Edits & Recompile PDF",
+        editor_contact_legend: "Contact Information & Links",
+        editor_summary_legend: "Professional Summary",
+        editor_skills_legend: "Technical Skills (Comma Separated)",
+        editor_experience_legend: "Work Experience & Bullets",
+        editor_projects_legend: "Projects",
+        editor_education_legend: "Education & Coursework",
+        editor_additional_legend: "Additional Sections (Leadership, Military, Awards)"
       },
       he: {
         badge_design_preserving: "AI שומר עיצוב",
@@ -709,7 +933,24 @@
         btn_download_ats_pdf: "הורד PDF מותאם ל-ATS",
         metric_keyword_title: "מילות מפתח ומיומנויות",
         metric_req_title: "דרישות והסמכות",
-        metric_exp_title: "ניסיון והשפעה"
+        metric_exp_title: "ניסיון והשפעה",
+        btn_edit_content: "ערוך תוכן",
+        btn_run_tournament: "טורניר AI מעמיק (5 סבבים)",
+        tournament_modal_title: "טורניר AI מעמיק (5 סבבים)",
+        tournament_modal_desc: "פעולה זו תריץ 5 אסטרטגיות התאמה שונות ותשלב את התוצאה בעלת הציון הגבוה ביותר. התהליך אורך כ-50 שניות. האם ברצונך להמשיך?",
+        tournament_runtime_note: "זמן ריצה משוער: כ-45–50 שניות.",
+        btn_cancel: "ביטול",
+        btn_proceed_tournament: "המשך (הרץ 5 סבבים)",
+        editor_modal_title: "עורך תוכן חי לקורות חיים",
+        editor_modal_subtitle: "ערוך קישורים, תמצית, כישורים או נקודות ניסיון. הידור PDF מהיר של שנייה אחת ללא קריאות AI נוספות.",
+        editor_apply_btn: "החל שינויים והפק PDF מחדש",
+        editor_contact_legend: "פרטי קשר וקישורים",
+        editor_summary_legend: "תמצית מקצועית",
+        editor_skills_legend: "כישורים טכנולוגיים (מופרדים בפסיקים)",
+        editor_experience_legend: "ניסיון תעסוקתי והישגים",
+        editor_projects_legend: "פרויקטים",
+        editor_education_legend: "השכלה וקורסים",
+        editor_additional_legend: "סעיפים נוספים (שירות צבאי, מנהיגות, פרסים)"
       },
       es: {
         badge_design_preserving: "IA que Preserva el Diseño",
@@ -774,7 +1015,24 @@
         btn_download_ats_pdf: "Descargar PDF ATS",
         metric_keyword_title: "Palabras clave y habilidades",
         metric_req_title: "Cualificaciones básicas",
-        metric_exp_title: "Experiencia e impacto"
+        metric_exp_title: "Experiencia e impacto",
+        btn_edit_content: "Editar Contenido",
+        btn_run_tournament: "Torneo AI Profundo (5 Pases)",
+        tournament_modal_title: "Torneo AI Profundo (5 Pases)",
+        tournament_modal_desc: "Esto ejecutará 5 estrategias diversas de optimización y sintetizará la versión con mayor puntuación. El proceso tarda aproximadamente 50 segundos. ¿Deseas continuar?",
+        tournament_runtime_note: "Tiempo estimado de ejecución: aproximadamente 45–50 segundos.",
+        btn_cancel: "Cancelar",
+        btn_proceed_tournament: "Continuar (Ejecutar 5 pases)",
+        editor_modal_title: "Editor de Contenido en Vivo",
+        editor_modal_subtitle: "Edita enlaces, resumen, habilidades o viñetas. Recompilación en 1 segundo sin reejecutar la IA.",
+        editor_apply_btn: "Aplicar Cambios y Recompilar PDF",
+        editor_contact_legend: "Información de Contacto y Enlaces",
+        editor_summary_legend: "Resumen Profesional",
+        editor_skills_legend: "Habilidades Técnicas (Separadas por Comas)",
+        editor_experience_legend: "Experiencia Laboral y Logros",
+        editor_projects_legend: "Proyectos",
+        editor_education_legend: "Educación y Cursos",
+        editor_additional_legend: "Secciones Adicionales (Liderazgo, Militar, Premios)"
       },
       zh: {
         badge_design_preserving: "保留排版智能AI",
@@ -839,7 +1097,24 @@
         btn_download_ats_pdf: "下载 ATS 纯净版 PDF",
         metric_keyword_title: "关键词与技术栈匹配",
         metric_req_title: "核心任职资格覆盖",
-        metric_exp_title: "经验成果与业务深度"
+        metric_exp_title: "经验成果与业务深度",
+        btn_edit_content: "编辑简历内容",
+        btn_run_tournament: "深度 5 轮 AI 锦标赛",
+        tournament_modal_title: "深度 5 轮 AI 锦标赛",
+        tournament_modal_desc: "这将运行 5 种不同策略的 AI 定制并合成最高分的最佳简历。该过程约需 50 秒。是否继续？",
+        tournament_runtime_note: "预计耗时：约 45–50 秒。",
+        btn_cancel: "取消",
+        btn_proceed_tournament: "确认执行（运行 5 轮）",
+        editor_modal_title: "简历内容实时编辑器",
+        editor_modal_subtitle: "编辑联系方式、总结、技能或工作要点。1 秒极速重新编译 PDF，无需重新调用 AI。",
+        editor_apply_btn: "应用更改并重新编译 PDF",
+        editor_contact_legend: "联系方式与社交主页链接",
+        editor_summary_legend: "专业个人总结",
+        editor_skills_legend: "专业技能（逗号分隔）",
+        editor_experience_legend: "工作与项目经历要点",
+        editor_projects_legend: "工程项目",
+        editor_education_legend: "教育背景与核心课程",
+        editor_additional_legend: "其他专项（领导力、荣誉奖项等）"
       },
       ar: {
         badge_design_preserving: "ذكاء اصطناعي يحفظ التصميم",
@@ -904,7 +1179,24 @@
         btn_download_ats_pdf: "تحميل PDF متوافق مع ATS",
         metric_keyword_title: "الكلمات المفتاحية والمهارات",
         metric_req_title: "المؤهلات والمتطلبات",
-        metric_exp_title: "الخبرة والتأثير المهني"
+        metric_exp_title: "الخبرة والتأثير المهني",
+        btn_edit_content: "تعديل المحتوى",
+        btn_run_tournament: "بطولة الذكاء الاصطناعي (5 جولات)",
+        tournament_modal_title: "بطولة الذكاء الاصطناعي العميقة (5 جولات)",
+        tournament_modal_desc: "سيقوم هذا بتشغيل 5 استراتيجيات تخصيص مختلفة ودمج أفضل نسخة حاصلة على أعلى تقييم. تستغرق العملية حوالي 50 ثانية. هل تريد المتابعة؟",
+        tournament_runtime_note: "الوقت المقدر: حوالي 45–50 ثانية.",
+        btn_cancel: "إلغاء",
+        btn_proceed_tournament: "متابعة (تشغيل 5 جولات)",
+        editor_modal_title: "محرر محتوى السيرة الذاتية الحي",
+        editor_modal_subtitle: "تعديل الروابط والملخص والمهارات والنقاط. إعادة تجميع سريعة في ثانية واحدة دون إعادة تشغيل الذكاء الاصطناعي.",
+        editor_apply_btn: "تطبيق التعديلات وإعادة تجميع PDF",
+        editor_contact_legend: "معلومات الاتصال والروابط",
+        editor_summary_legend: "الملخص المهني",
+        editor_skills_legend: "المهارات التقنية (مفصولة بفواصل)",
+        editor_experience_legend: "الخبرة المهنية والإنجازات",
+        editor_projects_legend: "المشاريع",
+        editor_education_legend: "التعليم والدورات",
+        editor_additional_legend: "أقسام إضافية (القيادة، الخدمة، الجوائز)"
       },
       fr: {
         badge_design_preserving: "IA préservant le design",
@@ -969,7 +1261,24 @@
         btn_download_ats_pdf: "Télécharger le PDF ATS",
         metric_keyword_title: "Mots-clés & Compétences",
         metric_req_title: "Qualifications Clés",
-        metric_exp_title: "Expérience & Impact"
+        metric_exp_title: "Expérience & Impact",
+        btn_edit_content: "Modifier le Contenu",
+        btn_run_tournament: "Tournoi IA Approfondi (5 Passes)",
+        tournament_modal_title: "Tournoi IA Approfondi (5 Passes)",
+        tournament_modal_desc: "Cela exécutera 5 stratégies d'optimisation distinctes et synthétisera la version ayant obtenu le meilleur score. Ce processus prend environ 50 secondes. Voulez-vous continuer ?",
+        tournament_runtime_note: "Durée estimée : environ 45–50 secondes.",
+        btn_cancel: "Annuler",
+        btn_proceed_tournament: "Continuer (Lancer les 5 passes)",
+        editor_modal_title: "Éditeur de Contenu en Direct",
+        editor_modal_subtitle: "Modifiez les liens, le résumé, les compétences ou les puces. Recompilation en 1 seconde sans relancer l'IA.",
+        editor_apply_btn: "Appliquer et Recompiler le PDF",
+        editor_contact_legend: "Coordonnées et Liens",
+        editor_summary_legend: "Résumé Professionnel",
+        editor_skills_legend: "Compétences Techniques (Séparées par des Virgules)",
+        editor_experience_legend: "Expérience Professionnelle et Réussites",
+        editor_projects_legend: "Projets",
+        editor_education_legend: "Formation et Cours",
+        editor_additional_legend: "Sections Supplémentaires (Leadership, Militaire, Prix)"
       },
       de: {
         badge_design_preserving: "Design-Schützende KI",
@@ -1034,7 +1343,24 @@
         btn_download_ats_pdf: "ATS-PDF herunterladen",
         metric_keyword_title: "Schlüsselwörter & Skills",
         metric_req_title: "Kernqualifikationen",
-        metric_exp_title: "Erfahrung & Wirkung"
+        metric_exp_title: "Erfahrung & Wirkung",
+        btn_edit_content: "Inhalt Bearbeiten",
+        btn_run_tournament: "Tiefes 5-Runden-KI-Turnier",
+        tournament_modal_title: "Tiefes 5-Runden-KI-Turnier",
+        tournament_modal_desc: "Dies führt 5 verschiedene KI-Optimierungsstrategien aus und synthetisiert die am höchsten bewertete Version. Dieser Vorgang dauert ca. 50 Sekunden. Möchten Sie fortfahren?",
+        tournament_runtime_note: "Geschätzte Laufzeit: ca. 45–50 Sekunden.",
+        btn_cancel: "Abbrechen",
+        btn_proceed_tournament: "Fortfahren (5 Runden ausführen)",
+        editor_modal_title: "Live-Lebenslauf-Editor",
+        editor_modal_subtitle: "Bearbeiten Sie Links, Zusammenfassung, Fähigkeiten oder Stichpunkte. Schnelle Re-Kompilierung in 1 Sekunde ohne erneuten KI-Aufruf.",
+        editor_apply_btn: "Änderungen anwenden & PDF neu kompilieren",
+        editor_contact_legend: "Kontaktdaten & Links",
+        editor_summary_legend: "Berufliches Profil",
+        editor_skills_legend: "Technische Fähigkeiten (kommagetrennt)",
+        editor_experience_legend: "Berufserfahrung & Erfolge",
+        editor_projects_legend: "Projekte",
+        editor_education_legend: "Ausbildung & Kurse",
+        editor_additional_legend: "Zusätzliche Abschnitte (Führung, Militär, Auszeichnungen)"
       }
     };
 
@@ -1403,9 +1729,394 @@
       strategyAts.checked = true;
     });
 
-    tailorForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
 
+    function appendBulletRow(container, text) {
+      const row = document.createElement('div');
+      row.className = 'flex items-start gap-1.5';
+      row.innerHTML = `
+        <textarea rows="2" class="ed-bullet-input flex-1 p-1.5 border border-slate-200 rounded text-xs leading-relaxed bg-white">${escapeHtml(text || '')}</textarea>
+        <button type="button" class="btn-del-bullet text-rose-500 hover:text-rose-700 p-1.5 text-xs font-bold" title="Remove bullet">✕</button>
+      `;
+      row.querySelector('.btn-del-bullet').addEventListener('click', () => row.remove());
+      container.appendChild(row);
+    }
+
+    function appendItemRow(container, text) {
+      const row = document.createElement('div');
+      row.className = 'flex items-start gap-1.5';
+      row.innerHTML = `
+        <textarea rows="2" class="ed-add-item-input flex-1 p-1.5 border border-slate-200 rounded text-xs leading-relaxed bg-white">${escapeHtml(text || '')}</textarea>
+        <button type="button" class="btn-del-item text-rose-500 hover:text-rose-700 p-1.5 text-xs font-bold" title="Remove item">✕</button>
+      `;
+      row.querySelector('.btn-del-item').addEventListener('click', () => row.remove());
+      container.appendChild(row);
+    }
+
+    function renderEditorExperience(experienceList) {
+      const container = document.getElementById('edExperienceContainer');
+      container.innerHTML = '';
+      if (!experienceList || experienceList.length === 0) {
+        container.innerHTML = '<p class="text-slate-400 italic">No experience items.</p>';
+        return;
+      }
+      experienceList.forEach((exp) => {
+        const card = document.createElement('div');
+        card.className = 'p-3.5 bg-white border border-slate-200 rounded-xl space-y-2.5';
+        card.innerHTML = `
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Role / Title</label>
+              <input type="text" class="ed-exp-role w-full p-1.5 border border-slate-200 rounded text-xs" value="${escapeHtml(exp.role || '')}">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Company</label>
+              <input type="text" class="ed-exp-company w-full p-1.5 border border-slate-200 rounded text-xs" value="${escapeHtml(exp.company || '')}">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Dates</label>
+              <input type="text" class="ed-exp-dates w-full p-1.5 border border-slate-200 rounded text-xs" value="${escapeHtml(exp.date_range || '')}">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Location</label>
+              <input type="text" class="ed-exp-loc w-full p-1.5 border border-slate-200 rounded text-xs" value="${escapeHtml(exp.location || '')}">
+            </div>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Accomplishment Bullets</label>
+            <div class="ed-exp-bullets-container space-y-1.5"></div>
+            <button type="button" class="btn-add-exp-bullet mt-2 px-2.5 py-1 text-[11px] font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100 rounded-lg border border-sky-200 transition-colors">
+              + Add Bullet
+            </button>
+          </div>
+        `;
+        const bulletsContainer = card.querySelector('.ed-exp-bullets-container');
+        (exp.bullets || []).forEach((b) => {
+          appendBulletRow(bulletsContainer, b);
+        });
+        card.querySelector('.btn-add-exp-bullet').addEventListener('click', () => {
+          appendBulletRow(bulletsContainer, '');
+        });
+        container.appendChild(card);
+      });
+    }
+
+    function renderEditorProjects(projectList) {
+      const container = document.getElementById('edProjectsContainer');
+      container.innerHTML = '';
+      if (!projectList || projectList.length === 0) {
+        container.innerHTML = '<p class="text-slate-400 italic">No projects.</p>';
+        return;
+      }
+      projectList.forEach((proj) => {
+        const card = document.createElement('div');
+        card.className = 'p-3.5 bg-white border border-slate-200 rounded-xl space-y-2.5';
+        card.innerHTML = `
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Project Name</label>
+              <input type="text" class="ed-proj-name w-full p-1.5 border border-slate-200 rounded text-xs" value="${escapeHtml(proj.name || '')}">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Tech Stack</label>
+              <input type="text" class="ed-proj-tech w-full p-1.5 border border-slate-200 rounded text-xs" value="${escapeHtml(proj.technologies || '')}">
+            </div>
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Architecture Description</label>
+            <textarea rows="2" class="ed-proj-desc w-full p-1.5 border border-slate-200 rounded text-xs leading-relaxed">${escapeHtml(proj.description || '')}</textarea>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1">Bullets</label>
+            <div class="ed-proj-bullets-container space-y-1.5"></div>
+            <button type="button" class="btn-add-proj-bullet mt-2 px-2.5 py-1 text-[11px] font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100 rounded-lg border border-sky-200 transition-colors">
+              + Add Bullet
+            </button>
+          </div>
+        `;
+        const bulletsContainer = card.querySelector('.ed-proj-bullets-container');
+        (proj.bullets || []).forEach((b) => {
+          appendBulletRow(bulletsContainer, b);
+        });
+        card.querySelector('.btn-add-proj-bullet').addEventListener('click', () => {
+          appendBulletRow(bulletsContainer, '');
+        });
+        container.appendChild(card);
+      });
+    }
+
+    function renderEditorEducation(eduList) {
+      const container = document.getElementById('edEducationContainer');
+      container.innerHTML = '';
+      if (!eduList || eduList.length === 0) {
+        container.innerHTML = '<p class="text-slate-400 italic">No education items.</p>';
+        return;
+      }
+      eduList.forEach((edu) => {
+        const card = document.createElement('div');
+        card.className = 'p-3 bg-white border border-slate-200 rounded-xl space-y-2';
+        card.innerHTML = `
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Degree</label>
+              <input type="text" class="ed-edu-degree w-full p-1.5 border border-slate-200 rounded text-xs" value="${escapeHtml(edu.degree || '')}">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Institution</label>
+              <input type="text" class="ed-edu-inst w-full p-1.5 border border-slate-200 rounded text-xs" value="${escapeHtml(edu.institution || '')}">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Dates</label>
+              <input type="text" class="ed-edu-dates w-full p-1.5 border border-slate-200 rounded text-xs" value="${escapeHtml(edu.date_range || '')}">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">GPA / Grade</label>
+              <input type="text" class="ed-edu-gpa w-full p-1.5 border border-slate-200 rounded text-xs" value="${escapeHtml(edu.gpa || '')}">
+            </div>
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Coursework & Honors</label>
+            <input type="text" class="ed-edu-details w-full p-1.5 border border-slate-200 rounded text-xs" value="${escapeHtml(edu.details || '')}">
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function renderEditorAdditional(sectionList) {
+      const container = document.getElementById('edAdditionalContainer');
+      container.innerHTML = '';
+      if (!sectionList || sectionList.length === 0) {
+        container.innerHTML = '<p class="text-slate-400 italic">No additional sections.</p>';
+        return;
+      }
+      sectionList.forEach((sec) => {
+        const card = document.createElement('div');
+        card.className = 'p-3 bg-white border border-slate-200 rounded-xl space-y-2';
+        card.innerHTML = `
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Section Title</label>
+            <input type="text" class="ed-add-title w-full p-1.5 border border-slate-200 rounded text-xs font-semibold" value="${escapeHtml(sec.title || '')}">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Items / Accomplishments</label>
+            <div class="ed-add-items-container space-y-1.5"></div>
+            <button type="button" class="btn-add-sec-item mt-2 px-2.5 py-1 text-[11px] font-semibold text-sky-700 bg-sky-50 hover:bg-sky-100 rounded-lg border border-sky-200 transition-colors">
+              + Add Item
+            </button>
+          </div>
+        `;
+        const itemsContainer = card.querySelector('.ed-add-items-container');
+        (sec.items || []).forEach((it) => {
+          appendItemRow(itemsContainer, it);
+        });
+        card.querySelector('.btn-add-sec-item').addEventListener('click', () => {
+          appendItemRow(itemsContainer, '');
+        });
+        container.appendChild(card);
+      });
+    }
+
+    function populateLiveEditor(resume) {
+      if (!resume) return;
+      document.getElementById('edContactName').value = resume.contact?.name || '';
+      document.getElementById('edContactEmail').value = resume.contact?.email || '';
+      document.getElementById('edContactPhone').value = resume.contact?.phone || '';
+      document.getElementById('edContactLocation').value = resume.contact?.location || '';
+      document.getElementById('edContactLinkedin').value = resume.contact?.linkedin || '';
+      document.getElementById('edContactGithub').value = resume.contact?.github || '';
+      document.getElementById('edSummary').value = resume.summary || '';
+      document.getElementById('edSkillsLanguages').value = (resume.skills?.programming_languages || []).join(', ');
+      document.getElementById('edSkillsTools').value = (resume.skills?.frameworks_and_tools || []).join(', ');
+      document.getElementById('edSkillsConcepts').value = (resume.skills?.core_concepts || []).join(', ');
+      document.getElementById('edSkillsSpoken').value = (resume.skills?.spoken_languages || []).join(', ');
+
+      renderEditorExperience(resume.experience || []);
+      renderEditorProjects(resume.projects || []);
+      renderEditorEducation(resume.education || []);
+      renderEditorAdditional(resume.additional_sections || []);
+    }
+
+    // Modal controls: Tournament
+    const tournamentModal = document.getElementById('tournamentModal');
+    const btnRunTournament = document.getElementById('btnRunTournament');
+    const btnCloseTournamentModal = document.getElementById('btnCloseTournamentModal');
+    const btnCancelTournament = document.getElementById('btnCancelTournament');
+    const btnProceedTournament = document.getElementById('btnProceedTournament');
+
+    btnRunTournament?.addEventListener('click', () => {
+      tournamentModal.classList.remove('hidden');
+    });
+    btnCloseTournamentModal?.addEventListener('click', () => {
+      tournamentModal.classList.add('hidden');
+    });
+    btnCancelTournament?.addEventListener('click', () => {
+      tournamentModal.classList.add('hidden');
+    });
+    btnProceedTournament?.addEventListener('click', () => {
+      tournamentModal.classList.add('hidden');
+      runTailoring(5);
+    });
+
+    // Modal controls: Live Content Editor
+    const editorModal = document.getElementById('editorModal');
+    const btnEditContent = document.getElementById('btnEditContent');
+    const btnCloseEditorModal = document.getElementById('btnCloseEditorModal');
+    const btnCancelEditor = document.getElementById('btnCancelEditor');
+    const btnApplyEdits = document.getElementById('btnApplyEdits');
+
+    btnEditContent?.addEventListener('click', () => {
+      if (!lastTailoredData?.tailored_resume) {
+        alert("Please tailor a resume first before editing.");
+        return;
+      }
+      populateLiveEditor(lastTailoredData.tailored_resume);
+      editorModal.classList.remove('hidden');
+    });
+    btnCloseEditorModal?.addEventListener('click', () => {
+      editorModal.classList.add('hidden');
+    });
+    btnCancelEditor?.addEventListener('click', () => {
+      editorModal.classList.add('hidden');
+    });
+
+    btnApplyEdits?.addEventListener('click', async () => {
+      if (!lastTailoredData?.filename_base) {
+        alert("No active session found.");
+        return;
+      }
+
+      // Gather experience
+      const updatedExperience = [];
+      document.querySelectorAll('#edExperienceContainer > div').forEach(card => {
+        const role = card.querySelector('.ed-exp-role')?.value.trim() || '';
+        const company = card.querySelector('.ed-exp-company')?.value.trim() || '';
+        const date_range = card.querySelector('.ed-exp-dates')?.value.trim() || '';
+        const location = card.querySelector('.ed-exp-loc')?.value.trim() || '';
+        const bullets = [];
+        card.querySelectorAll('.ed-bullet-input').forEach(b => {
+          const val = b.value.trim();
+          if (val) bullets.push(val);
+        });
+        if (role || company || bullets.length) {
+          updatedExperience.push({ role, company, date_range, location, bullets });
+        }
+      });
+
+      // Gather projects
+      const updatedProjects = [];
+      document.querySelectorAll('#edProjectsContainer > div').forEach(card => {
+        const name = card.querySelector('.ed-proj-name')?.value.trim() || '';
+        const technologies = card.querySelector('.ed-proj-tech')?.value.trim() || '';
+        const description = card.querySelector('.ed-proj-desc')?.value.trim() || '';
+        const bullets = [];
+        card.querySelectorAll('.ed-proj-bullets-container textarea').forEach(b => {
+          const val = b.value.trim();
+          if (val) bullets.push(val);
+        });
+        if (name || description || bullets.length) {
+          updatedProjects.push({ name, technologies, description, bullets });
+        }
+      });
+
+      // Gather education
+      const updatedEducation = [];
+      document.querySelectorAll('#edEducationContainer > div').forEach(card => {
+        const degree = card.querySelector('.ed-edu-degree')?.value.trim() || '';
+        const institution = card.querySelector('.ed-edu-inst')?.value.trim() || '';
+        const date_range = card.querySelector('.ed-edu-dates')?.value.trim() || '';
+        const gpa = card.querySelector('.ed-edu-gpa')?.value.trim() || '';
+        const details = card.querySelector('.ed-edu-details')?.value.trim() || '';
+        if (degree || institution) {
+          updatedEducation.push({ degree, institution, date_range, gpa, details });
+        }
+      });
+
+      // Gather additional sections
+      const updatedAdditional = [];
+      document.querySelectorAll('#edAdditionalContainer > div').forEach(card => {
+        const title = card.querySelector('.ed-add-title')?.value.trim() || '';
+        const items = [];
+        card.querySelectorAll('.ed-add-items-container textarea').forEach(it => {
+          const val = it.value.trim();
+          if (val) items.push(val);
+        });
+        if (title && items.length) {
+          updatedAdditional.push({ title, items });
+        }
+      });
+
+      const updatedResume = {
+        contact: {
+          name: document.getElementById('edContactName').value.trim(),
+          email: document.getElementById('edContactEmail').value.trim(),
+          phone: document.getElementById('edContactPhone').value.trim(),
+          location: document.getElementById('edContactLocation').value.trim(),
+          linkedin: document.getElementById('edContactLinkedin').value.trim(),
+          github: document.getElementById('edContactGithub').value.trim(),
+        },
+        summary: document.getElementById('edSummary').value.trim(),
+        skills: {
+          programming_languages: document.getElementById('edSkillsLanguages').value.split(',').map(s => s.trim()).filter(Boolean),
+          frameworks_and_tools: document.getElementById('edSkillsTools').value.split(',').map(s => s.trim()).filter(Boolean),
+          core_concepts: document.getElementById('edSkillsConcepts').value.split(',').map(s => s.trim()).filter(Boolean),
+          spoken_languages: document.getElementById('edSkillsSpoken').value.split(',').map(s => s.trim()).filter(Boolean),
+        },
+        experience: updatedExperience,
+        projects: updatedProjects,
+        education: updatedEducation,
+        additional_sections: updatedAdditional,
+      };
+
+      btnApplyEdits.disabled = true;
+      const origBtnContent = btnApplyEdits.innerHTML;
+      btnApplyEdits.innerHTML = '<span>⏳</span> <span>Recompiling PDF...</span>';
+
+      try {
+        const res = await fetch('/api/recompile-pdf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            filename_base: lastTailoredData.filename_base,
+            resume: updatedResume,
+            jd_text: jdText.value.trim(),
+          }),
+        });
+        if (!res.ok) {
+          let errDetail = 'Recompilation failed';
+          try {
+            const errJson = await res.json();
+            errDetail = errJson.detail || errDetail;
+          } catch (_) {}
+          throw new Error(errDetail);
+        }
+        const data = await res.json();
+        editorModal.classList.add('hidden');
+        displayResults(data);
+        // Force refresh iframe preview
+        const currentSrc = previewIframe.src;
+        if (currentSrc && currentSrc !== 'about:blank') {
+          const u = new URL(currentSrc, window.location.origin);
+          u.searchParams.set('t', Date.now());
+          previewIframe.src = u.toString();
+        }
+      } catch (err) {
+        alert(`Error recompiling PDF: ${err.message}`);
+      } finally {
+        btnApplyEdits.disabled = false;
+        btnApplyEdits.innerHTML = origBtnContent;
+      }
+    });
+
+    async function runTailoring(tournamentPasses = 2) {
       if (!selectedFile) {
         alert("Please select or upload your resume file in Step 1.");
         dropzone.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1424,7 +2135,12 @@
       placeholderView.classList.remove('hidden');
       resultsView.classList.add('hidden');
 
-      updateProgress(20, "Extracting Document Layout", "Preserving native typography and structure...");
+      if (tournamentPasses === 5) {
+        updateProgress(15, "Deep 5-Pass AI Tournament", "Executing 5 diverse strategy passes and cross-evaluating (~50s)...");
+      } else {
+        updateProgress(20, "Extracting Document Layout", "Preserving native typography and structure...");
+      }
+
       const formData = new FormData();
       formData.append('resume_file', selectedFile);
       formData.append('jd_text', jdText.value.trim());
@@ -1432,15 +2148,26 @@
 
       const chosenStrategy = document.querySelector('input[name="format_strategy"]:checked')?.value || 'auto';
       formData.append('format_strategy', chosenStrategy);
+      formData.append('tournament_passes', tournamentPasses.toString());
 
       const interval = setInterval(() => {
         const cur = parseInt(progressBar.style.width);
-        if (cur < 50) {
-          updateProgress(50, "Synthesizing with Master Profile", "Matching verified projects & metrics without hallucination...");
-        } else if (cur < 80) {
-          updateProgress(80, "AI Substantive Tailoring", "Sharpening bullets & ordering skills by JD relevance...");
-        } else if (cur < 95) {
-          updateProgress(95, "Compiling Vector PDF", "Verifying layout margins and zero visual collision...");
+        if (tournamentPasses === 5) {
+          if (cur < 35) {
+            updateProgress(35, "Pass 1 & 2: Architecture & Keywords", "Cross-referencing verified ground truth...");
+          } else if (cur < 65) {
+            updateProgress(65, "Pass 3 & 4: Quantified Impact & Systems", "Measuring technical depth and metrics...");
+          } else if (cur < 90) {
+            updateProgress(90, "Pass 5 & Champion Synthesis", "Cross-evaluating candidates and synthesizing highest-scoring resume...");
+          }
+        } else {
+          if (cur < 50) {
+            updateProgress(50, "Synthesizing with Master Profile", "Matching verified projects & metrics without hallucination...");
+          } else if (cur < 80) {
+            updateProgress(80, "AI Substantive Tailoring", "Sharpening bullets & ordering skills by JD relevance...");
+          } else if (cur < 95) {
+            updateProgress(95, "Compiling Vector PDF", "Verifying layout margins and zero visual collision...");
+          }
         }
       }, 3000);
 
@@ -1475,6 +2202,11 @@
         btnSubmit.classList.remove('opacity-70', 'cursor-not-allowed');
         alert(`Error: ${err.message}`);
       }
+    }
+
+    tailorForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      runTailoring(2);
     });
 
     function updateProgress(pct, status, detail) {

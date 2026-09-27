@@ -49,7 +49,14 @@ Extraction Guidelines:
     )
 
     response = _generate_with_fallback(client, prompt, config)
-    return CandidateProfile.model_validate_json(response.text)
+    prof = CandidateProfile.model_validate_json(response.text)
+    from src.universal_models import extract_social_links
+    raw_links = extract_social_links(document_text)
+    if not prof.personal_info.linkedin and "linkedin" in raw_links:
+        prof.personal_info.linkedin = raw_links["linkedin"]
+    if not prof.personal_info.github and "github" in raw_links:
+        prof.personal_info.github = raw_links["github"]
+    return prof
 
 
 def build_profile_from_questionnaire(
@@ -80,7 +87,15 @@ Rules:
     )
 
     response = _generate_with_fallback(client, prompt, config)
-    return CandidateProfile.model_validate_json(response.text)
+    prof = CandidateProfile.model_validate_json(response.text)
+    from src.universal_models import extract_social_links
+    combined_answers = " ".join(str(v) for v in answers.values())
+    raw_links = extract_social_links(combined_answers)
+    if not prof.personal_info.linkedin and "linkedin" in raw_links:
+        prof.personal_info.linkedin = raw_links["linkedin"]
+    if not prof.personal_info.github and "github" in raw_links:
+        prof.personal_info.github = raw_links["github"]
+    return prof
 
 
 def load_profile_file(path: Path) -> Optional[CandidateProfile]:

@@ -310,5 +310,175 @@ def test_compute_multi_metric_fit_empty_edge_cases():
     assert 0 <= res.match_score <= 100
 
 
+def test_normalize_url_and_extract_social_links():
+    from src.universal_models import normalize_url, extract_social_links, sanitize_universal_resume
+
+    # URL normalization
+    assert normalize_url("linkedin.com/in/john-doe") == "https://www.linkedin.com/in/john-doe"
+    assert normalize_url("http://github.com/johndoe") == "http://github.com/johndoe"
+    assert normalize_url("github.com/johndoe") == "https://github.com/johndoe"
+    assert normalize_url("https://www.linkedin.com/in/john-doe") == "https://www.linkedin.com/in/john-doe"
+
+    # Social links regex extraction from raw text
+    sample_text = """
+    Software Engineer based in Tel Aviv
+    Check out my profile: linkedin.com/in/dev-lead-42
+    Open source contributions: https://github.com/lead-dev
+    """
+    links = extract_social_links(sample_text)
+    assert "linkedin" in links
+    assert "linkedin.com/in/dev-lead-42" in links["linkedin"]
+    assert links["linkedin"].startswith("https://")
+    assert "github" in links
+    assert "github.com/lead-dev" in links["github"]
+    assert links["github"].startswith("https://")
+
+    # Sanitize auto-normalizes contact links
+    res = UniversalResume(
+        contact=ContactInfo(
+            name="John Doe",
+            linkedin="linkedin.com/in/john-doe",
+            github="github.com/john-doe",
+        ),
+        skills=SkillCategories(),
+    )
+    sanitized = sanitize_universal_resume(res)
+    assert sanitized.contact.linkedin.startswith("https://")
+    assert sanitized.contact.github.startswith("https://")
+
+
+def test_tournament_champion_synthesis():
+    from src.universal_models import (
+        UniversalResume,
+        UniversalTailoredOutput,
+        FitAnalysis,
+        SkillCategories,
+        ContactInfo,
+    )
+    from src.universal_ai import _synthesize_tournament_champion
+
+    original = UniversalResume(
+        contact=ContactInfo(name="Candidate"),
+        skills=SkillCategories(
+            programming_languages=["Python", "C++", "Go"],
+            frameworks_and_tools=["Docker", "Linux", "Git"],
+            core_concepts=["Distributed Systems", "Concurrency"],
+        ),
+    )
+
+    cand1 = UniversalTailoredOutput(
+        tailored_resume=UniversalResume(
+            contact=ContactInfo(name="Candidate"),
+            skills=SkillCategories(
+                programming_languages=["Python", "C++"],
+                frameworks_and_tools=["Docker"],
+                core_concepts=["Concurrency"],
+            ),
+        ),
+        fit_analysis=FitAnalysis(
+            match_score=85,
+            keyword_score=80,
+            match=["Strong Python"],
+            partial=[],
+            gap=[],
+        ),
+    )
+
+    cand2 = UniversalTailoredOutput(
+        tailored_resume=UniversalResume(
+            contact=ContactInfo(name="Candidate"),
+            skills=SkillCategories(
+                programming_languages=["Python"],
+                frameworks_and_tools=["Docker", "Linux"],
+                core_concepts=["Distributed Systems"],
+            ),
+        ),
+        fit_analysis=FitAnalysis(
+            match_score=92,
+            keyword_score=90,
+            match=["Strong Python", "Linux Systems"],
+            partial=[],
+            gap=[],
+        ),
+    )
+
+    # Cand2 has higher match_score (92 > 85), so Cand2 is champion
+    # Cand1 had verified skill 'C++' which is in original resume.
+    # Tournament synthesis should merge 'C++' into the champion.
+    champion = _synthesize_tournament_champion(
+        candidates=[cand1, cand2],
+        original_resume=original,
+        profile=None,
+        jd_text="Looking for C++ and Python engineer with Docker and Linux experience.",
+    )
+
+    assert champion.fit_analysis.match_score >= 90
+    assert "C++" in champion.tailored_resume.skills.programming_languages
+    assert "Linux" in champion.tailored_resume.skills.frameworks_and_tools
+
+
+def test_recompile_pdf_endpoint(tmp_path):
+    from fastapi.testclient import TestClient
+    from src.web_app import app, OUTPUTS_DIR
+
+    client = TestClient(app)
+
+    base_name = "test_recompile_run"
+    jd_content = "Senior Software Engineer requiring Python, Docker, and Redis."
+    (OUTPUTS_DIR / f"{base_name}_jd.txt").write_text(jd_content, encoding="utf-8")
+
+    resume_payload = {
+        "contact": {
+            "name": "Jane Recompiler",
+            "email": "jane@example.com",
+            "phone": "+1-555-1234",
+            "location": "Boston, MA",
+            "linkedin": "linkedin.com/in/janerecompiler",
+            "github": "github.com/janerecompiler",
+        },
+        "summary": "Experienced engineer specializing in high-throughput microservices.",
+        "skills": {
+            "programming_languages": ["Python", "Go"],
+            "frameworks_and_tools": ["Docker", "Redis"],
+            "core_concepts": ["Concurrency", "REST APIs"],
+            "spoken_languages": ["English"],
+        },
+        "experience": [
+            {
+                "role": "Backend Engineer",
+                "company": "Tech Corp",
+                "date_range": "2021 - 2024",
+                "location": "Boston, MA",
+                "bullets": [
+                    "Engineered Redis caching layer improving response times by 40%.",
+                    "Deployed Python microservices using Docker containers.",
+                ],
+            }
+        ],
+        "projects": [],
+        "education": [],
+        "additional_sections": [],
+    }
+
+    response = client.post(
+        "/api/recompile-pdf",
+        json={
+            "filename_base": base_name,
+            "resume": resume_payload,
+            "jd_text": jd_content,
+        },
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "success"
+    assert data["filename_base"] == base_name
+    assert "fit_analysis" in data
+    assert "tailored_resume" in data
+    assert data["tailored_resume"]["contact"]["linkedin"].startswith("https://")
+    assert (OUTPUTS_DIR / f"{base_name}.pdf").exists()
+
+
+
 
 

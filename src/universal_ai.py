@@ -64,16 +64,204 @@ Rules:
     return sanitize_universal_resume(parsed)
 
 
+TOURNAMENT_STRATEGIES = [
+    {
+        "pass_num": 1,
+        "name": "ATS Keyword Alignment & Core Architecture",
+        "model": "gemini-3.6-flash",
+        "temperature": 0.05,
+        "focus_instruction": (
+            "Focus deeply on direct ATS keyword alignment, technical stack prioritization, "
+            "and showcasing architectural patterns that match the JD's core qualifications."
+        ),
+    },
+    {
+        "pass_num": 2,
+        "name": "Quantified Metrics & High-Impact Engineering Verbs",
+        "model": "gemini-3.5-flash-lite",
+        "temperature": 0.15,
+        "focus_instruction": (
+            "Focus intensely on quantifiable metrics, turnaround speedups, scalability, "
+            "and leading bullet points with strong, high-impact engineering action verbs."
+        ),
+    },
+    {
+        "pass_num": 3,
+        "name": "Technical Depth & Low-Level Systems Mastery",
+        "model": "gemini-3.6-flash",
+        "temperature": 0.10,
+        "focus_instruction": (
+            "Focus on highlighting deep technical complexity: multithreading, concurrency, memory management, "
+            "network protocols, and rigorous system debugging present in the candidate's verified background."
+        ),
+    },
+    {
+        "pass_num": 4,
+        "name": "ATS Keyword Density & Broad Competency",
+        "model": "gemini-3.5-flash-lite",
+        "temperature": 0.08,
+        "focus_instruction": (
+            "Optimize for maximal ATS keyword coverage across tools, frameworks, concepts, and relevant libraries, "
+            "ensuring every verified technical competency mentioned in the JD is captured cleanly."
+        ),
+    },
+    {
+        "pass_num": 5,
+        "name": "Cross-Functional Leadership & End-to-End Business Value",
+        "model": "gemini-3.6-flash",
+        "temperature": 0.12,
+        "focus_instruction": (
+            "Highlight end-to-end product impact, project ownership, tactical leadership, and how engineering solutions "
+            "directly delivered reliable value and efficiency."
+        ),
+    },
+]
+
+
+def _synthesize_tournament_champion(
+    candidates: list[UniversalTailoredOutput],
+    original_resume: UniversalResume,
+    profile: Optional[dict],
+    jd_text: str,
+) -> UniversalTailoredOutput:
+    """
+    Selects the champion candidate with the highest composite ATS readiness score
+    and cross-synthesizes any verified technical skills or strong matches identified
+    by other candidates in the tournament without fabricating facts.
+    """
+    if not candidates:
+        raise ValueError("No candidates generated in tournament.")
+    if len(candidates) == 1:
+        return candidates[0]
+
+    # Champion has the highest composite match_score, then keyword_score, then fewest gaps
+    champion = max(
+        candidates,
+        key=lambda c: (
+            c.fit_analysis.match_score,
+            c.fit_analysis.keyword_score,
+            -len(c.fit_analysis.gap),
+        ),
+    )
+
+    # Compile verified ground-truth skills pool from original resume and master profile
+    verified_skills: set[str] = set()
+    for s in (
+        original_resume.skills.programming_languages
+        + original_resume.skills.frameworks_and_tools
+        + original_resume.skills.core_concepts
+    ):
+        verified_skills.add(s.strip().lower())
+
+    if profile:
+        prof_skills = profile.get("skills")
+        if isinstance(prof_skills, dict):
+            for k in [
+                "programming_languages",
+                "frameworks_and_tools",
+                "core_concepts",
+                "cloud_and_infrastructure",
+            ]:
+                for s in prof_skills.get(k, []):
+                    if isinstance(s, str):
+                        verified_skills.add(s.strip().lower())
+        elif isinstance(prof_skills, list):
+            for s in prof_skills:
+                if isinstance(s, str):
+                    verified_skills.add(s.strip().lower())
+
+    # Cross-synthesize verified skills identified by other tournament candidates
+    for other in candidates:
+        if other is champion:
+            continue
+
+        # Programming Languages
+        for lang in other.tailored_resume.skills.programming_languages:
+            clean_l = lang.strip()
+            if clean_l.lower() in verified_skills:
+                if not any(
+                    clean_l.lower() == existing.lower()
+                    for existing in champion.tailored_resume.skills.programming_languages
+                ):
+                    champion.tailored_resume.skills.programming_languages.append(clean_l)
+
+        # Frameworks and Tools
+        for tool in other.tailored_resume.skills.frameworks_and_tools:
+            clean_t = tool.strip()
+            if clean_t.lower() in verified_skills:
+                if not any(
+                    clean_t.lower() == existing.lower()
+                    for existing in champion.tailored_resume.skills.frameworks_and_tools
+                ):
+                    champion.tailored_resume.skills.frameworks_and_tools.append(clean_t)
+
+        # Core Concepts
+        for concept in other.tailored_resume.skills.core_concepts:
+            clean_c = concept.strip()
+            if clean_c.lower() in verified_skills:
+                if not any(
+                    clean_c.lower() == existing.lower()
+                    for existing in champion.tailored_resume.skills.core_concepts
+                ):
+                    champion.tailored_resume.skills.core_concepts.append(clean_c)
+
+        # Merge verified strong matches in FitAnalysis
+        for m in other.fit_analysis.match:
+            clean_m = m.strip()
+            if clean_m and not any(
+                clean_m.lower() == existing.lower()
+                for existing in champion.fit_analysis.match
+            ):
+                if not any(clean_m.lower() == g.lower() for g in champion.fit_analysis.gap):
+                    champion.fit_analysis.match.append(clean_m)
+
+    # Re-sanitize synthesized champion
+    champion.tailored_resume = sanitize_universal_resume(champion.tailored_resume)
+
+    # Recompute multi-metric fit on synthesized champion
+    tailored_text_corpus = (
+        (champion.tailored_resume.summary or "")
+        + " "
+        + " ".join(champion.tailored_resume.skills.programming_languages)
+        + " "
+        + " ".join(champion.tailored_resume.skills.frameworks_and_tools)
+        + " "
+        + " ".join(champion.tailored_resume.skills.core_concepts)
+        + " "
+        + " ".join(champion.tailored_resume.skills.spoken_languages)
+        + " "
+        + " ".join(b for exp in champion.tailored_resume.experience for b in exp.bullets)
+        + " "
+        + " ".join(
+            (p.description or "")
+            + " "
+            + " ".join(p.bullets)
+            + " "
+            + (p.technologies or "")
+            for p in champion.tailored_resume.projects
+        )
+        + " "
+        + " ".join((edu.details or "") for edu in champion.tailored_resume.education)
+    )
+    champion.fit_analysis = compute_multi_metric_fit(
+        champion.fit_analysis,
+        resume_text=tailored_text_corpus,
+        jd_text=jd_text,
+    )
+    return champion
+
+
 def tailor_universal_resume(
     resume: UniversalResume,
     job_description: str,
     profile: Optional[dict] = None,
     client: Optional[genai.Client] = None,
+    tournament_passes: int = 2,
 ) -> UniversalTailoredOutput:
     """
     Performs substantive, ATS-optimized tailoring on any UniversalResume against a target JD.
-    If a CandidateProfile is provided, actively enriches the resume with verified skills,
-    detailed accomplishments, unlisted projects, and exact metrics from the Master Profile.
+    Executes a multi-pass AI tournament (default 2 passes, optional 5 passes) testing
+    diverse strategic tailoring angles and synthesizing the highest-scoring candidate.
     Returns both the tailored resume structure and the comprehensive FitAnalysis.
     """
     client = client or get_client()
@@ -85,7 +273,11 @@ Candidate Master Profile & Ground Truth (Verified Extended Background & Newer Ex
 {json.dumps(profile, indent=2, ensure_ascii=False)}
 """
 
-    prompt = f"""
+    passes_to_run = TOURNAMENT_STRATEGIES[: max(1, min(5, tournament_passes))]
+    candidates: list[UniversalTailoredOutput] = []
+
+    for strat in passes_to_run:
+        prompt = f"""
 You are an elite technical resume strategist and ATS optimization expert.
 Tailor the candidate's resume for the target Job Description to achieve the HIGHEST POSSIBLE ATS MATCH while maintaining 100% factual truth.
 
@@ -95,6 +287,9 @@ Original Candidate Resume (May be older or less detailed):
 
 Target Job Description:
 {job_description}
+
+TOURNAMENT STRATEGY FOCUS ({strat['name']}):
+{strat['focus_instruction']}
 
 CRITICAL GROUND-TRUTH ENRICHMENT & ATS MAXIMIZATION MANDATE:
 The candidate's primary goal is to pass ATS screens and stand out to technical hiring managers.
@@ -148,44 +343,99 @@ When a Candidate Master Profile is provided, actively synthesize and enrich the 
    - In FitAnalysis: Systematically categorize matches based on JD priority (core must-have qualifications in 'match', adjacent skills in 'partial', missing requirements in 'gap').
 """
 
-    config = types.GenerateContentConfig(
-        system_instruction=SYSTEM_INSTRUCTION,
-        response_mime_type="application/json",
-        response_schema=UniversalTailoredOutput,
-        temperature=0.05,
-    )
+        config = types.GenerateContentConfig(
+            system_instruction=SYSTEM_INSTRUCTION,
+            response_mime_type="application/json",
+            response_schema=UniversalTailoredOutput,
+            temperature=strat["temperature"],
+        )
 
-    response = _generate_with_fallback(client, prompt, config)
-    output = UniversalTailoredOutput.model_validate_json(response.text)
+        try:
+            response = _generate_with_fallback(
+                client, prompt, config, preferred_model=strat["model"]
+            )
+            candidate_output = UniversalTailoredOutput.model_validate_json(response.text)
 
-    # Programmatically guarantee course grades from original resume or profile are never lost
-    for idx, edu in enumerate(output.tailored_resume.education):
-        orig_details = ""
-        if resume.education and idx < len(resume.education):
-            orig_details = resume.education[idx].details
-        if not orig_details and profile and "education" in profile:
-            prof_edu = profile["education"]
-            if isinstance(prof_edu, list) and idx < len(prof_edu):
-                orig_details = prof_edu[idx].get("coursework", "") or prof_edu[idx].get("details", "")
-        if orig_details:
-            edu.details = restore_course_grades(edu.details, orig_details)
+            # Programmatically guarantee course grades from original resume or profile are never lost
+            for idx, edu in enumerate(candidate_output.tailored_resume.education):
+                orig_details = ""
+                if resume.education and idx < len(resume.education):
+                    orig_details = resume.education[idx].details
+                if not orig_details and profile and "education" in profile:
+                    prof_edu = profile["education"]
+                    if isinstance(prof_edu, list) and idx < len(prof_edu):
+                        orig_details = prof_edu[idx].get("coursework", "") or prof_edu[idx].get(
+                            "details", ""
+                        )
+                if orig_details:
+                    edu.details = restore_course_grades(edu.details, orig_details)
 
-    output.tailored_resume = sanitize_universal_resume(output.tailored_resume)
+            # Ensure LinkedIn / GitHub links from profile or original resume are populated
+            if profile:
+                prof_personal = profile.get("personal_info") or profile
+                if isinstance(prof_personal, dict):
+                    if not candidate_output.tailored_resume.contact.linkedin and prof_personal.get(
+                        "linkedin"
+                    ):
+                        candidate_output.tailored_resume.contact.linkedin = prof_personal.get(
+                            "linkedin"
+                        )
+                    if not candidate_output.tailored_resume.contact.github and prof_personal.get(
+                        "github"
+                    ):
+                        candidate_output.tailored_resume.contact.github = prof_personal.get("github")
+            if not candidate_output.tailored_resume.contact.linkedin and resume.contact.linkedin:
+                candidate_output.tailored_resume.contact.linkedin = resume.contact.linkedin
+            if not candidate_output.tailored_resume.contact.github and resume.contact.github:
+                candidate_output.tailored_resume.contact.github = resume.contact.github
 
-    # Deterministically calculate 360° multi-metric job fit
-    tailored_text_corpus = (
-        (output.tailored_resume.summary or "") + " " +
-        " ".join(output.tailored_resume.skills.programming_languages) + " " +
-        " ".join(output.tailored_resume.skills.frameworks_and_tools) + " " +
-        " ".join(output.tailored_resume.skills.core_concepts) + " " +
-        " ".join(output.tailored_resume.skills.spoken_languages) + " " +
-        " ".join(b for exp in output.tailored_resume.experience for b in exp.bullets) + " " +
-        " ".join((p.description or "") + " " + " ".join(p.bullets) + " " + (p.technologies or "") for p in output.tailored_resume.projects) + " " +
-        " ".join((edu.details or "") for edu in output.tailored_resume.education)
-    )
-    output.fit_analysis = compute_multi_metric_fit(
-        output.fit_analysis,
-        resume_text=tailored_text_corpus,
+            candidate_output.tailored_resume = sanitize_universal_resume(
+                candidate_output.tailored_resume
+            )
+
+            # Deterministically calculate 360° multi-metric job fit for candidate
+            candidate_text_corpus = (
+                (candidate_output.tailored_resume.summary or "")
+                + " "
+                + " ".join(candidate_output.tailored_resume.skills.programming_languages)
+                + " "
+                + " ".join(candidate_output.tailored_resume.skills.frameworks_and_tools)
+                + " "
+                + " ".join(candidate_output.tailored_resume.skills.core_concepts)
+                + " "
+                + " ".join(candidate_output.tailored_resume.skills.spoken_languages)
+                + " "
+                + " ".join(
+                    b for exp in candidate_output.tailored_resume.experience for b in exp.bullets
+                )
+                + " "
+                + " ".join(
+                    (p.description or "")
+                    + " "
+                    + " ".join(p.bullets)
+                    + " "
+                    + (p.technologies or "")
+                    for p in candidate_output.tailored_resume.projects
+                )
+                + " "
+                + " ".join((edu.details or "") for edu in candidate_output.tailored_resume.education)
+            )
+            candidate_output.fit_analysis = compute_multi_metric_fit(
+                candidate_output.fit_analysis,
+                resume_text=candidate_text_corpus,
+                jd_text=job_description,
+            )
+            candidates.append(candidate_output)
+        except Exception as e:
+            # If a single tournament pass fails, log and continue if other passes succeeded
+            print(f"Tournament pass {strat['pass_num']} error: {e}")
+
+    if not candidates:
+        raise RuntimeError("All tournament passes failed to generate tailored output.")
+
+    return _synthesize_tournament_champion(
+        candidates=candidates,
+        original_resume=resume,
+        profile=profile,
         jd_text=job_description,
     )
-    return output

@@ -12,6 +12,7 @@ import uuid
 import re
 from pathlib import Path
 from typing import Optional, Any
+from pydantic import BaseModel
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Body
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 
@@ -34,6 +35,13 @@ from src.ats_analyzer import analyze_resume_format, ATSFormatReport
 from src.sample_data import GENERIC_SAMPLE_PROFILE, GENERIC_SAMPLE_JD
 # pyrefly: ignore [missing-import]
 from src.models import CandidateProfile
+# pyrefly: ignore [missing-import]
+from src.universal_models import (
+    UniversalResume,
+    FitAnalysis,
+    sanitize_universal_resume,
+    compute_multi_metric_fit,
+)
 
 app = FastAPI(
     title="Resume-Tailor 🎯",
@@ -157,6 +165,7 @@ async def tailor_resume_endpoint(
     jd_text: str = Form(...),
     profile_json: Optional[str] = Form(None),
     format_strategy: str = Form("auto"),
+    tournament_passes: int = Form(2),
 ):
     """
     Universal Tailoring Pipeline:
@@ -335,6 +344,7 @@ async def tailor_resume_endpoint(
         resume=parsed_resume,
         job_description=jd_text.strip(),
         profile=profile_dict,
+        tournament_passes=tournament_passes,
     )
 
     candidate_name = tailored_output.tailored_resume.contact.name or "Tailored"
@@ -359,6 +369,17 @@ async def tailor_resume_endpoint(
         original_resume=parsed_resume,
     )
 
+    # Persist session state for instant Live Editor recompile (< 1s)
+    (OUTPUTS_DIR / f"{base_filename}_orig_parsed.json").write_text(
+        parsed_resume.model_dump_json(indent=2), encoding="utf-8"
+    )
+    (OUTPUTS_DIR / f"{base_filename}_resume.json").write_text(
+        tailored_output.tailored_resume.model_dump_json(indent=2), encoding="utf-8"
+    )
+    (OUTPUTS_DIR / f"{base_filename}_jd.txt").write_text(
+        jd_text.strip(), encoding="utf-8"
+    )
+
     return JSONResponse(
         content={
             "status": "success",
@@ -370,6 +391,117 @@ async def tailor_resume_endpoint(
             "download_url": f"/api/download/{base_filename}",
             "format_strategy": effective_strategy,
             "ats_report": format_report.model_dump(),
+            "tailored_resume": tailored_output.tailored_resume.model_dump(),
+        }
+    )
+
+
+class RecompileRequest(BaseModel):
+    filename_base: str
+    resume: UniversalResume
+    jd_text: Optional[str] = None
+
+
+@app.post("/api/recompile-pdf")
+async def recompile_pdf_endpoint(payload: RecompileRequest):
+    """
+    Instantly recompiles the candidate's vector PDF with density protection (< 1s)
+    after the user edits contact info, summary, skills, or bullets in the Live Editor.
+    Re-evaluates 360° ATS match scores and updates the interactive highlighted diff.
+    """
+    safe_name = Path(payload.filename_base).name
+    if not safe_name:
+        raise HTTPException(status_code=400, detail="Invalid filename_base.")
+
+    # 1. Sanitize updated resume (ensuring https:// links, clean GPA, single section headers)
+    updated_resume = sanitize_universal_resume(payload.resume)
+
+    # 2. Recompile vector PDF using density guardian
+    html_path, pdf_path = generate_universal_resume_pdf(
+        resume=updated_resume,
+        output_dir=OUTPUTS_DIR,
+        base_name=safe_name,
+        force_single_page=True,
+    )
+
+    # 3. Retrieve target JD for deterministic 360° scoring
+    jd = payload.jd_text
+    jd_file = OUTPUTS_DIR / f"{safe_name}_jd.txt"
+    if not jd and jd_file.exists():
+        jd = jd_file.read_text(encoding="utf-8")
+    jd = jd or ""
+
+    # 4. Calculate multi-metric fit
+    fit_analysis = FitAnalysis(
+        match=[],
+        partial=[],
+        gap=[],
+        pitch_angle="Positioning candidate based on verified live edits.",
+    )
+    tailored_text_corpus = (
+        (updated_resume.summary or "")
+        + " "
+        + " ".join(updated_resume.skills.programming_languages)
+        + " "
+        + " ".join(updated_resume.skills.frameworks_and_tools)
+        + " "
+        + " ".join(updated_resume.skills.core_concepts)
+        + " "
+        + " ".join(updated_resume.skills.spoken_languages)
+        + " "
+        + " ".join(b for exp in updated_resume.experience for b in exp.bullets)
+        + " "
+        + " ".join(
+            (p.description or "")
+            + " "
+            + " ".join(p.bullets)
+            + " "
+            + (p.technologies or "")
+            for p in updated_resume.projects
+        )
+        + " "
+        + " ".join((edu.details or "") for edu in updated_resume.education)
+    )
+    fit_analysis = compute_multi_metric_fit(
+        fit_analysis,
+        resume_text=tailored_text_corpus,
+        jd_text=jd,
+    )
+
+    # 5. Update interactive diff view if original parsed resume exists
+    orig_parsed_path = OUTPUTS_DIR / f"{safe_name}_orig_parsed.json"
+    orig_resume = None
+    if orig_parsed_path.exists():
+        try:
+            orig_resume = UniversalResume.model_validate_json(
+                orig_parsed_path.read_text(encoding="utf-8")
+            )
+        except Exception:
+            orig_resume = None
+
+    diff_path = OUTPUTS_DIR / f"{safe_name}_diff.html"
+    from src.interactive_diff import build_interactive_resume_diff_html
+    build_interactive_resume_diff_html(
+        resume=updated_resume,
+        changes_log=[],
+        output_html_path=diff_path,
+        original_resume=orig_resume,
+    )
+
+    # 6. Save updated resume to disk
+    (OUTPUTS_DIR / f"{safe_name}_resume.json").write_text(
+        updated_resume.model_dump_json(indent=2), encoding="utf-8"
+    )
+
+    return JSONResponse(
+        content={
+            "status": "success",
+            "filename_base": safe_name,
+            "preview_url": f"/api/preview/{safe_name}",
+            "diff_url": f"/api/diff/{safe_name}",
+            "download_url": f"/api/download/{safe_name}",
+            "fit_analysis": fit_analysis.model_dump(),
+            "tailored_resume": updated_resume.model_dump(),
         }
     )
 

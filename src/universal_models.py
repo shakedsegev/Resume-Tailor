@@ -19,6 +19,40 @@ class ContactInfo(BaseModel):
     website: str = ""
 
 
+def normalize_url(url: str, default_domain: str = "") -> str:
+    """Ensures URLs are well-formed absolute https:// links for active clickable PDF hyperlinks."""
+    if not url:
+        return ""
+    clean = url.strip()
+    if clean.startswith("http://") or clean.startswith("https://"):
+        return clean
+    if clean.startswith("www."):
+        return f"https://{clean}"
+    if "linkedin.com" in clean.lower():
+        clean = re.sub(r"^(?:https?://)?(?:www\.)?", "", clean, flags=re.IGNORECASE)
+        return f"https://www.{clean}"
+    if "github.com" in clean.lower():
+        clean = re.sub(r"^(?:https?://)?(?:www\.)?", "", clean, flags=re.IGNORECASE)
+        return f"https://{clean}"
+    if default_domain:
+        return f"https://{default_domain.rstrip('/')}/{clean.lstrip('/')}"
+    return f"https://{clean}"
+
+
+def extract_social_links(text: str) -> dict[str, str]:
+    """Extracts LinkedIn and GitHub URLs from raw text or profile notes."""
+    links: dict[str, str] = {}
+    if not text:
+        return links
+    m_li = re.search(r"(?:https?://)?(?:www\.)?linkedin\.com/in/[a-zA-Z0-9_\-]+/?", text, re.IGNORECASE)
+    if m_li:
+        links["linkedin"] = normalize_url(m_li.group(0), "linkedin.com/in")
+    m_gh = re.search(r"(?:https?://)?(?:www\.)?github\.com/[a-zA-Z0-9_\-]+/?", text, re.IGNORECASE)
+    if m_gh:
+        links["github"] = normalize_url(m_gh.group(0), "github.com")
+    return links
+
+
 class ExperienceItem(BaseModel):
     role: str
     company: str
@@ -401,7 +435,13 @@ def sanitize_universal_resume(resume: UniversalResume) -> UniversalResume:
             )
             edu.details = re.sub(r"\|\s*\|+", "|", edu.details).strip(" |")
 
-    # 3. Check additional_sections against spoken languages
+    # 3. Normalize contact social URLs to clickable https:// links
+    if resume.contact.linkedin:
+        resume.contact.linkedin = normalize_url(resume.contact.linkedin, "linkedin.com/in")
+    if resume.contact.github:
+        resume.contact.github = normalize_url(resume.contact.github, "github.com")
+
+    # 4. Check additional_sections against spoken languages
     kept_sections: list[AdditionalSection] = []
     for sec in resume.additional_sections:
         sec_title_lower = sec.title.strip().lower()
