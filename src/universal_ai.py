@@ -58,7 +58,7 @@ Rules:
     )
 
     response = _generate_with_fallback(
-        client, prompt, config, preferred_model="gemini-3.5-flash-lite"
+        client, prompt, config, preferred_model="gemini-3.6-flash"
     )
     parsed = UniversalResume.model_validate_json(response.text)
     from src.universal_models import extract_social_links, is_generic_social_url

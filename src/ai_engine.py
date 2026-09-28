@@ -123,7 +123,7 @@ def _generate_with_fallback(
 
     last_error = None
     for model in models_to_try:
-        for attempt in range(2):  # Try twice per model
+        for attempt in range(3):  # Retry up to 3 times per model for transient load spikes
             try:
                 return client.models.generate_content(
                     model=model,
@@ -132,7 +132,7 @@ def _generate_with_fallback(
                 )
             except ServerError as err:
                 last_error = err
-                time.sleep(1.0)
+                time.sleep(1.0 + attempt * 1.5)
             except Exception as err:
                 last_error = err
                 break  # If non-server error (e.g., 404), move to next model
