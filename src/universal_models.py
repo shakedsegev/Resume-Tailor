@@ -79,14 +79,20 @@ def normalize_url(url: str, default_domain: str = "") -> str:
 
 def format_social_display(url: str, network: str = "") -> str:
     """
-    Formats a full profile URL into a clean, recruiter-friendly display string for PDF & HTML rendering.
-    e.g. 'https://www.linkedin.com/in/shaked-segev-424178298/' -> 'linkedin.com/in/shaked-segev-424178298'
-         'https://github.com/shakedsegev' -> 'github.com/shakedsegev'
+    Formats a full profile URL into a clean display string for PDF & HTML rendering.
+    e.g. 'https://www.linkedin.com/in/shaked-segev-424178298/' -> 'LinkedIn'
+         'https://github.com/shakedsegev' -> 'GitHub'
     """
     if not url:
         return ""
-    if is_generic_social_url(url):
-        return network.capitalize() if network else ""
+    if network:
+        # Standardize capitalization: e.g. 'LinkedIn', 'GitHub'
+        low = network.lower()
+        if low == "linkedin":
+            return "LinkedIn"
+        if low == "github":
+            return "GitHub"
+        return network.capitalize()
     clean = url.strip().rstrip("/")
     clean = re.sub(r"^https?://", "", clean)
     clean = re.sub(r"^www\.", "", clean)

@@ -41,18 +41,18 @@ def analyze_pptx_format(pptx_path: Path) -> ATSFormatReport:
         has_groups = True
 
     risks = [
-        "Coordinate-based floating text boxes often cause Workday, Taleo, and Lever to read sections in jumbled order.",
-        "Graphic pill badges and vector shapes lack semantic HTML/text tags and may be ignored by recruiter parsers.",
-        "Strict 1-page visual coordinate constraints limit the keyword density needed for high ATS ranking.",
+        "Floating text boxes may scramble section reading order in ATS parsers.",
+        "Graphic shapes and pill badges lack semantic tags and may be skipped.",
+        "Fixed visual layout restricts keyword placement for ATS ranking.",
     ]
     recs = [
-        "Use the ATS-Optimized Clean Format for online applications to guarantee 100% parser readability.",
-        "Reserve the visual Canva PPTX design for emailing directly to hiring managers and networking.",
+        "Use ATS-Optimized Clean Format for online applications to guarantee 100% readability.",
+        "Reserve the visual Canva PPTX design for emailing recruiters directly.",
     ]
 
     return ATSFormatReport(
         ats_score=58,
-        layout_type="Canva Multi-Box Presentation Layout",
+        layout_type="Canva Presentation Layout",
         is_ats_compliant=False,
         needs_format_change=True,
         is_single_page=(slide_count <= 1),
@@ -90,14 +90,14 @@ def analyze_pdf_format(pdf_path: Path) -> ATSFormatReport:
         found_sections = sum(1 for s in standard_sections if s in lower_text)
         if found_sections < 3:
             has_standard_headers = False
-            risks.append("Non-standard or graphic section headers detected (may fail automatic section indexing).")
+            risks.append("Non-standard section headers detected (may fail ATS indexing).")
 
         # Heuristic check for multi-column / tabular layout
         lines = [l.strip() for l in text.split("\n") if l.strip()]
         short_spaced_lines = sum(1 for l in lines if len(l) < 30 and "   " in l)
         if short_spaced_lines >= 4:
             is_multi_column = True
-            risks.append("Multi-column text layout detected. Many ATS parsers read across columns rather than down, scrambling sentences.")
+            risks.append("Multi-column layout detected (ATS parsers may read across columns).")
 
     except Exception:
         pass
@@ -106,14 +106,14 @@ def analyze_pdf_format(pdf_path: Path) -> ATSFormatReport:
         score = 66
         needs_change = True
         suggested = "ats_optimized"
-        recs.append("Convert to single-column, standard typographic layout to ensure flawless recruiter parsing.")
-        layout_name = "Multi-Column Visual PDF Layout"
+        recs.append("Convert to single-column layout for flawless recruiter parsing.")
+        layout_name = "Multi-Column PDF Layout"
     else:
         score = 92
         needs_change = False
         suggested = "ats_optimized"
-        recs.append("Document structure is already clean and readable for modern ATS systems.")
-        layout_name = "Single-Column Standard PDF Layout"
+        recs.append("Document structure is clean and ATS-friendly.")
+        layout_name = "Single-Column PDF Layout"
 
     return ATSFormatReport(
         ats_score=score,

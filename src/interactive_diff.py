@@ -487,10 +487,7 @@ INTERACTIVE_RESUME_TEMPLATE = """<!DOCTYPE html>
 <div class="diff-banner">
   <span class="diff-banner-icon">✨</span>
   <div>
-    <strong>Interactive Tailoring Preview:</strong>
-    All tailored additions, sharpened accomplishments, and prioritized skills are highlighted in <strong>soft marker green</strong>.
-    <strong>Hover over any highlighted text</strong> to see what was changed from what and why.
-    <em>Note: The exported PDF remains 100% clean and pristine for recruiter submission.</em>
+    <strong>Interactive Preview:</strong> Tailored edits are highlighted in green — hover over any highlight to see changes and rationale. <em>The downloaded PDF is 100% clean and unhighlighted.</em>
   </div>
 </div>
 

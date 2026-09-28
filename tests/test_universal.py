@@ -498,9 +498,9 @@ def test_is_generic_social_url():
 
 def test_format_social_display():
     from src.universal_models import format_social_display
-    assert format_social_display("https://github.com/shakedsegev", "github") == "github.com/shakedsegev"
-    assert format_social_display("https://www.linkedin.com/in/shaked-segev-424178298/", "linkedin") == "linkedin.com/in/shaked-segev-424178298"
-    assert format_social_display("https://github.com", "github") == "Github"
+    assert format_social_display("https://github.com/shakedsegev", "github") == "GitHub"
+    assert format_social_display("https://www.linkedin.com/in/shaked-segev-424178298/", "linkedin") == "LinkedIn"
+    assert format_social_display("https://github.com/shakedsegev", "") == "github.com/shakedsegev"
     assert format_social_display("", "linkedin") == ""
 
 
