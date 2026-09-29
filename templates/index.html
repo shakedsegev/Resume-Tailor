@@ -6,6 +6,18 @@
   <title>Resume-Tailor 🎯 | Design-Preserving AI Resume Tailor</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
+    (function() {
+      var savedLang = localStorage.getItem('resume_tailor_lang') || 'en';
+      var hl = (savedLang === 'he') ? 'he' : 'en';
+      var s = document.createElement('script');
+      s.id = 'gsiScript';
+      s.src = 'https://accounts.google.com/gsi/client?hl=' + hl;
+      s.async = true;
+      s.defer = true;
+      document.head.appendChild(s);
+    })();
+  </script>
+  <script>
     tailwind.config = {
       darkMode: 'class'
     }
@@ -127,16 +139,37 @@
       border-color: rgba(14, 165, 233, 0.35) !important;
     }
     html.dark .bg-emerald-50,
-    html.dark .bg-emerald-50\/50 {
+    html.dark .bg-emerald-50\/50,
+    html.dark .bg-emerald-50\/70,
+    html.dark .bg-emerald-50\/30 {
       background-color: rgba(16, 185, 129, 0.15) !important;
     }
-    html.dark .bg-emerald-100 {
+    html.dark .bg-emerald-100,
+    html.dark .bg-emerald-100\/70 {
       background-color: rgba(16, 185, 129, 0.22) !important;
       color: #34d399 !important;
     }
+    html.dark .bg-emerald-200 {
+      background-color: rgba(16, 185, 129, 0.25) !important;
+      color: #34d399 !important;
+    }
     html.dark .border-emerald-100,
-    html.dark .border-emerald-200 {
+    html.dark .border-emerald-200,
+    html.dark .border-emerald-300 {
       border-color: rgba(16, 185, 129, 0.35) !important;
+    }
+    html.dark .bg-sky-100\/70 {
+      background-color: rgba(14, 165, 233, 0.22) !important;
+    }
+    html.dark .bg-indigo-100\/70 {
+      background-color: rgba(99, 102, 241, 0.22) !important;
+    }
+    html.dark .border-slate-200\/80,
+    html.dark .border-slate-200\/60 {
+      border-color: #334155 !important;
+    }
+    html.dark .bg-slate-200 {
+      background-color: #334155 !important;
     }
     html.dark .bg-amber-50,
     html.dark .bg-amber-50\/50,
@@ -183,7 +216,8 @@
     }
     html.dark .text-emerald-600,
     html.dark .text-emerald-700,
-    html.dark .text-emerald-800 {
+    html.dark .text-emerald-800,
+    html.dark .text-emerald-900 {
       color: #34d399 !important;
     }
     html.dark .text-amber-600,
@@ -219,9 +253,102 @@
     html.dark .hover\:bg-slate-200:hover {
       background-color: #334155 !important;
     }
-    html.dark .hover\:bg-slate-50:hover {
+    html.dark #profileFilesList > div {
       background-color: #1e293b !important;
+      border-color: #334155 !important;
+      color: #f1f5f9 !important;
     }
+    html.dark #profileFilesList span {
+      color: #f1f5f9 !important;
+    }
+    html.dark #profileFilesList span.text-slate-400,
+    html.dark #profileFilesList span.text-slate-500 {
+      color: #94a3b8 !important;
+    }
+
+    /* 360° Multi-Metric Match Badges & Cards in Dark Mode */
+    html.dark #resultsView .grid .bg-slate-50\/80 {
+      background-color: #1e293b !important;
+      border-color: #334155 !important;
+    }
+    html.dark #keywordScoreBadge {
+      background-color: rgba(14, 165, 233, 0.22) !important;
+      border: 1px solid rgba(56, 189, 248, 0.5) !important;
+      color: #38bdf8 !important;
+      font-weight: 700 !important;
+    }
+    html.dark #reqScoreBadge {
+      background-color: rgba(16, 185, 129, 0.22) !important;
+      border: 1px solid rgba(52, 211, 153, 0.5) !important;
+      color: #34d399 !important;
+      font-weight: 700 !important;
+    }
+    html.dark #expScoreBadge {
+      background-color: rgba(99, 102, 241, 0.22) !important;
+      border: 1px solid rgba(129, 140, 248, 0.5) !important;
+      color: #a5b4fc !important;
+      font-weight: 700 !important;
+    }
+    html.dark #keywordSubtitle,
+    html.dark #reqSubtitle,
+    html.dark #expSubtitle {
+      color: #94a3b8 !important;
+    }
+    html.dark #matchScoreBadge {
+      color: #34d399 !important;
+      font-weight: 700 !important;
+    }
+
+    /* Saved Base Resume Cards in Dark Mode */
+    html.dark #savedBaseResumeActiveCard,
+    html.dark #baseResumeInfoCard {
+      background-color: rgba(6, 78, 59, 0.3) !important;
+      border-color: rgba(52, 211, 153, 0.4) !important;
+    }
+    html.dark #savedBaseResumeActiveName,
+    html.dark #baseResumeFileName {
+      color: #f8fafc !important;
+      font-weight: 700 !important;
+    }
+    html.dark #savedBaseResumeActiveCard p,
+    html.dark #baseResumeStatusText {
+      color: #6ee7b7 !important;
+    }
+    html.dark #savedBaseResumeActiveCard span.bg-emerald-200 {
+      background-color: rgba(16, 185, 129, 0.25) !important;
+      border: 1px solid rgba(52, 211, 153, 0.45) !important;
+      color: #34d399 !important;
+    }
+    html.dark #btnStep1ToggleBaseResume {
+      background-color: #1e293b !important;
+      border-color: rgba(52, 211, 153, 0.4) !important;
+      color: #34d399 !important;
+    }
+    html.dark #btnStep1ToggleBaseResume:hover {
+      background-color: rgba(16, 185, 129, 0.2) !important;
+      color: #6ee7b7 !important;
+    }
+    html.dark #baseResumeGuestCard {
+      background-color: #1e293b !important;
+      border-color: #334155 !important;
+    }
+    html.dark #baseResumeDropzone {
+      background-color: #1e293b !important;
+      border-color: #334155 !important;
+    }
+    html.dark #baseResumeDropzone:hover {
+      border-color: #34d399 !important;
+      background-color: rgba(16, 185, 129, 0.1) !important;
+    }
+    html.dark #btnDeleteBaseResume {
+      background-color: rgba(244, 63, 94, 0.15) !important;
+      border-color: rgba(244, 63, 94, 0.4) !important;
+      color: #fda4af !important;
+    }
+    html.dark #btnDeleteBaseResume:hover {
+      background-color: rgba(244, 63, 94, 0.25) !important;
+    }
+
     html.dark .custom-scrollbar::-webkit-scrollbar-thumb {
       background-color: #475569;
     }
@@ -230,37 +357,75 @@
 <body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col transition-colors duration-200">
 
   <!-- Navigation Bar -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center text-white text-xl shadow-md shadow-sky-500/20">
+  <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+      <div class="flex items-center space-x-3 shrink-0">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center text-white text-base shadow-md shadow-sky-500/20">
           🎯
         </div>
-        <div>
-          <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-slate-900 via-sky-950 to-indigo-950 bg-clip-text text-transparent">
+        <div class="flex items-center">
+          <span class="text-base sm:text-lg font-bold tracking-tight bg-gradient-to-r from-slate-900 via-sky-950 to-indigo-950 dark:from-white dark:to-slate-200 bg-clip-text text-transparent">
             Resume-Tailor
           </span>
-          <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-sky-100 text-sky-800" data-i18n="badge_design_preserving">
+          <span class="ml-2 hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-semibold bg-sky-100 dark:bg-sky-950/70 text-sky-800 dark:text-sky-300" data-i18n="badge_design_preserving">
             Design-Preserving AI
           </span>
         </div>
       </div>
 
-      <div class="flex items-center space-x-3">
+      <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
         <!-- Navigation Tabs -->
-        <nav class="flex items-center space-x-2 bg-slate-100 p-1 rounded-xl">
-          <button id="navTabTailor" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-slate-900 shadow-sm" data-i18n="nav_tailor">
+        <nav class="flex items-center space-x-1 sm:space-x-1.5 bg-slate-200/80 dark:bg-slate-800 p-1 rounded-xl">
+          <button id="navTabTailor" class="px-3 sm:px-4 py-1 rounded-lg text-xs font-bold transition-all bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs cursor-pointer whitespace-nowrap" data-i18n="nav_tailor">
             ⚡ Tailor Resume
           </button>
-          <button id="navTabProfile" class="px-4 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-600 hover:text-slate-900" data-i18n="nav_profile">
+          <button id="navTabProfile" class="px-3 sm:px-4 py-1 rounded-lg text-xs font-semibold transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer whitespace-nowrap" data-i18n="nav_profile">
             🧠 Master Profile
           </button>
         </nav>
 
-        <!-- Language Switcher -->
-        <div class="flex items-center space-x-1.5 bg-slate-100 hover:bg-slate-200 transition-colors px-2.5 py-1.5 rounded-xl border border-slate-200">
-          <span class="text-xs">🌐</span>
-          <select id="langSelector" class="bg-transparent text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer">
+        <!-- Daily AI Tailoring Quota Badge -->
+        <div id="rateLimitBadge" class="hidden items-center space-x-1 px-2.5 py-1 rounded-xl text-xs font-semibold bg-sky-50 dark:bg-sky-950/50 border border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300 shadow-xs whitespace-nowrap" title="Daily AI tailoring quota" data-i18n-title="quota_title">
+          <span class="text-[11px]">⚡</span>
+          <span id="rateLimitText">--</span>
+        </div>
+
+        <!-- Google Auth Section -->
+        <div id="authContainer" class="flex items-center">
+          <!-- Logged out: Google Sign In Button Container -->
+          <div id="loggedOutView" class="flex items-center">
+            <div id="googleSignInButton"></div>
+          </div>
+
+          <!-- Logged in: User Profile Badge & Sign Out -->
+          <div id="loggedInView" class="hidden flex items-center space-x-2">
+            <div class="flex items-center space-x-1.5 bg-slate-100 dark:bg-slate-800 py-1 px-2 rounded-xl border border-slate-200 dark:border-slate-700">
+              <img id="userAvatar" src="" alt="Avatar" class="w-5 h-5 rounded-full border border-slate-300 dark:border-slate-600 object-cover">
+              <span id="userName" class="text-xs font-semibold text-slate-800 dark:text-slate-200 max-w-[110px] truncate">User</span>
+            </div>
+            <button id="btnSignOut" type="button" class="text-xs text-slate-500 hover:text-rose-600 font-semibold px-1.5 py-1 rounded-lg transition-colors cursor-pointer whitespace-nowrap" title="Sign Out" data-i18n="btn_sign_out" data-i18n-title="btn_sign_out">
+              Sign Out
+            </button>
+          </div>
+        </div>
+
+        <!-- Compact Expandable Language Switcher -->
+        <div class="relative inline-block text-left" id="langMenuContainer">
+          <button 
+            type="button" 
+            id="btnLangDropdown" 
+            class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors px-2 py-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 cursor-pointer shadow-2xs shrink-0"
+            aria-expanded="false"
+            aria-haspopup="true"
+            title="Switch Language"
+          >
+            <span class="text-xs">🌐</span>
+            <span id="currentLangDisplay" class="uppercase font-semibold text-[11px]">EN</span>
+            <span class="text-[9px] text-slate-400">▾</span>
+          </button>
+
+          <!-- Hidden select for compatibility -->
+          <select id="langSelector" class="hidden">
             <option value="en" selected>English</option>
             <option value="he">עברית (Hebrew)</option>
             <option value="es">Español (Spanish)</option>
@@ -269,11 +434,51 @@
             <option value="fr">Français (French)</option>
             <option value="de">Deutsch (German)</option>
           </select>
+
+          <!-- Expanded Language Menu -->
+          <div 
+            id="langDropdownMenu" 
+            class="hidden absolute right-0 mt-1.5 w-44 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl py-1.5 z-50 text-xs font-medium"
+          >
+            <button type="button" data-lang="en" class="lang-option w-full text-left px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-between text-slate-700 dark:text-slate-200 cursor-pointer transition-colors">
+              <span>English</span>
+              <span class="text-[10px] text-slate-400 uppercase font-mono font-bold">EN</span>
+            </button>
+            <button type="button" data-lang="he" class="lang-option w-full text-left px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-between text-slate-700 dark:text-slate-200 cursor-pointer transition-colors">
+              <span>עברית (Hebrew)</span>
+              <span class="text-[10px] text-slate-400 uppercase font-mono font-bold">HE</span>
+            </button>
+            <button type="button" data-lang="es" class="lang-option w-full text-left px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-between text-slate-700 dark:text-slate-200 cursor-pointer transition-colors">
+              <span>Español (Spanish)</span>
+              <span class="text-[10px] text-slate-400 uppercase font-mono font-bold">ES</span>
+            </button>
+            <button type="button" data-lang="zh" class="lang-option w-full text-left px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-between text-slate-700 dark:text-slate-200 cursor-pointer transition-colors">
+              <span>简体中文 (Mandarin)</span>
+              <span class="text-[10px] text-slate-400 uppercase font-mono font-bold">ZH</span>
+            </button>
+            <button type="button" data-lang="ar" class="lang-option w-full text-left px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-between text-slate-700 dark:text-slate-200 cursor-pointer transition-colors">
+              <span>العربية (Arabic)</span>
+              <span class="text-[10px] text-slate-400 uppercase font-mono font-bold">AR</span>
+            </button>
+            <button type="button" data-lang="fr" class="lang-option w-full text-left px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-between text-slate-700 dark:text-slate-200 cursor-pointer transition-colors">
+              <span>Français (French)</span>
+              <span class="text-[10px] text-slate-400 uppercase font-mono font-bold">FR</span>
+            </button>
+            <button type="button" data-lang="de" class="lang-option w-full text-left px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-between text-slate-700 dark:text-slate-200 cursor-pointer transition-colors">
+              <span>Deutsch (German)</span>
+              <span class="text-[10px] text-slate-400 uppercase font-mono font-bold">DE</span>
+            </button>
+          </div>
         </div>
 
         <!-- Dark Mode Toggle Button -->
-        <button id="themeToggleBtn" type="button" class="flex items-center justify-center w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 transition-colors border border-slate-200 text-sm cursor-pointer shadow-sm" title="Toggle Dark/Light Mode">
+        <button id="themeToggleBtn" type="button" class="flex items-center justify-center w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-700 text-sm cursor-pointer shadow-xs shrink-0" title="Toggle Dark/Light Mode">
           <span id="themeToggleIcon">🌙</span>
+        </button>
+
+        <!-- Unnoticeable Mini Admin Button (No crown, tiny font, subtle) -->
+        <button id="btnAdminPanelNav" type="button" class="text-[9px] font-normal px-1.5 py-0.5 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 opacity-50 hover:opacity-100 transition-opacity cursor-pointer whitespace-nowrap shrink-0" title="Admin Panel">
+          admin panel
         </button>
       </div>
     </div>
@@ -311,11 +516,32 @@
                 </label>
                 <!-- Design Preservation Info Tooltip -->
                 <div class="relative group cursor-pointer inline-flex items-center">
-                  <span class="w-4 h-4 rounded-full bg-sky-100 text-sky-700 text-[10px] font-bold inline-flex items-center justify-center border border-sky-300 hover:bg-sky-200 transition-colors shadow-xs" title="Keep Your Design Safe">i</span>
+                  <span class="w-4 h-4 rounded-full bg-sky-100 text-sky-700 text-[10px] font-bold inline-flex items-center justify-center border border-sky-300 hover:bg-sky-200 transition-colors shadow-xs" title="Keep Your Design Safe" data-i18n-title="tip_design_safe_title">i</span>
                   <div class="absolute left-6 top-1/2 -translate-y-1/2 w-72 p-3 bg-slate-900 text-slate-100 text-[11px] rounded-xl shadow-2xl z-40 hidden group-hover:block pointer-events-none leading-relaxed border border-slate-700">
-                    <p class="font-bold text-sky-400 mb-1">💡 How to Keep Your Design Safe:</p>
-                    Export your Canva resume to <strong>PPTX</strong> and upload it here (or upload a standard PPTX file) to preserve exact visual layouts, cards, and styling. Other formats (PDF or DOCX) will be compiled into a clean standard format optimized for ATS parsers.
+                    <p class="font-bold text-sky-400 mb-1" data-i18n="tip_design_safe_title">💡 How to Keep Your Design Safe:</p>
+                    <p data-i18n="tip_design_safe_desc">Export your Canva resume to <strong>PPTX</strong> and upload it here (or upload a standard PPTX file) to preserve exact visual layouts, cards, and styling. Other formats (PDF or DOCX) will be compiled into a clean standard format optimized for ATS parsers.</p>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Saved Base Resume Active Banner in Step 1 -->
+            <div id="savedBaseResumeActiveCard" class="hidden p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl space-y-2 transition-all">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2.5 overflow-hidden">
+                  <span class="text-xl">📄</span>
+                  <div class="truncate">
+                    <div class="flex items-center space-x-1.5">
+                      <p id="savedBaseResumeActiveName" class="text-xs font-bold text-emerald-900 truncate">my_resume.pdf</p>
+                      <span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-200 text-emerald-800" data-i18n="base_resume_active_badge">Base Resume Active</span>
+                    </div>
+                    <p class="text-[10px] text-emerald-700" data-i18n="base_resume_step1_sub">Ready to go! Paste the Job Description in Step 2 below.</p>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-1.5 shrink-0">
+                  <button type="button" id="btnStep1ToggleBaseResume" class="text-[11px] px-2.5 py-1 rounded-lg border border-emerald-300 font-semibold bg-white hover:bg-emerald-100 text-emerald-800 transition-colors cursor-pointer" title="Toggle off to upload a different resume for this run" data-i18n="btn_toggle_off" data-i18n-title="btn_toggle_off">
+                    Toggle Off
+                  </button>
                 </div>
               </div>
             </div>
@@ -439,7 +665,7 @@
         <div id="progressCard" class="hidden bg-white p-5 rounded-2xl border border-sky-100 shadow-sm space-y-3">
           <div class="flex items-center justify-between text-xs font-semibold text-slate-600">
             <span id="progressStatusText">Extracting resume layout...</span>
-            <span class="animate-pulse text-sky-600 font-mono">Processing</span>
+            <span class="animate-pulse text-sky-600 font-mono" data-i18n="progress_processing">Processing</span>
           </div>
           <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
             <div id="progressBar" class="bg-gradient-to-r from-sky-500 to-indigo-600 h-2 rounded-full transition-all duration-500" style="width: 30%;"></div>
@@ -669,13 +895,76 @@
     <div id="tabContentProfile" class="hidden space-y-8 max-w-4xl mx-auto">
       
       <!-- Profile Header -->
-      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2">
         <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
           <span>🧠</span> <span data-i18n="profile_header_title">Create Your Own Master Profile</span>
         </h2>
-        <p class="text-xs text-slate-500 mt-1 leading-relaxed" data-i18n="profile_header_desc">
+        <p class="text-xs text-slate-500 leading-relaxed" data-i18n="profile_header_desc">
           Your personal database of verified experience and metrics used by the AI to match job requirements without fabricating facts.
         </p>
+      </div>
+
+      <!-- Saved Base Resume Card (1-Click Tailoring) -->
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl">
+              📄
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-slate-800" data-i18n="base_resume_section_title">Saved Base Resume (1-Click Tailoring)</h3>
+              <p class="text-xs text-slate-500 mt-0.5" data-i18n="base_resume_section_desc">
+                Save your standard resume to tailor directly by only pasting the Job Description.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Base Resume Upload / Active Display -->
+        <div id="baseResumeContainer">
+          <!-- Guest Locked Card -->
+          <div id="baseResumeGuestCard" class="p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center space-x-3">
+              <span class="text-xl shrink-0">🔒</span>
+              <div>
+                <p class="text-xs font-bold text-slate-800" data-i18n="base_resume_guest_title">Sign In to Save Your Base Resume</p>
+              </div>
+            </div>
+            <div id="baseResumeGoogleBtn" class="shrink-0 flex items-center justify-center min-h-[40px]"></div>
+          </div>
+
+          <!-- Dropzone when signed in but no base resume saved -->
+          <div id="baseResumeDropzone" class="hidden border-2 border-dashed border-slate-300 hover:border-emerald-500 transition-colors rounded-xl p-5 text-center cursor-pointer bg-slate-50/50 hover:bg-emerald-50/30">
+            <input type="file" id="baseResumeFileInput" accept=".pdf,.docx,.doc,.pptx,.ppt,.txt" class="hidden">
+            <div class="flex items-center justify-center space-x-2 text-xs font-medium text-slate-700">
+              <span>📄</span>
+              <span class="text-emerald-600 font-semibold" data-i18n="base_resume_dropzone_click">Click to upload base resume</span>
+              <span data-i18n="dropzone_sub">or drag & drop</span>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1" data-i18n="dropzone_types">
+              PDF, Word DOCX, or Canva PPTX
+            </p>
+          </div>
+
+          <!-- Active Base Resume Card (Logged-in only) -->
+          <div id="baseResumeInfoCard" class="hidden p-4 bg-emerald-50/70 border border-emerald-200 rounded-xl flex items-center justify-between">
+            <div class="flex items-center space-x-3 overflow-hidden">
+              <span class="text-2xl">📎</span>
+              <div class="truncate">
+                <p id="baseResumeFileName" class="text-xs font-bold text-slate-800 truncate">my_resume.pdf</p>
+                <p id="baseResumeStatusText" class="text-[11px] text-emerald-700 font-medium" data-i18n="base_resume_active_status">✅ Active: Used automatically in Step 1</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-2 shrink-0">
+              <button type="button" id="btnToggleBaseResumeActive" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs" data-i18n="btn_toggle_off">
+                Toggle Off
+              </button>
+              <button type="button" id="btnDeleteBaseResume" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-rose-600 hover:bg-rose-50 border border-rose-200 transition-colors cursor-pointer" title="Delete Base Resume" data-i18n="btn_delete" data-i18n-title="btn_delete">
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Creation Mode Selector -->
@@ -760,8 +1049,8 @@
             </button>
 
             <!-- Download JSON Button -->
-            <button id="btnDownloadProfileJson" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors flex items-center gap-1.5 cursor-pointer" data-i18n="btn_download_json">
-              <span>⬇️</span> <span data-i18n="btn_download_json_text">Download profile.json</span>
+            <button id="btnDownloadProfileJson" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors flex items-center gap-1.5 cursor-pointer">
+              <span>⬇️</span> <span data-i18n="btn_download_json">Download profile.json</span>
             </button>
           </div>
         </div>
@@ -772,6 +1061,41 @@
     </div>
 
   </main>
+
+  <!-- Admin Login Modal -->
+  <div id="adminLoginModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl border border-slate-200 dark:border-slate-800 relative">
+      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 flex items-center justify-center text-base border border-slate-200 dark:border-slate-700">⚙️</div>
+          <h3 class="text-sm font-bold text-slate-900 dark:text-white">Admin Master Access</h3>
+        </div>
+        <button id="btnCloseAdminModal" type="button" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-lg cursor-pointer">✕</button>
+      </div>
+      <form id="modalAdminLoginForm" class="space-y-3">
+        <div>
+          <div class="relative">
+            <input 
+              type="password" 
+              id="modalAdminKeyInput" 
+              placeholder="Enter secret key..." 
+              required 
+              autocomplete="current-password"
+              class="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900 dark:text-white"
+            >
+            <button type="button" id="btnToggleModalAdminPass" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer" title="Toggle visibility">👁️</button>
+          </div>
+        </div>
+        <div id="modalAdminError" class="hidden text-xs text-rose-600 dark:text-rose-400 font-semibold p-2 bg-rose-50 dark:bg-rose-950/40 rounded-lg border border-rose-200 dark:border-rose-900">
+          Invalid secret access key.
+        </div>
+        <button type="submit" id="btnSubmitAdminLogin" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5">
+          <span>Unlock Admin Mode</span>
+          <span>→</span>
+        </button>
+      </form>
+    </div>
+  </div>
 
   <!-- Questionnaire Wizard Modal -->
   <div id="wizardModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
@@ -823,34 +1147,77 @@
         <button id="btnCloseTournamentModal" class="text-slate-400 hover:text-slate-600 font-bold p-1 cursor-pointer">✕</button>
       </div>
 
-      <div class="space-y-3 text-xs text-slate-600 leading-relaxed">
-        <p data-i18n="tournament_modal_desc">
-          This runs an intensive multi-stage optimization to significantly improve match accuracy, technical depth, and bullet impact.
+      <!-- State A: Guest View (Prompt to Sign In) -->
+      <div id="tournamentGuestView" class="hidden space-y-4 text-xs text-slate-600 leading-relaxed">
+        <div class="p-3.5 bg-sky-50 border border-sky-200 rounded-xl flex items-center gap-2.5 text-sky-900 font-semibold">
+          <span class="text-lg">🔒</span>
+          <span data-i18n="tournament_guest_banner">Exclusive Feature: Available for Signed-In Accounts</span>
+        </div>
+        <p data-i18n="tournament_guest_desc1">
+          Deep Quality Boost runs an intensive 5-pass AI tournament comparing multiple candidate variants to maximize match accuracy, bullet impact, and recruiter score.
         </p>
-        <div class="p-3.5 bg-indigo-50 border border-indigo-200 rounded-xl flex items-center gap-2.5 text-indigo-900 font-medium">
-          <span class="text-base">⏱️</span>
-          <span data-i18n="tournament_runtime_note">Estimated runtime: approximately 45–50 seconds.</span>
+        <p class="font-medium text-slate-700" data-i18n="tournament_guest_desc2">
+          Sign in with Google to unlock <strong>1 free Deep Boost every day</strong> (independent of standard tailor quotas).
+        </p>
+        <div class="flex items-center justify-end space-x-3 pt-2">
+          <button type="button" id="btnCancelTournamentGuest" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer" data-i18n="btn_cancel">
+            Cancel
+          </button>
+          <div id="tournamentGoogleBtn" class="shrink-0 flex items-center justify-center min-h-[40px] min-w-[250px]"></div>
         </div>
       </div>
 
-      <div class="flex items-center justify-end space-x-3 pt-2">
-        <button
-          type="button"
-          id="btnCancelTournament"
-          class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer"
-          data-i18n="btn_cancel"
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          id="btnProceedTournament"
-          class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 shadow-md shadow-indigo-500/20 transition-all flex items-center gap-1.5 cursor-pointer"
-          data-i18n="btn_proceed_tournament"
-        >
-          <span>✨</span>
-          <span>Proceed with Deep Boost</span>
-        </button>
+      <!-- State B: Quota Exhausted View -->
+      <div id="tournamentQuotaView" class="hidden space-y-4 text-xs text-slate-600 leading-relaxed">
+        <div class="p-3.5 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-2.5 text-amber-900 font-medium">
+          <span class="text-lg">⏳</span>
+          <span data-i18n="tournament_quota_banner">Daily Deep Quality Boost Limit Reached (1/1 used today)</span>
+        </div>
+        <p data-i18n="tournament_quota_desc1">
+          You have used your 1 free Deep Quality Boost for today. Daily quota resets every day at midnight UTC.
+        </p>
+        <p class="text-emerald-700 font-medium" data-i18n="tournament_quota_desc2">
+          💡 Your standard AI tailors (5 daily) remain available!
+        </p>
+        <div class="flex items-center justify-end space-x-3 pt-2">
+          <button type="button" id="btnTournamentCloseQuota" class="px-5 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer" data-i18n="btn_understood">
+            Understood
+          </button>
+        </div>
+      </div>
+
+      <!-- State C: Ready to Run Deep Boost View -->
+      <div id="tournamentActiveView" class="space-y-4 text-xs text-slate-600 leading-relaxed">
+        <p data-i18n="tournament_modal_desc">
+          This runs an intensive multi-stage optimization to significantly improve match accuracy, technical depth, and bullet impact.
+        </p>
+        <div class="p-3 bg-indigo-50 border border-indigo-200 rounded-xl flex items-center justify-between text-indigo-900">
+          <span class="font-medium flex items-center gap-1.5"><span>✨</span> <span data-i18n="tournament_active_boost_avail">1 Free Deep Boost available today</span></span>
+          <span class="text-[10px] text-indigo-600 font-normal" data-i18n="tournament_resets_utc">Resets midnight UTC</span>
+        </div>
+        <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-2.5 text-slate-700 font-medium">
+          <span class="text-base">⏱️</span>
+          <span data-i18n="tournament_runtime_note">Estimated runtime: approximately 45–50 seconds.</span>
+        </div>
+
+        <div class="flex items-center justify-end space-x-3 pt-2">
+          <button
+            type="button"
+            id="btnCancelTournament"
+            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer"
+            data-i18n="btn_cancel"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            id="btnProceedTournament"
+            class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 shadow-md shadow-indigo-500/20 transition-all flex items-center gap-1.5 cursor-pointer"
+          >
+            <span>✨</span>
+            <span data-i18n="btn_proceed_tournament">Proceed with Deep Boost</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -994,10 +1361,9 @@
             type="button"
             id="btnApplyEdits"
             class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-amber-600 via-sky-600 to-indigo-600 hover:from-amber-700 hover:to-indigo-700 shadow-md shadow-sky-500/20 transition-all flex items-center gap-1.5"
-            data-i18n="editor_apply_btn"
           >
             <span>⚡</span>
-            <span>Apply Edits & Recompile PDF</span>
+            <span data-i18n="editor_apply_btn">Apply Edits & Recompile PDF</span>
           </button>
         </div>
       </div>
@@ -1088,7 +1454,76 @@
         editor_experience_legend: "Work Experience & Bullets",
         editor_projects_legend: "Projects",
         editor_education_legend: "Education & Coursework",
-        editor_additional_legend: "Additional Sections (Leadership, Military, Awards)"
+        editor_additional_legend: "Additional Sections (Leadership, Military, Awards)",
+        quota_title: "Daily AI tailoring quota",
+        btn_sign_out: "Sign Out",
+        quota_left: "left",
+        tip_design_safe_title: "💡 How to Keep Your Design Safe:",
+        tip_design_safe_desc: "Export your Canva resume to <strong>PPTX</strong> and upload it here (or upload a standard PPTX file) to preserve exact visual layouts, cards, and styling. Other formats (PDF or DOCX) will be compiled into a clean standard format optimized for ATS parsers.",
+        base_resume_active_badge: "Base Resume Active",
+        base_resume_step1_sub: "Ready to go! Paste the Job Description in Step 2 below.",
+        base_resume_section_title: "Saved Base Resume (1-Click Tailoring)",
+        base_resume_section_desc: "Save your standard resume to tailor directly by only pasting the Job Description.",
+        base_resume_guest_title: "Sign In to Save Your Base Resume",
+        base_resume_guest_desc: "Save your standard resume to tailor in 1 click across any device by pasting only the Job Description.",
+        base_resume_dropzone_click: "Click to upload base resume",
+        base_resume_active_status: "✅ Active: Used automatically in Step 1",
+        base_resume_inactive_status: "⏸️ Inactive: Using manual file upload in Step 1",
+        btn_toggle_off: "Toggle Off",
+        btn_toggle_on: "Toggle On",
+        btn_delete: "Delete",
+        tournament_guest_banner: "Exclusive Feature: Available for Signed-In Accounts",
+        tournament_guest_desc1: "Deep Quality Boost runs an intensive 5-pass AI tournament comparing multiple candidate variants to maximize match accuracy, bullet impact, and recruiter score.",
+        tournament_guest_desc2: "Sign in with Google to unlock <strong>1 free Deep Boost every day</strong> (independent of standard tailor quotas).",
+        tournament_quota_banner: "Daily Deep Quality Boost Limit Reached (1/1 used today)",
+        tournament_quota_desc1: "You have used your 1 free Deep Quality Boost for today. Daily quota resets every day at midnight UTC.",
+        tournament_quota_desc2: "💡 Your standard AI tailors (5 daily) remain available!",
+        btn_understood: "Understood",
+        tournament_active_boost_avail: "1 Free Deep Boost available today",
+        tournament_resets_utc: "Resets midnight UTC",
+        overall_match: "Overall Match",
+        tech_keywords_matched: "tech keywords matched",
+        strong_matches_short: "Strong",
+        partial_matches_short: "Partial",
+        gaps_short: "Gaps",
+        high_alignment: "High accomplishment alignment",
+        solid_alignment: "Solid engineering alignment",
+        profile_btn_active: "Active for Tailoring",
+        profile_btn_paused: "Paused (Click to Enable)",
+        profile_btn_none: "No Profile",
+        profile_paused_status: "⏸️ Master Profile Paused:",
+        tech_skills_matched_jd: "Technical skills matched to Job Description",
+        btn_delete_profile: "Delete Profile",
+        progress_processing: "Processing",
+        alert_no_profile: "Please upload or generate a master profile first.",
+        confirm_delete_profile: "Are you sure you want to delete this master profile and create one from scratch?",
+        alert_signin_base_resume: "Please sign in with Google at the top to save your Base Resume!",
+        confirm_delete_base_resume: "Are you sure you want to delete your saved base resume?",
+        alert_select_profile_input: "Please select at least one profile file or paste background notes.",
+        alert_profile_generated: "Master Profile successfully generated!",
+        alert_profile_created_wiz: "Master Profile created from questionnaire!",
+        alert_tailor_first: "Please tailor a resume first before editing.",
+        alert_no_resume_file: "Please select or upload your resume file in Step 1, or activate your Base Resume in the Master Profile tab.",
+        alert_no_jd: "Please paste the target Job Description in Step 2 so the AI can tailor your achievements and skills for this role.",
+        prog_deep_boost: "Deep Quality Boost",
+        prog_deep_boost_desc: "Refining accuracy and optimizing match...",
+        prog_extract_layout: "Extracting Document Layout",
+        prog_extract_layout_desc: "Preserving native typography and structure...",
+        prog_align: "Analyzing Alignment",
+        prog_align_desc: "Enhancing technical depth and qualifications...",
+        prog_impact: "Polishing Impact",
+        prog_impact_desc: "Strengthening achievements and metrics...",
+        prog_finalize_best: "Finalizing Best Version",
+        prog_finalize_best_desc: "Finalizing high-scoring tailored resume...",
+        prog_synth_profile: "Synthesizing with Master Profile",
+        prog_synth_profile_desc: "Matching verified projects & metrics without hallucination...",
+        prog_tailoring: "AI Substantive Tailoring",
+        prog_tailoring_desc: "Sharpening bullets & ordering skills by Job Description relevance...",
+        prog_compiling: "Compiling Vector PDF",
+        prog_compiling_desc: "Verifying layout margins and zero visual collision...",
+        prog_complete: "Complete!",
+        prog_complete_desc: "Resume tailored successfully.",
+        of_prep: "of"
       },
       he: {
         badge_design_preserving: "AI שומר עיצוב",
@@ -1171,7 +1606,76 @@
         editor_experience_legend: "ניסיון תעסוקתי והישגים",
         editor_projects_legend: "פרויקטים",
         editor_education_legend: "השכלה וקורסים",
-        editor_additional_legend: "סעיפים נוספים (שירות צבאי, מנהיגות, פרסים)"
+        editor_additional_legend: "סעיפים נוספים (שירות צבאי, מנהיגות, פרסים)",
+        quota_title: "מכסת התאמת קורות חיים יומית ב-AI",
+        btn_sign_out: "התנתק",
+        quota_left: "נותרו",
+        tip_design_safe_title: "💡 כיצד לשמור על העיצוב שלך:",
+        tip_design_safe_desc: "ייצא את קורות החיים מ-Canva ל-<strong>PPTX</strong> והעלה לכאן (או העלה קובץ PPTX סטנדרטי) כדי לשמר בדיוק את העימוד, הכרטיסיות והסגנון הגרפי. פורמטים אחרים (PDF או DOCX) יועברו לעימוד נקי וסטנדרטי המותאם למערכות ATS.",
+        base_resume_active_badge: "קורות חיים ראשיים פעילים",
+        base_resume_step1_sub: "מוכן לפעולה! הדבק את תיאור המשרה בשלב 2 למטה.",
+        base_resume_section_title: "קורות חיים ראשיים שמורים (התאמה בלחיצה אחת)",
+        base_resume_section_desc: "שמור את קורות החיים הראשיים שלך כדי להתאים מיידית על ידי הדבקת תיאור המשרה בלבד.",
+        base_resume_guest_title: "התחבר כדי לשמור את קורות החיים הראשיים שלך",
+        base_resume_guest_desc: "שמור את קורות החיים הסטנדרטיים שלך להתאמה בלחיצה אחת בכל מכשיר על ידי הדבקת תיאור המשרה בלבד.",
+        base_resume_dropzone_click: "לחץ להעלאת קורות חיים ראשיים",
+        base_resume_active_status: "✅ פעיל: משמש אוטומטית בשלב 1",
+        base_resume_inactive_status: "⏸️ מושהה: משתמש בהעלאת קובץ ידנית בשלב 1",
+        btn_toggle_off: "השבת",
+        btn_toggle_on: "הפעל",
+        btn_delete: "מחק",
+        tournament_guest_banner: "תכונה בלעדית: זמינה למשתמשים מחוברים",
+        tournament_guest_desc1: "שדרוג איכות מעמיק מריץ טורניר AI רב-שלבי המשווה מספר גרסאות מועמדות למיקסום דיוק ההתאמה, עוצמת ההישגים וציון המגייס.",
+        tournament_guest_desc2: "התחבר עם Google כדי לפתוח <strong>שדרוג איכות מעמיק 1 חינם בכל יום</strong> (בנפרד ממכסת ההתאמות הרגילה).",
+        tournament_quota_banner: "הגעת למגבלת שדרוג האיכות היומית (1/1 נוצל היום)",
+        tournament_quota_desc1: "השתמשת בשדרוג האיכות החינמי שלך להיום. המכסה היומית מתאפסת בכל יום בחצות UTC.",
+        tournament_quota_desc2: "💡 התאמות ה-AI הרגילות שלך (5 ביום) עדיין זמינות!",
+        btn_understood: "הבנתי",
+        tournament_active_boost_avail: "שדרוג איכות מעמיק 1 חינם זמין היום",
+        tournament_resets_utc: "מתאפס בחצות UTC",
+        overall_match: "התאמה כוללת",
+        tech_keywords_matched: "מילות מפתח טכניות תואמות",
+        strong_matches_short: "חזק",
+        partial_matches_short: "חלקי",
+        gaps_short: "פערים",
+        high_alignment: "התאמה גבוהה בהישגים",
+        solid_alignment: "התאמה הנדסית מוצקה",
+        profile_btn_active: "פעיל להתאמה",
+        profile_btn_paused: "מושהה (לחץ להפעלה)",
+        profile_btn_none: "ללא פרופיל",
+        profile_paused_status: "⏸️ פרופיל ראשי מושהה:",
+        tech_skills_matched_jd: "כישורים טכניים הותאמו לדרישות המשרה",
+        btn_delete_profile: "מחק פרופיל",
+        progress_processing: "מעבד",
+        alert_no_profile: "נא להעלות או ליצור פרופיל ראשי תחילה.",
+        confirm_delete_profile: "האם אתה בטוח שברצונך למחוק את הפרופיל הראשי ולהתחיל מאפס?",
+        alert_signin_base_resume: "נא להתחבר באמצעות Google בראש העמוד כדי לשמור את קורות החיים הראשיים שלך!",
+        confirm_delete_base_resume: "האם אתה בטוח שברצונך למחוק את קורות החיים הראשיים השמורים?",
+        alert_select_profile_input: "נא לבחור לפחות קובץ פרופיל אחד או להדביק הערות רקע.",
+        alert_profile_generated: "פרופיל ראשי נוצר בהצלחה!",
+        alert_profile_created_wiz: "פרופיל ראשי נוצר מהשאלון בהצלחה!",
+        alert_tailor_first: "נא להתאים קורות חיים לפני עריכה.",
+        alert_no_resume_file: "נא לבחור או להעלות קובץ קורות חיים בשלב 1, או להפעיל את קורות החיים הראשיים בלשונית הפרופיל הראשי.",
+        alert_no_jd: "נא להדביק את תיאור המשרה בשלב 2 כדי שה-AI יוכל להתאים את הישגיך וכישוריך לתפקיד.",
+        prog_deep_boost: "שדרוג איכות מעמיק",
+        prog_deep_boost_desc: "מדייק התאמות וממקסם ציון התאמה...",
+        prog_extract_layout: "מחלץ פריסת מסמך",
+        prog_extract_layout_desc: "שומר על טיפוגרפיה ומבנה מקוריים...",
+        prog_align: "מנתח התאמה לדרישות",
+        prog_align_desc: "מעמיק היבטים טכניים והתאמה לכישורים...",
+        prog_impact: "מלטש השפעה והישגים",
+        prog_impact_desc: "מחזק מדדים ונתונים כמותיים...",
+        prog_finalize_best: "מגבש את הגרסה הטובה ביותר",
+        prog_finalize_best_desc: "מסיים הפקת קורות חיים בציון התאמה מרבי...",
+        prog_synth_profile: "ממזג עם הפרופיל הראשי",
+        prog_synth_profile_desc: "מתאים פרויקטים ומדדים מאומתים ללא המצאות...",
+        prog_tailoring: "התאמת תוכן חכמה",
+        prog_tailoring_desc: "מחדד הישגים ומסדר כישורים לפי דרישות המשרה...",
+        prog_compiling: "מייצר קובץ PDF וקטורי",
+        prog_compiling_desc: "מוודא שוליים ואפס התנגשויות ויזואליות...",
+        prog_complete: "הסתיים בהצלחה!",
+        prog_complete_desc: "קורות החיים הותאמו בהצלחה.",
+        of_prep: "מתוך"
       },
       es: {
         badge_design_preserving: "IA que Preserva el Diseño",
@@ -1253,7 +1757,77 @@
         editor_experience_legend: "Experiencia Laboral y Logros",
         editor_projects_legend: "Proyectos",
         editor_education_legend: "Educación y Cursos",
-        editor_additional_legend: "Secciones Adicionales (Liderazgo, Militar, Premios)"
+        editor_additional_legend: "Secciones Adicionales (Liderazgo, Militar, Premios)",
+        quota_title: "Cuota diaria de adaptación con IA",
+        btn_sign_out: "Cerrar sesión",
+        quota_left: "restantes",
+        tip_design_safe_title: "💡 Cómo mantener seguro su diseño:",
+        tip_design_safe_desc: "Exporte su currículum de Canva a <strong>PPTX</strong> y súbalo aquí (o suba un archivo PPTX estándar) para preservar el diseño visual exacto, tarjetas y estilo. Otros formatos (PDF o DOCX) se compilarán en un formato estándar limpio optimizado para lectores ATS.",
+        base_resume_active_badge: "Currículum Base Activo",
+        base_resume_step1_sub: "¡Listo para empezar! Pegue la descripción del puesto en el Paso 2 a continuación.",
+        base_resume_section_title: "Currículum Base Guardado (Adaptación en 1 Clic)",
+        base_resume_section_desc: "Guarde su currículum estándar para adaptarlo directamente pegando únicamente la descripción del trabajo.",
+        base_resume_guest_title: "Inicie sesión para guardar su Currículum Base",
+        base_resume_guest_desc: "Guarde su currículum estándar para adaptarlo en 1 clic en cualquier dispositivo pegando solo la descripción del trabajo.",
+        base_resume_dropzone_click: "Haga clic para subir currículum base",
+        base_resume_active_status: "✅ Activo: Se usa automáticamente en el Paso 1",
+        base_resume_inactive_status: "⏸️ Inactivo: Usando subida manual de archivo en Paso 1",
+        btn_toggle_off: "Desactivar",
+        btn_toggle_on: "Activar",
+        btn_delete: "Eliminar",
+        tournament_guest_banner: "Función Exclusiva: Disponible para Cuentas con Sesión Iniciada",
+        tournament_guest_desc1: "La Mejora Profunda de Calidad ejecuta un torneo intensivo de IA en 5 fases que compara múltiples variantes del candidato para maximizar la precisión de coincidencia, el impacto de los logros y la puntuación de los reclutadores.",
+        tournament_guest_desc2: "Inicie sesión con Google para desbloquear <strong>1 Mejora Profunda gratis cada día</strong> (independiente de las cuotas estándar de adaptación).",
+        tournament_quota_banner: "Límite Diario de Mejora Profunda Alcanzado (1/1 usado hoy)",
+        tournament_quota_desc1: "Ha utilizado su Mejora Profunda gratuita de hoy. La cuota diaria se restablece a la medianoche UTC.",
+        tournament_quota_desc2: "💡 ¡Sus adaptaciones estándar de IA (5 diarias) siguen disponibles!",
+        btn_understood: "Entendido",
+        tournament_active_boost_avail: "1 Mejora Profunda gratis disponible hoy",
+        tournament_resets_utc: "Se reinicia a la medianoche UTC",
+        overall_match: "Coincidencia General",
+        tech_keywords_matched: "palabras clave técnicas coincidentes",
+        strong_matches_short: "Fuerte",
+        partial_matches_short: "Parcial",
+        gaps_short: "Brechas",
+        high_alignment: "Gran alineación de logros",
+        solid_alignment: "Sólida alineación técnica",
+        profile_btn_active: "Activo para Adaptación",
+        profile_btn_paused: "Pausado (Clic para Activar)",
+        profile_btn_none: "Sin Perfil",
+        profile_paused_status: "⏸️ Perfil Maestro Pausado:",
+        tech_skills_matched_jd: "Habilidades técnicas alineadas con la vacante",
+        btn_delete_profile: "Eliminar Perfil",
+        progress_processing: "Procesando",
+        alert_no_profile: "Por favor, suba o genere un perfil maestro primero.",
+        confirm_delete_profile: "¿Está seguro de que desea eliminar este perfil maestro y comenzar desde cero?",
+        alert_signin_base_resume: "¡Inicie sesión con Google en la parte superior para guardar su Currículum Base!",
+        confirm_delete_base_resume: "¿Está seguro de que desea eliminar su currículum base guardado?",
+        alert_select_profile_input: "Por favor, seleccione al menos un archivo de perfil o pegue notas de antecedentes.",
+        alert_profile_generated: "¡Perfil Maestro generado con éxito!",
+        alert_profile_created_wiz: "¡Perfil Maestro creado a partir del cuestionario!",
+        alert_tailor_first: "Por favor, adapte un currículum antes de editarlo.",
+        alert_no_resume_file: "Por favor, seleccione o suba su currículum en el Paso 1, o active su Currículum Base en la pestaña Perfil Maestro.",
+        alert_no_jd: "Por favor, pegue la descripción del puesto en el Paso 2 para que la IA adapte sus logros y habilidades para este rol.",
+        prog_deep_boost: "Mejora Profunda de Calidad",
+        prog_deep_boost_desc: "Refinando precisión y optimizando coincidencia...",
+        prog_extract_layout: "Extrayendo Diseño del Documento",
+        prog_extract_layout_desc: "Preservando tipografía y estructura nativa...",
+        prog_align: "Analizando Alineación",
+        prog_align_desc: "Mejorando profundidad técnica y requisitos...",
+        prog_impact: "Puliendo Impacto",
+        prog_impact_desc: "Fortaleciendo logros y métricas...",
+        prog_finalize_best: "Finalizando la Mejor Versión",
+        prog_finalize_best_desc: "Finalizando currículum adaptado de alta puntuación...",
+        prog_synth_profile: "Sintetizando con Perfil Maestro",
+        prog_synth_profile_desc: "Emparejando proyectos y métricas verificadas sin inventar hechos...",
+        prog_tailoring: "Adaptación Inteligente de Contenido",
+        prog_tailoring_desc: "Afilando viñetas y ordenando habilidades por relevancia para el puesto...",
+        prog_compiling: "Compilando PDF Vectorial",
+        prog_compiling_desc: "Verificando márgenes y cero colisiones visuales...",
+        prog_complete: "¡Completado!",
+        prog_complete_desc: "Currículum adaptado con éxito.",
+        btn_download_pptx: "Descargar PPTX",
+        of_prep: "de"
       },
       zh: {
         badge_design_preserving: "保留排版智能AI",
@@ -1335,7 +1909,77 @@
         editor_experience_legend: "工作与项目经历要点",
         editor_projects_legend: "工程项目",
         editor_education_legend: "教育背景与核心课程",
-        editor_additional_legend: "其他专项（领导力、荣誉奖项等）"
+        editor_additional_legend: "其他专项（领导力、荣誉奖项等）",
+        quota_title: "每日 AI 简历定制额度",
+        btn_sign_out: "退出登录",
+        quota_left: "剩余",
+        tip_design_safe_title: "💡 如何完美保护您的排版设计：",
+        tip_design_safe_desc: "将您的 Canva 简历导出为 <strong>PPTX</strong> 并在此上传（或直接上传标准 PPTX 文件），即可完整保留原生视觉卡片、色彩与版式。其他格式（PDF 或 DOCX）将被转换为针对 ATS 筛选系统优化的纯净标准单栏格式。",
+        base_resume_active_badge: "基准简历已激活",
+        base_resume_step1_sub: "准备就绪！请在下方步骤 2 粘贴目标职位描述。",
+        base_resume_section_title: "已保存的基准简历（一键快速定制）",
+        base_resume_section_desc: "保存您的标准简历，下次仅需粘贴职位描述即可直接完成定制。",
+        base_resume_guest_title: "登录以保存您的基准简历",
+        base_resume_guest_desc: "登录后保存标准简历，在任何设备上只需粘贴职位描述即可一键完成定制。",
+        base_resume_dropzone_click: "点击上传基准简历",
+        base_resume_active_status: "✅ 已激活：将在步骤 1 中自动使用",
+        base_resume_inactive_status: "⏸️ 已暂停：将在步骤 1 中使用手动文件上传",
+        btn_toggle_off: "停用",
+        btn_toggle_on: "启用",
+        btn_delete: "删除",
+        tournament_guest_banner: "专属功能：登录账户专享",
+        tournament_guest_desc1: "深度品质升级运行高强度 5 轮 AI 锦标赛，对比多个候选版本，最大化关键词匹配度、成就说服力及招聘官评分。",
+        tournament_guest_desc2: "使用 Google 登录即可<strong>每天免费解锁 1 次深度品质升级</strong>（独立于标准定制额度）。",
+        tournament_quota_banner: "今日深度品质升级额度已达上限（今日已用 1/1）",
+        tournament_quota_desc1: "您已使用今日的 1 次免费深度升级。每日额度将于 UTC 时间午夜重置。",
+        tournament_quota_desc2: "💡 您的每日标准 AI 定制额度（5次/天）仍可正常使用！",
+        btn_understood: "知道了",
+        tournament_active_boost_avail: "今日可用 1 次免费深度品质升级",
+        tournament_resets_utc: "UTC 时间午夜重置",
+        overall_match: "总体匹配度",
+        tech_keywords_matched: "项技术关键词匹配",
+        strong_matches_short: "高度匹配",
+        partial_matches_short: "部分匹配",
+        gaps_short: "暂缺要求",
+        high_alignment: "成就经历高度契合",
+        solid_alignment: "工程背景扎实匹配",
+        profile_btn_active: "已激活用于定制",
+        profile_btn_paused: "已暂停（点击启用）",
+        profile_btn_none: "无档案",
+        profile_paused_status: "⏸️ 核心背景档案已暂停：",
+        tech_skills_matched_jd: "专业技能已与职位描述精准匹配",
+        btn_delete_profile: "删除档案",
+        progress_processing: "处理中",
+        alert_no_profile: "请先上传或生成核心背景档案。",
+        confirm_delete_profile: "确定要删除此核心背景档案并重新开始吗？",
+        alert_signin_base_resume: "请在页面顶部使用 Google 登录以保存您的基准简历！",
+        confirm_delete_base_resume: "确定要删除已保存的基准简历吗？",
+        alert_select_profile_input: "请选择至少一个档案文件或粘贴背景笔记。",
+        alert_profile_generated: "核心背景档案生成成功！",
+        alert_profile_created_wiz: "通过问卷成功创建核心档案！",
+        alert_tailor_first: "请先完成一次简历定制再进行编辑。",
+        alert_no_resume_file: "请在步骤 1 中选择或上传简历文件，或在核心档案选项卡中激活您的基准简历。",
+        alert_no_jd: "请在步骤 2 中粘贴目标职位描述，以便 AI 针对该岗位定制您的成果与技能。",
+        prog_deep_boost: "深度品质升级",
+        prog_deep_boost_desc: "精修精准度并最大化匹配评分...",
+        prog_extract_layout: "提取文档排版",
+        prog_extract_layout_desc: "保留原生字体排印与结构...",
+        prog_align: "分析匹配契合度",
+        prog_align_desc: "增强技术深度与任职资格对应...",
+        prog_impact: "打磨业绩说服力",
+        prog_impact_desc: "强化量化成果与核心指标...",
+        prog_finalize_best: "整合最佳版本",
+        prog_finalize_best_desc: "正在生成最高评分的定制简历...",
+        prog_synth_profile: "结合核心档案事实依据",
+        prog_synth_profile_desc: "匹配已验证项目与指标，杜绝虚构...",
+        prog_tailoring: "AI 深度定制优化",
+        prog_tailoring_desc: "润色经历要点并根据职位需求重构技能优先级...",
+        prog_compiling: "编译矢量 PDF",
+        prog_compiling_desc: "核验版面边距确保零文字重叠冲突...",
+        prog_complete: "处理完成！",
+        prog_complete_desc: "简历已成功定制。",
+        btn_download_pptx: "下载 PPTX",
+        of_prep: "共"
       },
       ar: {
         badge_design_preserving: "ذكاء اصطناعي يحفظ التصميم",
@@ -1417,7 +2061,77 @@
         editor_experience_legend: "الخبرة المهنية والإنجازات",
         editor_projects_legend: "المشاريع",
         editor_education_legend: "التعليم والدورات",
-        editor_additional_legend: "أقسام إضافية (القيادة، الخدمة، الجوائز)"
+        editor_additional_legend: "أقسام إضافية (القيادة، الخدمة، الجوائز)",
+        quota_title: "الحصة اليومية لتخصيص السيرة بالذكاء الاصطناعي",
+        btn_sign_out: "تسجيل الخروج",
+        quota_left: "متبقية",
+        tip_design_safe_title: "💡 كيفية الحفاظ على سلامة تصميمك:",
+        tip_design_safe_desc: "قم بتصدير سيرتك الذاتية من Canva بصيغة <strong>PPTX</strong> وارفعها هنا (أو ارفع ملف PPTX قياسي) للحفاظ التام على التصميم والبطاقات والتنسيق الجرافيكي. سيتم تجميع الصيغ الأخرى (PDF أو DOCX) في تنسيق قياسي نظيف ومحسن لأنظمة ATS.",
+        base_resume_active_badge: "السيرة الذاتية الأساسية نشطة",
+        base_resume_step1_sub: "جاهز للبدء! الصق الوصف الوظيفي في الخطوة 2 أدناه.",
+        base_resume_section_title: "السيرة الذاتية الأساسية المحفوظة (تخصيص بنقرة واحدة)",
+        base_resume_section_desc: "احفظ سيرتك الذاتية المعتمدة لتخصيصها مباشرة عبر لصق الوصف الوظيفي فقط.",
+        base_resume_guest_title: "سجل الدخول لحفظ سيرتك الذاتية الأساسية",
+        base_resume_guest_desc: "احفظ سيرتك الذاتية المعتمدة لتخصيصها بنقرة واحدة عبر أي جهاز بمجرد لصق الوصف الوظيفي.",
+        base_resume_dropzone_click: "انقر لرفع السيرة الذاتية الأساسية",
+        base_resume_active_status: "✅ نشط: يُستخدم تلقائيًا في الخطوة 1",
+        base_resume_inactive_status: "⏸️ معطل: يتم استخدام الرفع اليدوي في الخطوة 1",
+        btn_toggle_off: "تعطيل",
+        btn_toggle_on: "تفعيل",
+        btn_delete: "حذف",
+        tournament_guest_banner: "ميزة حصرية: متاحة للحسابات المسجلة فقط",
+        tournament_guest_desc1: "تشغل ميزة تعزيز الجودة العميقة بطولة ذكاء اصطناعي مكثفة من 5 جولات لمقارنة نسخ متعددة لزيادة دقة المواءمة وقوة الإنجازات وتقييم مسؤولي التوظيف.",
+        tournament_guest_desc2: "سجل الدخول باستخدام Google لفتح <strong>تعزيز جودة عميق واحد مجانًا كل يوم</strong> (مستقل عن حصة التخصيص العادية).",
+        tournament_quota_banner: "تم الوصول إلى الحد اليومي لتعزيز الجودة (تم استخدام 1/1 اليوم)",
+        tournament_quota_desc1: "لقد استنفدت تعزيز الجودة المجاني لليوم. تتجدد الحصة اليومية عند منتصف الليل بتوقيت UTC.",
+        tournament_quota_desc2: "💡 تخصيصات الذكاء الاصطناعي القياسية (5 يوميًا) لا تزال متاحة لك!",
+        btn_understood: "فهمت ذلك",
+        tournament_active_boost_avail: "تعزيز جودة عميق مجاني واحد متاح اليوم",
+        tournament_resets_utc: "يتجدد عند منتصف الليل بتوقيت UTC",
+        overall_match: "التطابق الإجمالي",
+        tech_keywords_matched: "كلمات تقنية مطابقة",
+        strong_matches_short: "قوي",
+        partial_matches_short: "جزئي",
+        gaps_short: "فجوات",
+        high_alignment: "توافق إنجازات عالٍ",
+        solid_alignment: "توافق هندسي قوي",
+        profile_btn_active: "نشط للتخصيص",
+        profile_btn_paused: "متوقف (انقر للتفعيل)",
+        profile_btn_none: "لا يوجد ملف",
+        profile_paused_status: "⏸️ الملف الشخصي المرجعي متوقف مؤقتًا:",
+        tech_skills_matched_jd: "المهارات التقنية مطابقة للوصف الوظيفي",
+        btn_delete_profile: "حذف الملف الشخصي",
+        progress_processing: "جار المعالجة",
+        alert_no_profile: "يرجى رفع أو إنشاء ملف مرجعي أولاً.",
+        confirm_delete_profile: "هل أنت متأكد من رغبتك في حذف هذا الملف المرجعي والبدء من جديد؟",
+        alert_signin_base_resume: "يرجى تسجيل الدخول عبر Google أعلى الصفحة لحفظ سيرتك الذاتية الأساسية!",
+        confirm_delete_base_resume: "هل أنت متأكد من رغبتك في حذف السيرة الذاتية الأساسية المحفوظة؟",
+        alert_select_profile_input: "يرجى اختيار ملف مرجعي واحد على الأقل أو لصق ملاحظاتك.",
+        alert_profile_generated: "تم إنشاء الملف المرجعي بنجاح!",
+        alert_profile_created_wiz: "تم إنشاء الملف المرجعي من الاستبيان بنجاح!",
+        alert_tailor_first: "يرجى تخصيص السيرة الذاتية أولاً قبل التعديل.",
+        alert_no_resume_file: "يرجى تحديد أو رفع ملف السيرة الذاتية في الخطوة 1، أو تفعيل سيرتك الأساسية في تبويب الملف المرجعي.",
+        alert_no_jd: "يرجى لصق الوصف الوظيفي المستهدف في الخطوة 2 ليتمكن الذكاء الاصطناعي من مواءمة إنجازاتك ومهاراتك.",
+        prog_deep_boost: "تعزيز الجودة العميقة",
+        prog_deep_boost_desc: "تحسين الدقة وزيادة نسبة التوافق...",
+        prog_extract_layout: "استخراج تخطيط المستند",
+        prog_extract_layout_desc: "الحفاظ على الخط والتنسيق الأصلي...",
+        prog_align: "تحليل المواءمة",
+        prog_align_desc: "تعزيز العمق التقني والمؤهلات...",
+        prog_impact: "صقل قوة الإنجازات",
+        prog_impact_desc: "تعزيز الأرقام والمقاييس الملموسة...",
+        prog_finalize_best: "اعتماد أفضل نسخة",
+        prog_finalize_best_desc: "إنهاء السيرة الذاتية بأعلى نسبة تقييم...",
+        prog_synth_profile: "الدمج مع الملف المرجعي",
+        prog_synth_profile_desc: "مطابقة المشاريع والأرقام الحقيقية دون اختلاق...",
+        prog_tailoring: "التخصيص الذكي للمحتوى",
+        prog_tailoring_desc: "صياغة النقاط وترتيب المهارات وفقًا لمتطلبات الوظيفة...",
+        prog_compiling: "تجميع ملف PDF متجه",
+        prog_compiling_desc: "فحص الهوامش ومنع أي تداخل بصري...",
+        prog_complete: "اكتمل بنجاح!",
+        prog_complete_desc: "تم تخصيص السيرة الذاتية بنجاح.",
+        btn_download_pptx: "تحميل PPTX",
+        of_prep: "من"
       },
       fr: {
         badge_design_preserving: "IA préservant le design",
@@ -1499,7 +2213,77 @@
         editor_experience_legend: "Expérience Professionnelle et Réussites",
         editor_projects_legend: "Projets",
         editor_education_legend: "Formation et Cours",
-        editor_additional_legend: "Sections Supplémentaires (Leadership, Militaire, Prix)"
+        editor_additional_legend: "Sections Supplémentaires (Leadership, Militaire, Prix)",
+        quota_title: "Quota quotidien d'adaptation IA",
+        btn_sign_out: "Déconnexion",
+        quota_left: "restants",
+        tip_design_safe_title: "💡 Comment préserver votre mise en page :",
+        tip_design_safe_desc: "Exportez votre CV Canva en <strong>PPTX</strong> et téléversez-le ici (ou téléversez un fichier PPTX standard) pour conserver exactement les blocs visuels, cartes et styles graphiques. Les autres formats (PDF ou DOCX) seront convertis en un format standard propre optimisé pour les robots ATS.",
+        base_resume_active_badge: "CV de Base Actif",
+        base_resume_step1_sub: "Prêt ! Collez la description du poste à l'Étape 2 ci-dessous.",
+        base_resume_section_title: "CV de Base Enregistré (Adaptation en 1 Clic)",
+        base_resume_section_desc: "Enregistrez votre CV standard pour l'adapter directement en collant uniquement l'offre d'emploi.",
+        base_resume_guest_title: "Connectez-vous pour enregistrer votre CV de Base",
+        base_resume_guest_desc: "Enregistrez votre CV standard pour l'adapter en 1 clic depuis n'importe quel appareil en collant simplement l'offre d'emploi.",
+        base_resume_dropzone_click: "Cliquez pour téléverser votre CV de base",
+        base_resume_active_status: "✅ Actif : Utilisé automatiquement à l'Étape 1",
+        base_resume_inactive_status: "⏸️ Inactif : Utilisation du téléversement manuel à l'Étape 1",
+        btn_toggle_off: "Désactiver",
+        btn_toggle_on: "Activer",
+        btn_delete: "Supprimer",
+        tournament_guest_banner: "Fonctionnalité Exclusive : Réservée aux Utilisateurs Connectés",
+        tournament_guest_desc1: "Le Boost de Qualité Approfondi exécute un tournoi IA intensif en 5 passes comparant plusieurs variantes pour maximiser la pertinence des mots-clés, l'impact des réalisations et le score recruteur.",
+        tournament_guest_desc2: "Connectez-vous avec Google pour débloquer <strong>1 Boost Approfondi gratuit chaque jour</strong> (indépendant des quotas réguliers d'adaptation).",
+        tournament_quota_banner: "Limite Quotidienne de Boost Approfondi Atteinte (1/1 utilisé aujourd'hui)",
+        tournament_quota_desc1: "Vous avez utilisé votre Boost Approfondi gratuit pour aujourd'hui. Le quota se réinitialise chaque jour à minuit UTC.",
+        tournament_quota_desc2: "💡 Vos adaptations IA régulières (5 par jour) restent disponibles !",
+        btn_understood: "Compris",
+        tournament_active_boost_avail: "1 Boost Approfondi gratuit disponible aujourd'hui",
+        tournament_resets_utc: "Réinitialisation à minuit UTC",
+        overall_match: "Score Global d'Adéquation",
+        tech_keywords_matched: "mots-clés techniques correspondants",
+        strong_matches_short: "Fort",
+        partial_matches_short: "Partiel",
+        gaps_short: "Écarts",
+        high_alignment: "Alignement remarquable des réalisations",
+        solid_alignment: "Alignement technique solide",
+        profile_btn_active: "Actif pour l'Adaptation",
+        profile_btn_paused: "En pause (Cliquer pour Activer)",
+        profile_btn_none: "Aucun Profil",
+        profile_paused_status: "⏸️ Profil Maître en Pause :",
+        tech_skills_matched_jd: "Compétences techniques alignées sur le poste",
+        btn_delete_profile: "Supprimer le Profil",
+        progress_processing: "Traitement en cours",
+        alert_no_profile: "Veuillez d'abord téléverser ou générer un profil maître.",
+        confirm_delete_profile: "Êtes-vous sûr de vouloir supprimer ce profil maître et recommencer à zéro ?",
+        alert_signin_base_resume: "Veuillez vous connecter avec Google en haut pour enregistrer votre CV de Base !",
+        confirm_delete_base_resume: "Êtes-vous sûr de vouloir supprimer votre CV de base enregistré ?",
+        alert_select_profile_input: "Veuillez sélectionner au moins un fichier ou coller vos notes d'expérience.",
+        alert_profile_generated: "Profil Maître généré avec succès !",
+        alert_profile_created_wiz: "Profil Maître créé à partir du questionnaire !",
+        alert_tailor_first: "Veuillez d'abord adapter un CV avant de le modifier.",
+        alert_no_resume_file: "Veuillez sélectionner ou téléverser votre CV à l'Étape 1, ou activer votre CV de Base dans l'onglet Profil Maître.",
+        alert_no_jd: "Veuillez coller la description du poste à l'Étape 2 pour que l'IA adapte vos réalisations et compétences à ce rôle.",
+        prog_deep_boost: "Boost de Qualité Approfondi",
+        prog_deep_boost_desc: "Précision accrue et optimisation de l'adéquation...",
+        prog_extract_layout: "Extraction de la Mise en Page",
+        prog_extract_layout_desc: "Préservation de la typographie et de la structure native...",
+        prog_align: "Analyse de la Pertinence",
+        prog_align_desc: "Renforcement de la profondeur technique et des prérequis...",
+        prog_impact: "Optimisation de l'Impact",
+        prog_impact_desc: "Valorisation des résultats chiffrés et des métriques...",
+        prog_finalize_best: "Finalisation de la Meilleure Version",
+        prog_finalize_best_desc: "Finalisation du CV adapté à score maximal...",
+        prog_synth_profile: "Synthèse avec le Profil Maître",
+        prog_synth_profile_desc: "Croisement des projets et métriques vérifiés sans invention...",
+        prog_tailoring: "Adaptation Approfondie par l'IA",
+        prog_tailoring_desc: "Affinage des puces et ordonnancement selon l'offre...",
+        prog_compiling: "Compilation du PDF Vectoriel",
+        prog_compiling_desc: "Vérification des marges et zéro collision visuelle...",
+        prog_complete: "Terminé !",
+        prog_complete_desc: "CV adapté avec succès.",
+        btn_download_pptx: "Télécharger PPTX",
+        of_prep: "sur"
       },
       de: {
         badge_design_preserving: "Design-Schützende KI",
@@ -1581,18 +2365,94 @@
         editor_experience_legend: "Berufserfahrung & Erfolge",
         editor_projects_legend: "Projekte",
         editor_education_legend: "Ausbildung & Kurse",
-        editor_additional_legend: "Zusätzliche Abschnitte (Führung, Militär, Auszeichnungen)"
+        editor_additional_legend: "Zusätzliche Abschnitte (Führung, Militär, Auszeichnungen)",
+        quota_title: "Tägliches KI-Lebenslauf-Kontingent",
+        btn_sign_out: "Abmelden",
+        quota_left: "übrig",
+        tip_design_safe_title: "💡 So bleibt Ihr Design geschützt:",
+        tip_design_safe_desc: "Exportieren Sie Ihren Canva-Lebenslauf als <strong>PPTX</strong> und laden Sie ihn hier hoch (oder laden Sie eine normale PPTX-Datei hoch), um das exakte visuelle Layout, Kacheln und Grafiken beizubehalten. Andere Formate (PDF oder DOCX) werden in ein sauberes Standardformat umgewandelt, das für ATS-Systeme optimiert ist.",
+        base_resume_active_badge: "Basis-Lebenslauf aktiv",
+        base_resume_step1_sub: "Bereit zum Start! Fügen Sie die Stellenbeschreibung in Schritt 2 unten ein.",
+        base_resume_section_title: "Gespeicherter Basis-Lebenslauf (1-Klick-Anpassung)",
+        base_resume_section_desc: "Speichern Sie Ihren Standard-Lebenslauf, um ihn direkt durch einfaches Einfügen der Stellenbeschreibung anzupassen.",
+        base_resume_guest_title: "Anmelden, um Basis-Lebenslauf zu speichern",
+        base_resume_guest_desc: "Speichern Sie Ihren Standard-Lebenslauf, um ihn auf jedem Gerät mit nur 1 Klick durch Einfügen der Stellenbeschreibung anzupassen.",
+        base_resume_dropzone_click: "Klicken, um Basis-Lebenslauf hochzuladen",
+        base_resume_active_status: "✅ Aktiv: Wird automatisch in Schritt 1 verwendet",
+        base_resume_inactive_status: "⏸️ Inaktiv: Manueller Datei-Upload in Schritt 1 aktiv",
+        btn_toggle_off: "Deaktivieren",
+        btn_toggle_on: "Aktivieren",
+        btn_delete: "Löschen",
+        tournament_guest_banner: "Exklusives Feature: Nur für angemeldete Konten verfügbar",
+        tournament_guest_desc1: "Der Tiefe Qualitäts-Boost führt ein intensives 5-Runden-KI-Turnier durch, das mehrere Versionen vergleicht, um Übereinstimmung, Wirkung der Stichpunkte und Recruiter-Bewertung zu maximieren.",
+        tournament_guest_desc2: "Melden Sie sich mit Google an, um <strong>täglich 1 kostenlosen Tiefen Boost</strong> freizuschalten (unabhängig vom normalen Kontingent).",
+        tournament_quota_banner: "Tägliches Limit für Tiefen Qualitäts-Boost erreicht (1/1 heute genutzt)",
+        tournament_quota_desc1: "Sie haben Ihren 1 kostenlosen Tiefen Qualitäts-Boost für heute aufgebraucht. Das tägliche Kontingent wird um Mitternacht UTC zurückgesetzt.",
+        tournament_quota_desc2: "💡 Ihre regulären KI-Anpassungen (5 täglich) stehen Ihnen weiterhin zur Verfügung!",
+        btn_understood: "Verstanden",
+        tournament_active_boost_avail: "1 kostenloser Tiefer Qualitäts-Boost heute verfügbar",
+        tournament_resets_utc: "Wird um Mitternacht UTC zurückgesetzt",
+        overall_match: "Gesamtübereinstimmung",
+        tech_keywords_matched: "passende technische Schlüsselwörter",
+        strong_matches_short: "Stark",
+        partial_matches_short: "Teilweise",
+        gaps_short: "Lücken",
+        high_alignment: "Hervorragende Erfolgsübereinstimmung",
+        solid_alignment: "Solide technische Übereinstimmung",
+        profile_btn_active: "Aktiv für Anpassung",
+        profile_btn_paused: "Pausiert (Klicken zum Aktivieren)",
+        profile_btn_none: "Kein Profil",
+        profile_paused_status: "⏸️ Master-Profil pausiert:",
+        tech_skills_matched_jd: "Technische Fähigkeiten auf die Stellenbeschreibung abgestimmt",
+        btn_delete_profile: "Profil löschen",
+        progress_processing: "Wird verarbeitet",
+        alert_no_profile: "Bitte laden Sie zuerst ein Master-Profil hoch oder erstellen Sie eines.",
+        confirm_delete_profile: "Sind Sie sicher, dass Sie dieses Master-Profil löschen und von Grund auf neu beginnen möchten?",
+        alert_signin_base_resume: "Bitte melden Sie sich oben mit Google an, um Ihren Basis-Lebenslauf zu speichern!",
+        confirm_delete_base_resume: "Sind Sie sicher, dass Sie Ihren gespeicherten Basis-Lebenslauf löschen möchten?",
+        alert_select_profile_input: "Bitte wählen Sie mindestens eine Datei aus oder fügen Sie Hintergrundnotizen ein.",
+        alert_profile_generated: "Master-Profil erfolgreich erstellt!",
+        alert_profile_created_wiz: "Master-Profil aus Fragebogen erfolgreich erstellt!",
+        alert_tailor_first: "Bitte passen Sie zuerst einen Lebenslauf an, bevor Sie ihn bearbeiten.",
+        alert_no_resume_file: "Bitte wählen Sie in Schritt 1 eine Lebenslauf-Datei aus oder aktivieren Sie Ihren Basis-Lebenslauf im Master-Profil-Tab.",
+        alert_no_jd: "Bitte fügen Sie die Ziel-Stellenbeschreibung in Schritt 2 ein, damit die KI Ihre Erfahrungen und Fähigkeiten gezielt anpassen kann.",
+        prog_deep_boost: "Tiefer Qualitäts-Boost",
+        prog_deep_boost_desc: "Präzision verfeinern und Passgenauigkeit optimieren...",
+        prog_extract_layout: "Dokumentenlayout extrahieren",
+        prog_extract_layout_desc: "Ursprüngliche Typografie und Struktur schützen...",
+        prog_align: "Übereinstimmung analysieren",
+        prog_align_desc: "Technische Tiefe und Qualifikationen ausbauen...",
+        prog_impact: "Wirkung verfeinern",
+        prog_impact_desc: "Erfolge und Messwerte hervorheben...",
+        prog_finalize_best: "Beste Version finalisieren",
+        prog_finalize_best_desc: "Hoch bewerteten optimierten Lebenslauf fertigstellen...",
+        prog_synth_profile: "Mit Master-Profil abgleichen",
+        prog_synth_profile_desc: "Verifizierte Projekte & Kennzahlen ohne Erfindungen abgleichen...",
+        prog_tailoring: "Substanzielle KI-Anpassung",
+        prog_tailoring_desc: "Stichpunkte schärfen & Fähigkeiten nach Relevanz ordnen...",
+        prog_compiling: "Vektor-PDF kompilieren",
+        prog_compiling_desc: "Layout-Ränder und visuelle Kollisionsfreiheit prüfen...",
+        prog_complete: "Abgeschlossen!",
+        prog_complete_desc: "Lebenslauf erfolgreich optimiert.",
+        btn_download_pptx: "PPTX herunterladen",
+        of_prep: "von"
       }
     };
 
     let currentLanguage = localStorage.getItem('resume_tailor_lang') || 'en';
     const langSelector = document.getElementById('langSelector');
-    langSelector.value = currentLanguage;
+    if (langSelector) langSelector.value = currentLanguage;
+
+    window.t = function(key, defaultVal = '') {
+      const dict = TRANSLATIONS[currentLanguage] || TRANSLATIONS['en'];
+      return dict[key] || TRANSLATIONS['en'][key] || defaultVal;
+    };
 
     function applyLanguage(lang) {
       currentLanguage = lang;
       localStorage.setItem('resume_tailor_lang', lang);
       const dict = TRANSLATIONS[lang] || TRANSLATIONS['en'];
+      const enDict = TRANSLATIONS['en'];
 
       // Set direction
       if (lang === 'he' || lang === 'ar') {
@@ -1603,21 +2463,113 @@
         document.documentElement.setAttribute('lang', lang);
       }
 
-      // Translate text elements
+      // Translate text elements (support innerHTML when tags are present)
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
-        if (dict[key]) el.textContent = dict[key];
+        const val = dict[key] || enDict[key];
+        if (val) {
+          if (val.includes('<')) {
+            el.innerHTML = val;
+          } else {
+            el.textContent = val;
+          }
+        }
       });
 
       // Translate placeholder elements
       document.querySelectorAll('[data-i18n-ph]').forEach(el => {
         const key = el.getAttribute('data-i18n-ph');
-        if (dict[key]) el.setAttribute('placeholder', dict[key]);
+        const ph = dict[key] || enDict[key];
+        if (ph) el.setAttribute('placeholder', ph);
       });
+
+      // Translate title attributes
+      document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        const key = el.getAttribute('data-i18n-title');
+        const title = dict[key] || enDict[key];
+        if (title) el.setAttribute('title', title);
+      });
+
+      // Update short code in compact language button & active styling in menu
+      const currentLangDisplay = document.getElementById('currentLangDisplay');
+      if (currentLangDisplay) {
+        currentLangDisplay.textContent = (lang || 'en').toUpperCase();
+      }
+      if (langSelector) langSelector.value = lang;
+
+      document.querySelectorAll('.lang-option').forEach(btn => {
+        if (btn.getAttribute('data-lang') === lang) {
+          btn.classList.add('bg-slate-100', 'dark:bg-slate-800', 'font-bold', 'text-sky-600', 'dark:text-sky-400');
+        } else {
+          btn.classList.remove('bg-slate-100', 'dark:bg-slate-800', 'font-bold', 'text-sky-600', 'dark:text-sky-400');
+        }
+      });
+
+      // Synchronize dynamic status/cards
+      try { if (typeof updateProfileDisplay === 'function') updateProfileDisplay(); } catch (_) {}
+      try { if (typeof updateBaseResumeDisplay === 'function') updateBaseResumeDisplay(); } catch (_) {}
+      try {
+        if (typeof latestRateLimit !== 'undefined' && latestRateLimit && typeof updateRateLimitBadge === 'function') {
+          updateRateLimitBadge(latestRateLimit);
+        }
+      } catch (_) {}
+      try {
+        if (typeof lastTailoredData !== 'undefined' && lastTailoredData && typeof displayResults === 'function') {
+          displayResults(lastTailoredData);
+        }
+      } catch (_) {}
+
+      // Synchronize Google Identity Services locale
+      try {
+        if (typeof reloadGoogleAuthWithLang === 'function') {
+          reloadGoogleAuthWithLang(lang);
+        }
+      } catch (_) {}
+
+      // Synchronize preview iframe (e.g. diff banner and tooltip translations)
+      try {
+        const previewIframe = document.getElementById('previewIframe');
+        if (previewIframe && previewIframe.contentWindow) {
+          previewIframe.contentWindow.postMessage({ type: 'SET_LANG', lang: lang }, '*');
+        }
+      } catch (_) {}
     }
 
-    langSelector.addEventListener('change', (e) => applyLanguage(e.target.value));
-    applyLanguage(currentLanguage);
+    langSelector?.addEventListener('change', (e) => applyLanguage(e.target.value));
+
+    // Compact Language Dropdown Event Handlers
+    const btnLangDropdown = document.getElementById('btnLangDropdown');
+    const langDropdownMenu = document.getElementById('langDropdownMenu');
+    const langMenuContainer = document.getElementById('langMenuContainer');
+
+    btnLangDropdown?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isHidden = langDropdownMenu?.classList.contains('hidden');
+      if (isHidden) {
+        langDropdownMenu?.classList.remove('hidden');
+        btnLangDropdown.setAttribute('aria-expanded', 'true');
+      } else {
+        langDropdownMenu?.classList.add('hidden');
+        btnLangDropdown.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    document.querySelectorAll('.lang-option').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const selectedLang = btn.getAttribute('data-lang');
+        applyLanguage(selectedLang);
+        langDropdownMenu?.classList.add('hidden');
+        btnLangDropdown?.setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (langMenuContainer && !langMenuContainer.contains(e.target)) {
+        langDropdownMenu?.classList.add('hidden');
+        btnLangDropdown?.setAttribute('aria-expanded', 'false');
+      }
+    });
 
     // Navigation Tabs
     const navTabTailor = document.getElementById('navTabTailor');
@@ -1627,20 +2579,31 @@
     const btnSwitchToProfileTab = document.getElementById('btnSwitchToProfileTab');
 
     function switchTab(tab) {
+      const activeClasses = ['bg-white', 'dark:bg-slate-700', 'text-slate-900', 'dark:text-white', 'shadow-xs', 'font-bold'];
+      const inactiveClasses = ['text-slate-600', 'dark:text-slate-400', 'font-semibold', 'hover:text-slate-900', 'dark:hover:text-white'];
+      const allStateClasses = ['bg-white', 'dark:bg-slate-700', 'text-slate-900', 'dark:text-white', 'shadow-xs', 'shadow-sm', 'font-bold', 'text-slate-600', 'dark:text-slate-300', 'dark:text-slate-400', 'font-semibold'];
+
       if (tab === 'tailor') {
-        navTabTailor.classList.add('bg-white', 'text-slate-900', 'shadow-sm');
-        navTabTailor.classList.remove('text-slate-600');
-        navTabProfile.classList.remove('bg-white', 'text-slate-900', 'shadow-sm');
-        navTabProfile.classList.add('text-slate-600');
+        navTabTailor.classList.remove(...allStateClasses);
+        navTabTailor.classList.add(...activeClasses);
+
+        navTabProfile.classList.remove(...allStateClasses);
+        navTabProfile.classList.add(...inactiveClasses);
+
         tabContentTailor.classList.remove('hidden');
         tabContentProfile.classList.add('hidden');
       } else {
-        navTabProfile.classList.add('bg-white', 'text-slate-900', 'shadow-sm');
-        navTabProfile.classList.remove('text-slate-600');
-        navTabTailor.classList.remove('bg-white', 'text-slate-900', 'shadow-sm');
-        navTabTailor.classList.add('text-slate-600');
+        navTabProfile.classList.remove(...allStateClasses);
+        navTabProfile.classList.add(...activeClasses);
+
+        navTabTailor.classList.remove(...allStateClasses);
+        navTabTailor.classList.add(...inactiveClasses);
+
         tabContentProfile.classList.remove('hidden');
         tabContentTailor.classList.add('hidden');
+        setTimeout(() => {
+          if (typeof renderBaseResumeGoogleButton === 'function') renderBaseResumeGoogleButton();
+        }, 50);
       }
     }
 
@@ -1695,17 +2658,17 @@
             profileActiveBadge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 uppercase tracking-wider";
           }
           if (profileActiveIcon) profileActiveIcon.textContent = "🟢";
-          if (profileActiveBtnText) profileActiveBtnText.textContent = "Active for Tailoring";
+          if (profileActiveBtnText) profileActiveBtnText.textContent = dict.profile_btn_active || "Active for Tailoring";
         } else {
-          profileStatusText.textContent = `⏸️ Master Profile Paused: ${name} (not used in tailoring)`;
+          profileStatusText.textContent = `${dict.profile_paused_status || "⏸️ Master Profile Paused:"} ${name}`;
           profileStatusText.classList.remove('text-slate-400', 'text-emerald-600');
           profileStatusText.classList.add('text-amber-600');
           if (profileActiveBadge) {
-            profileActiveBadge.textContent = "Profile is Inactive";
+            profileActiveBadge.textContent = dict.profile_btn_paused || "Profile is Inactive";
             profileActiveBadge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-600 border border-slate-300 uppercase tracking-wider";
           }
           if (profileActiveIcon) profileActiveIcon.textContent = "⚪";
-          if (profileActiveBtnText) profileActiveBtnText.textContent = "Paused (Click to Enable)";
+          if (profileActiveBtnText) profileActiveBtnText.textContent = dict.profile_btn_paused || "Paused (Click to Enable)";
         }
         profileJsonPreview.textContent = JSON.stringify(activeProfile, null, 2);
       } else {
@@ -1714,26 +2677,36 @@
         profileStatusText.classList.add('text-slate-400');
         profileJsonPreview.textContent = "// No profile loaded yet. Build one using the questionnaire or upload your notes above.";
         if (profileActiveBadge) {
-          profileActiveBadge.textContent = "No Profile Loaded";
+          profileActiveBadge.textContent = dict.profile_btn_none || "No Profile Loaded";
           profileActiveBadge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200 uppercase tracking-wider";
         }
         if (profileActiveIcon) profileActiveIcon.textContent = "⚪";
-        if (profileActiveBtnText) profileActiveBtnText.textContent = "No Profile";
+        if (profileActiveBtnText) profileActiveBtnText.textContent = dict.profile_btn_none || "No Profile";
       }
     }
 
-    btnToggleProfileActive?.addEventListener('click', () => {
+    btnToggleProfileActive?.addEventListener('click', async () => {
       if (!activeProfile) {
-        alert("Please upload or generate a master profile first.");
+        alert(window.t('alert_no_profile', "Please upload or generate a master profile first."));
         return;
       }
       isProfileActive = !isProfileActive;
       updateProfileDisplay();
+      const token = localStorage.getItem('resume_tailor_session');
+      if (token) {
+        try {
+          await fetch('/api/user/profile/toggle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...authHeaders() },
+            body: JSON.stringify({ is_active: isProfileActive })
+          });
+        } catch (_) {}
+      }
     });
 
-    btnDeleteProfile?.addEventListener('click', () => {
+    btnDeleteProfile?.addEventListener('click', async () => {
       if (!activeProfile) return;
-      if (confirm("Are you sure you want to delete this master profile and create one from scratch?")) {
+      if (confirm(window.t('confirm_delete_profile', "Are you sure you want to delete this master profile and create one from scratch?"))) {
         activeProfile = null;
         isProfileActive = true;
         selectedProfileFiles = [];
@@ -1741,8 +2714,533 @@
         renderProfileFiles();
         profileNotesText.value = '';
         updateProfileDisplay();
+        const token = localStorage.getItem('resume_tailor_session');
+        if (token) {
+          try {
+            await fetch('/api/user/profile', {
+              method: 'DELETE',
+              headers: authHeaders()
+            });
+          } catch (_) {}
+        }
       }
     });
+
+    // ---------------- AUTHENTICATION & BASE RESUME STATE ----------------
+    let currentUser = null;
+    let savedBaseResume = null;
+    let isSavedBaseResumeActive = false;
+    let latestRateLimit = null;
+
+    function authHeaders() {
+      const token = localStorage.getItem('resume_tailor_session');
+      return token ? { 'Authorization': `Bearer ${token}` } : {};
+    }
+
+    const loggedOutView = document.getElementById('loggedOutView');
+    const loggedInView = document.getElementById('loggedInView');
+    const userAvatar = document.getElementById('userAvatar');
+    const userName = document.getElementById('userName');
+    const btnSignOut = document.getElementById('btnSignOut');
+    const rateLimitBadge = document.getElementById('rateLimitBadge');
+    const rateLimitText = document.getElementById('rateLimitText');
+    // Base Resume elements
+    const baseResumeGuestCard = document.getElementById('baseResumeGuestCard');
+    const baseResumeDropzone = document.getElementById('baseResumeDropzone');
+    const baseResumeFileInput = document.getElementById('baseResumeFileInput');
+    const baseResumeInfoCard = document.getElementById('baseResumeInfoCard');
+    const baseResumeFileName = document.getElementById('baseResumeFileName');
+    const baseResumeStatusText = document.getElementById('baseResumeStatusText');
+    const btnToggleBaseResumeActive = document.getElementById('btnToggleBaseResumeActive');
+    const btnDeleteBaseResume = document.getElementById('btnDeleteBaseResume');
+
+    // Step 1 Base Resume elements
+    const savedBaseResumeActiveCard = document.getElementById('savedBaseResumeActiveCard');
+    const savedBaseResumeActiveName = document.getElementById('savedBaseResumeActiveName');
+    const btnStep1ToggleBaseResume = document.getElementById('btnStep1ToggleBaseResume');
+
+    function renderNavGoogleButton() {
+      if (!window.google?.accounts?.id || currentUser) return;
+      const navBtn = document.getElementById('googleSignInButton');
+      if (navBtn) {
+        navBtn.innerHTML = '';
+        const isDark = document.documentElement.classList.contains('dark');
+        google.accounts.id.renderButton(navBtn, {
+          theme: isDark ? 'filled_black' : 'outline',
+          size: 'medium',
+          shape: 'rectangular',
+          text: 'signin_with',
+          width: 220
+        });
+      }
+    }
+
+    function renderBaseResumeGoogleButton() {
+      if (!window.google?.accounts?.id || currentUser) return;
+      const baseBtn = document.getElementById('baseResumeGoogleBtn');
+      if (baseBtn) {
+        baseBtn.innerHTML = '';
+        const isDark = document.documentElement.classList.contains('dark');
+        google.accounts.id.renderButton(baseBtn, {
+          theme: isDark ? 'filled_black' : 'outline',
+          size: 'medium',
+          shape: 'rectangular',
+          text: 'signin_with',
+          width: 240
+        });
+      }
+    }
+
+    function renderTournamentGoogleButton() {
+      if (!window.google?.accounts?.id || currentUser) return;
+      const modalBtn = document.getElementById('tournamentGoogleBtn');
+      if (modalBtn) {
+        modalBtn.innerHTML = '';
+        const isDark = document.documentElement.classList.contains('dark');
+        google.accounts.id.renderButton(modalBtn, {
+          theme: isDark ? 'filled_black' : 'outline',
+          size: 'large',
+          shape: 'rectangular',
+          text: 'signin_with',
+          width: 250
+        });
+      }
+    }
+
+    function renderAllGoogleButtons() {
+      renderNavGoogleButton();
+      renderBaseResumeGoogleButton();
+      renderTournamentGoogleButton();
+    }
+
+    const gsiLangMap = {
+      en: 'en',
+      he: 'he',
+      es: 'es',
+      zh: 'zh-CN',
+      ar: 'ar',
+      fr: 'fr',
+      de: 'de'
+    };
+    let currentGsiHl = gsiLangMap[localStorage.getItem('resume_tailor_lang') || 'en'] || 'en';
+
+    function reloadGoogleAuthWithLang(lang) {
+      const targetHl = gsiLangMap[lang] || 'en';
+      if (targetHl === currentGsiHl && window.google?.accounts?.id) {
+        renderAllGoogleButtons();
+        return;
+      }
+      currentGsiHl = targetHl;
+      const oldScript = document.getElementById('gsiScript');
+      if (oldScript) oldScript.remove();
+
+      const script = document.createElement('script');
+      script.id = 'gsiScript';
+      script.src = `https://accounts.google.com/gsi/client?hl=${targetHl}`;
+      script.async = true;
+      script.defer = true;
+      script.onload = () => {
+        if (typeof initGoogleAuth === 'function') initGoogleAuth();
+      };
+      document.head.appendChild(script);
+    }
+
+    function updateRateLimitBadge(rateLimit) {
+      if (!rateLimit || rateLimit.is_admin || (currentUser && currentUser.is_admin)) {
+        rateLimitBadge?.classList.add('hidden');
+        rateLimitBadge?.classList.remove('flex');
+        return;
+      }
+      latestRateLimit = rateLimit;
+      rateLimitBadge?.classList.remove('hidden');
+      rateLimitBadge?.classList.add('flex');
+      if (rateLimitText) {
+        rateLimitText.textContent = `${rateLimit.remaining}/${rateLimit.limit} ${window.t('quota_left', 'left')}`;
+        rateLimitBadge.title = `Daily AI tailoring quota: ${rateLimit.used} used of ${rateLimit.limit} daily limit (${rateLimit.remaining} remaining). Resets at midnight UTC.`;
+      }
+    }
+
+    function updateBaseResumeDisplay() {
+      // 1. Master Profile Tab: Base Resume Card State
+      if (!currentUser) {
+        baseResumeGuestCard?.classList.remove('hidden');
+        baseResumeDropzone?.classList.add('hidden');
+        baseResumeInfoCard?.classList.add('hidden');
+        setTimeout(() => {
+          renderBaseResumeGoogleButton();
+        }, 50);
+      } else {
+        baseResumeGuestCard?.classList.add('hidden');
+        if (savedBaseResume) {
+          baseResumeDropzone?.classList.add('hidden');
+          baseResumeInfoCard?.classList.remove('hidden');
+          if (baseResumeFileName) baseResumeFileName.textContent = savedBaseResume.filename;
+
+          if (isSavedBaseResumeActive) {
+            if (baseResumeStatusText) {
+              baseResumeStatusText.textContent = window.t('base_resume_active_status', "✅ Active: Used automatically in Step 1");
+              baseResumeStatusText.className = "text-[11px] text-emerald-700 font-medium";
+            }
+            if (btnToggleBaseResumeActive) {
+              btnToggleBaseResumeActive.textContent = window.t('btn_toggle_off', "Toggle Off");
+              btnToggleBaseResumeActive.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs";
+            }
+          } else {
+            if (baseResumeStatusText) {
+              baseResumeStatusText.textContent = window.t('base_resume_inactive_status', "⏸️ Inactive: Using manual file upload in Step 1");
+              baseResumeStatusText.className = "text-[11px] text-amber-700 font-medium";
+            }
+            if (btnToggleBaseResumeActive) {
+              btnToggleBaseResumeActive.textContent = window.t('btn_toggle_on', "Toggle On");
+              btnToggleBaseResumeActive.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer bg-slate-200 hover:bg-slate-300 text-slate-800 shadow-xs";
+            }
+          }
+        } else {
+          baseResumeDropzone?.classList.remove('hidden');
+          baseResumeInfoCard?.classList.add('hidden');
+        }
+      }
+
+      // 2. Step 1 Isolation: strictly hide manual upload when Base Resume is active
+      if (savedBaseResume && isSavedBaseResumeActive) {
+        savedBaseResumeActiveCard?.classList.remove('hidden');
+        if (savedBaseResumeActiveName) savedBaseResumeActiveName.textContent = savedBaseResume.filename;
+        if (btnStep1ToggleBaseResume) btnStep1ToggleBaseResume.textContent = window.t('btn_toggle_off', "Toggle Off");
+
+        // Strictly hide dropzone & manual card
+        dropzone?.classList.add('hidden');
+        fileStatusCard?.classList.add('hidden');
+
+        btnSubmit.disabled = false;
+        btnSubmit.classList.remove('opacity-70', 'cursor-not-allowed');
+      } else {
+        savedBaseResumeActiveCard?.classList.add('hidden');
+        if (selectedFile) {
+          fileStatusCard?.classList.remove('hidden');
+          dropzone?.classList.add('hidden');
+          btnSubmit.disabled = false;
+          btnSubmit.classList.remove('opacity-70', 'cursor-not-allowed');
+        } else {
+          dropzone?.classList.remove('hidden');
+          fileStatusCard?.classList.add('hidden');
+          btnSubmit.disabled = true;
+          btnSubmit.classList.add('opacity-70', 'cursor-not-allowed');
+        }
+      }
+    }
+
+    baseResumeDropzone?.addEventListener('click', () => baseResumeFileInput.click());
+    baseResumeDropzone?.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      baseResumeDropzone.classList.add('border-emerald-500', 'bg-emerald-50/50');
+    });
+    baseResumeDropzone?.addEventListener('dragleave', () => {
+      baseResumeDropzone.classList.remove('border-emerald-500', 'bg-emerald-50/50');
+    });
+    baseResumeDropzone?.addEventListener('drop', (e) => {
+      e.preventDefault();
+      baseResumeDropzone.classList.remove('border-emerald-500', 'bg-emerald-50/50');
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) uploadBaseResume(e.dataTransfer.files[0]);
+    });
+    baseResumeFileInput?.addEventListener('change', () => {
+      if (baseResumeFileInput.files && baseResumeFileInput.files.length > 0) {
+        uploadBaseResume(baseResumeFileInput.files[0]);
+        baseResumeFileInput.value = '';
+      }
+    });
+
+    async function uploadBaseResume(file) {
+      if (!currentUser) {
+        alert(window.t('alert_signin_base_resume', "Please sign in with Google at the top to save your Base Resume!"));
+        return;
+      }
+      const formData = new FormData();
+      formData.append('base_file', file);
+      try {
+        const res = await fetch('/api/user/base-resume', {
+          method: 'POST',
+          headers: authHeaders(),
+          body: formData
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || "Failed to save base resume");
+        }
+        await checkAuthStatus();
+      } catch (err) {
+        alert(`Error: ${err.message}`);
+      }
+    }
+
+    btnToggleBaseResumeActive?.addEventListener('click', async () => {
+      if (!savedBaseResume) return;
+      isSavedBaseResumeActive = !isSavedBaseResumeActive;
+      updateBaseResumeDisplay();
+      try {
+        await fetch('/api/user/base-resume/toggle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify({ is_active: isSavedBaseResumeActive })
+        });
+      } catch (_) {}
+    });
+
+    btnStep1ToggleBaseResume?.addEventListener('click', async () => {
+      isSavedBaseResumeActive = !isSavedBaseResumeActive;
+      updateBaseResumeDisplay();
+      try {
+        await fetch('/api/user/base-resume/toggle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify({ is_active: isSavedBaseResumeActive })
+        });
+      } catch (_) {}
+    });
+
+    btnDeleteBaseResume?.addEventListener('click', async () => {
+      if (!savedBaseResume) return;
+      if (confirm(window.t('confirm_delete_base_resume', "Are you sure you want to delete your saved base resume?"))) {
+        try {
+          await fetch('/api/user/base-resume', {
+            method: 'DELETE',
+            headers: authHeaders()
+          });
+          savedBaseResume = null;
+          isSavedBaseResumeActive = false;
+          updateBaseResumeDisplay();
+        } catch (err) {
+          alert(`Error: ${err.message}`);
+        }
+      }
+    });
+
+    function applyAuthState(data) {
+      if (data && data.is_authenticated) {
+        currentUser = data.user;
+        if (currentUser && currentUser.is_admin) {
+          // Admin Mode: Hide Google Sign-in, User pill, and Quota badge
+          loggedOutView?.classList.add('hidden');
+          loggedInView?.classList.add('hidden');
+          rateLimitBadge?.classList.add('hidden');
+          rateLimitBadge?.classList.remove('flex');
+        } else {
+          loggedOutView?.classList.add('hidden');
+          loggedInView?.classList.remove('hidden');
+          if (userName) userName.textContent = currentUser.name || currentUser.email;
+          if (userAvatar) {
+            userAvatar.src = currentUser.picture || 'https://www.gravatar.com/avatar/?d=mp';
+          }
+          updateRateLimitBadge(data.rate_limit);
+        }
+
+        // Clear Option A upload inputs/chips so returning users see ONLY their profile.json & base resume
+        selectedProfileFiles = [];
+        if (profileFileInput) profileFileInput.value = '';
+        if (profileFilesList) {
+          profileFilesList.innerHTML = '';
+          profileFilesList.classList.add('hidden');
+        }
+        if (profileNotesText) profileNotesText.value = '';
+
+        // If saved profile exists, load it
+        if (data.has_profile && data.profile) {
+          activeProfile = data.profile;
+          isProfileActive = data.profile_is_active !== false;
+          updateProfileDisplay();
+        } else {
+          activeProfile = null;
+          isProfileActive = false;
+          updateProfileDisplay();
+        }
+
+        // If saved base resume exists
+        if (data.has_base_resume && data.base_resume) {
+          savedBaseResume = data.base_resume;
+          isSavedBaseResumeActive = data.base_resume.is_active !== false;
+          updateBaseResumeDisplay();
+        } else {
+          savedBaseResume = null;
+          isSavedBaseResumeActive = false;
+          updateBaseResumeDisplay();
+        }
+      } else {
+        currentUser = null;
+        loggedOutView?.classList.remove('hidden');
+        loggedInView?.classList.add('hidden');
+        if (data && data.rate_limit) updateRateLimitBadge(data.rate_limit);
+        savedBaseResume = null;
+        isSavedBaseResumeActive = false;
+        updateBaseResumeDisplay();
+      }
+    }
+
+    async function checkAuthStatus() {
+      try {
+        const res = await fetch('/api/auth/me', { headers: authHeaders() });
+        if (res.ok) {
+          const data = await res.json();
+          applyAuthState(data);
+        }
+      } catch (err) {
+        console.warn("Auth check notice:", err);
+      }
+    }
+
+    window.handleGoogleCredentialResponse = async function(response) {
+      if (!response || !response.credential) return;
+      try {
+        const res = await fetch('/api/auth/google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ credential: response.credential })
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || "Authentication failed");
+        }
+        const data = await res.json();
+        localStorage.setItem('resume_tailor_session', data.session_token);
+        tournamentModal?.classList.add('hidden');
+        await checkAuthStatus();
+      } catch (err) {
+        alert("Google Sign-In Error: " + err.message);
+      }
+    };
+
+    btnSignOut?.addEventListener('click', async () => {
+      // Subtle 150ms fade transition for clean visual feedback of signing out
+      document.body.classList.add('transition-opacity', 'duration-150', 'opacity-30');
+      try {
+        await fetch('/api/auth/logout', { method: 'POST', headers: authHeaders() });
+      } catch (_) {}
+      localStorage.removeItem('resume_tailor_session');
+      currentUser = null;
+      savedBaseResume = null;
+      isSavedBaseResumeActive = false;
+      activeProfile = null;
+      selectedProfileFiles = [];
+      if (profileFileInput) profileFileInput.value = '';
+      if (profileFilesList) {
+        profileFilesList.innerHTML = '';
+        profileFilesList.classList.add('hidden');
+      }
+      if (profileNotesText) profileNotesText.value = '';
+      if (resumeFileInput) resumeFileInput.value = '';
+      selectedFile = null;
+      if (fileStatusCard) fileStatusCard.classList.add('hidden');
+      if (dropzone) dropzone.classList.remove('hidden');
+      updateProfileDisplay();
+      updateBaseResumeDisplay();
+      if (window.google?.accounts?.id) {
+        google.accounts.id.disableAutoSelect();
+      }
+      await checkAuthStatus();
+      setTimeout(renderAllGoogleButtons, 100);
+      setTimeout(() => {
+        document.body.classList.remove('opacity-30');
+      }, 150);
+    });
+
+    // Admin Master Login Modal Handling
+    const adminLoginModal = document.getElementById('adminLoginModal');
+    const btnAdminPanelNav = document.getElementById('btnAdminPanelNav');
+    const btnCloseAdminModal = document.getElementById('btnCloseAdminModal');
+    const modalAdminLoginForm = document.getElementById('modalAdminLoginForm');
+    const modalAdminKeyInput = document.getElementById('modalAdminKeyInput');
+    const btnToggleModalAdminPass = document.getElementById('btnToggleModalAdminPass');
+    const modalAdminError = document.getElementById('modalAdminError');
+    const btnSubmitAdminLogin = document.getElementById('btnSubmitAdminLogin');
+
+    btnAdminPanelNav?.addEventListener('click', () => {
+      if (currentUser && currentUser.is_admin) {
+        window.location.href = '/admin';
+      } else {
+        modalAdminKeyInput.value = '';
+        modalAdminError.classList.add('hidden');
+        adminLoginModal.classList.remove('hidden');
+        modalAdminKeyInput.focus();
+      }
+    });
+
+    btnCloseAdminModal?.addEventListener('click', () => {
+      adminLoginModal.classList.add('hidden');
+    });
+
+    btnToggleModalAdminPass?.addEventListener('click', () => {
+      const isPass = modalAdminKeyInput.type === 'password';
+      modalAdminKeyInput.type = isPass ? 'text' : 'password';
+      btnToggleModalAdminPass.textContent = isPass ? '🔒' : '👁️';
+    });
+
+    modalAdminLoginForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const secret_key = modalAdminKeyInput.value.trim();
+      if (!secret_key) return;
+
+      btnSubmitAdminLogin.disabled = true;
+      modalAdminError.classList.add('hidden');
+      btnSubmitAdminLogin.innerHTML = '<span>Authenticating...</span>';
+
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ secret_key })
+        });
+        if (!res.ok) {
+          modalAdminError.classList.remove('hidden');
+          btnSubmitAdminLogin.disabled = false;
+          btnSubmitAdminLogin.innerHTML = '<span>Unlock Admin Mode</span><span>→</span>';
+          return;
+        }
+        const data = await res.json();
+        localStorage.setItem('resume_tailor_session', data.session_token);
+        adminLoginModal.classList.add('hidden');
+        window.location.href = '/admin';
+      } catch (err) {
+        modalAdminError.classList.remove('hidden');
+        modalAdminError.textContent = err.message || 'Login failed';
+      } finally {
+        btnSubmitAdminLogin.disabled = false;
+        btnSubmitAdminLogin.innerHTML = '<span>Unlock Admin Mode</span><span>→</span>';
+      }
+    });
+
+    // Cross-tab session sync (syncs instantly between / and /admin)
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'resume_tailor_session') {
+        checkAuthStatus();
+      }
+    });
+
+    async function initGoogleAuth() {
+      try {
+        const res = await fetch('/api/auth/config');
+        if (!res.ok) return;
+        const config = await res.json();
+        const clientId = config.google_client_id;
+        if (!clientId) return;
+
+        const checkGis = setInterval(() => {
+          if (window.google?.accounts?.id) {
+            clearInterval(checkGis);
+            google.accounts.id.initialize({
+              client_id: clientId,
+              callback: window.handleGoogleCredentialResponse,
+              auto_select: false,
+              cancel_on_tap_outside: true,
+            });
+            renderAllGoogleButtons();
+          }
+        }, 150);
+        setTimeout(() => clearInterval(checkGis), 10000);
+      } catch (err) {
+        console.warn("GIS config error:", err);
+      }
+    }
+
+    initGoogleAuth();
+    checkAuthStatus();
 
     // Master Profile Upload (Option A) - Custom Dropzone (Supports Multiple Files)
     const profileDropzone = document.getElementById('profileDropzone');
@@ -1805,13 +3303,13 @@
       }
       profileFilesList.classList.remove('hidden');
       profileFilesList.innerHTML = selectedProfileFiles.map((file, idx) => `
-        <div class="flex items-center justify-between p-2 bg-sky-50/80 border border-sky-200 rounded-xl text-xs transition-all">
+        <div class="flex items-center justify-between p-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs transition-all">
           <div class="flex items-center space-x-2 min-w-0 pr-2">
-            <span class="text-sky-600 shrink-0">📎</span>
-            <span class="font-medium text-slate-800 truncate" title="${file.name}">${file.name}</span>
-            <span class="text-[10px] text-slate-400 shrink-0 font-normal">(${formatFileSize(file.size)})</span>
+            <span class="text-sky-600 dark:text-sky-400 shrink-0">📎</span>
+            <span class="font-medium text-slate-800 dark:text-slate-200 truncate" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</span>
+            <span class="text-[10px] text-slate-500 dark:text-slate-400 shrink-0 font-normal">(${formatFileSize(file.size)})</span>
           </div>
-          <button type="button" onclick="removeProfileFile(${idx})" class="text-slate-400 hover:text-rose-600 font-bold px-1.5 py-0.5 rounded transition-colors shrink-0" title="Remove file">✕</button>
+          <button type="button" onclick="removeProfileFile(${idx})" class="text-slate-400 hover:text-rose-500 font-bold px-1.5 py-0.5 rounded transition-colors shrink-0 cursor-pointer" title="Remove file">✕</button>
         </div>
       `).join('');
     }
@@ -1820,7 +3318,7 @@
       const notes = profileNotesText.value.trim();
 
       if (selectedProfileFiles.length === 0 && !notes) {
-        alert("Please select at least one profile file or paste background notes.");
+        alert(window.t('alert_select_profile_input', "Please select at least one profile file or paste background notes."));
         return;
       }
 
@@ -1834,7 +3332,11 @@
       if (notes) formData.append('notes_text', notes);
 
       try {
-        const res = await fetch('/api/profile/upload', { method: 'POST', body: formData });
+        const res = await fetch('/api/profile/upload', {
+          method: 'POST',
+          headers: authHeaders(),
+          body: formData
+        });
         if (!res.ok) {
           let errDetail = "Profile conversion failed";
           try {
@@ -1845,7 +3347,8 @@
         }
         activeProfile = await res.json();
         updateProfileDisplay();
-        alert("Master Profile successfully generated!");
+        await checkAuthStatus();
+        alert(window.t('alert_profile_generated', "Master Profile successfully generated!"));
       } catch (err) {
         alert(`Error: ${err.message}`);
       } finally {
@@ -1879,13 +3382,14 @@
       try {
         const res = await fetch('/api/profile/questionnaire', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
           body: JSON.stringify(payload)
         });
         if (!res.ok) throw new Error("Questionnaire parsing failed");
         activeProfile = await res.json();
         updateProfileDisplay();
-        alert("Master Profile created from questionnaire!");
+        await checkAuthStatus();
+        alert(window.t('alert_profile_created_wiz', "Master Profile created from questionnaire!"));
       } catch (err) {
         alert(`Error: ${err.message}`);
       }
@@ -2294,24 +3798,56 @@
       renderEditorAdditional(resume.additional_sections || []);
     }
 
-    // Modal controls: Tournament
+    // Modal controls: Tournament (Deep Quality Boost)
     const tournamentModal = document.getElementById('tournamentModal');
+    const tournamentGuestView = document.getElementById('tournamentGuestView');
+    const tournamentQuotaView = document.getElementById('tournamentQuotaView');
+    const tournamentActiveView = document.getElementById('tournamentActiveView');
     const btnRunTournament = document.getElementById('btnRunTournament');
     const btnCloseTournamentModal = document.getElementById('btnCloseTournamentModal');
     const btnCancelTournament = document.getElementById('btnCancelTournament');
+    const btnCancelTournamentGuest = document.getElementById('btnCancelTournamentGuest');
+    const btnTournamentCloseQuota = document.getElementById('btnTournamentCloseQuota');
     const btnProceedTournament = document.getElementById('btnProceedTournament');
 
-    btnRunTournament?.addEventListener('click', () => {
-      tournamentModal.classList.remove('hidden');
-    });
-    btnCloseTournamentModal?.addEventListener('click', () => {
-      tournamentModal.classList.add('hidden');
-    });
-    btnCancelTournament?.addEventListener('click', () => {
-      tournamentModal.classList.add('hidden');
-    });
+    function openTournamentModal() {
+      if (currentUser && currentUser.is_admin) {
+        // Admin has unlimited Deep Quality Boost runs
+        tournamentGuestView?.classList.add('hidden');
+        tournamentQuotaView?.classList.add('hidden');
+        tournamentActiveView?.classList.remove('hidden');
+        tournamentModal?.classList.remove('hidden');
+      } else if (!currentUser) {
+        // Show guest view prompting to sign in
+        tournamentGuestView?.classList.remove('hidden');
+        tournamentQuotaView?.classList.add('hidden');
+        tournamentActiveView?.classList.add('hidden');
+        tournamentModal?.classList.remove('hidden');
+        setTimeout(() => {
+          renderTournamentGoogleButton();
+        }, 50);
+      } else if (latestRateLimit && latestRateLimit.deep_boost && !latestRateLimit.deep_boost.allowed) {
+        // Show quota reached view
+        tournamentGuestView?.classList.add('hidden');
+        tournamentQuotaView?.classList.remove('hidden');
+        tournamentActiveView?.classList.add('hidden');
+        tournamentModal?.classList.remove('hidden');
+      } else {
+        // Show active ready-to-run view
+        tournamentGuestView?.classList.add('hidden');
+        tournamentQuotaView?.classList.add('hidden');
+        tournamentActiveView?.classList.remove('hidden');
+        tournamentModal?.classList.remove('hidden');
+      }
+    }
+
+    btnRunTournament?.addEventListener('click', openTournamentModal);
+    btnCloseTournamentModal?.addEventListener('click', () => tournamentModal?.classList.add('hidden'));
+    btnCancelTournament?.addEventListener('click', () => tournamentModal?.classList.add('hidden'));
+    btnCancelTournamentGuest?.addEventListener('click', () => tournamentModal?.classList.add('hidden'));
+    btnTournamentCloseQuota?.addEventListener('click', () => tournamentModal?.classList.add('hidden'));
     btnProceedTournament?.addEventListener('click', () => {
-      tournamentModal.classList.add('hidden');
+      tournamentModal?.classList.add('hidden');
       runTailoring(5);
     });
 
@@ -2324,7 +3860,7 @@
 
     btnEditContent?.addEventListener('click', () => {
       if (!lastTailoredData?.tailored_resume) {
-        alert("Please tailor a resume first before editing.");
+        alert(window.t('alert_tailor_first', "Please tailor a resume first before editing."));
         return;
       }
       populateLiveEditor(lastTailoredData.tailored_resume);
@@ -2461,13 +3997,13 @@
     });
 
     async function runTailoring(tournamentPasses = 2) {
-      if (!selectedFile) {
-        alert("Please select or upload your resume file in Step 1.");
+      if (!selectedFile && !(savedBaseResume && isSavedBaseResumeActive)) {
+        alert(window.t('alert_no_resume_file', "Please select or upload your resume file in Step 1, or activate your Base Resume in the Master Profile tab."));
         dropzone.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
       if (!jdText.value.trim()) {
-        alert("Please paste the target Job Description in Step 2 so the AI can tailor your achievements and skills for this role.");
+        alert(window.t('alert_no_jd', "Please paste the target Job Description in Step 2 so the AI can tailor your achievements and skills for this role."));
         jdText.focus();
         jdText.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
@@ -2480,13 +4016,17 @@
       resultsView.classList.add('hidden');
 
       if (tournamentPasses === 5) {
-        updateProgress(15, "Deep Quality Boost", "Refining accuracy and optimizing match...");
+        updateProgress(15, window.t('prog_deep_boost', "Deep Quality Boost"), window.t('prog_deep_boost_desc', "Refining accuracy and optimizing match..."));
       } else {
-        updateProgress(20, "Extracting Document Layout", "Preserving native typography and structure...");
+        updateProgress(20, window.t('prog_extract_layout', "Extracting Document Layout"), window.t('prog_extract_layout_desc', "Preserving native typography and structure..."));
       }
 
       const formData = new FormData();
-      formData.append('resume_file', selectedFile);
+      if (selectedFile) {
+        formData.append('resume_file', selectedFile);
+      } else if (savedBaseResume && isSavedBaseResumeActive) {
+        formData.append('use_saved_base', 'true');
+      }
       formData.append('jd_text', jdText.value.trim());
       if (activeProfile && isProfileActive) formData.append('profile_json', JSON.stringify(activeProfile));
 
@@ -2498,39 +4038,48 @@
         const cur = parseInt(progressBar.style.width);
         if (tournamentPasses === 5) {
           if (cur < 35) {
-            updateProgress(35, "Analyzing Alignment", "Enhancing technical depth and qualifications...");
+            updateProgress(35, window.t('prog_align', "Analyzing Alignment"), window.t('prog_align_desc', "Enhancing technical depth and qualifications..."));
           } else if (cur < 65) {
-            updateProgress(65, "Polishing Impact", "Strengthening achievements and metrics...");
+            updateProgress(65, window.t('prog_impact', "Polishing Impact"), window.t('prog_impact_desc', "Strengthening achievements and metrics..."));
           } else if (cur < 90) {
-            updateProgress(90, "Finalizing Best Version", "Finalizing high-scoring tailored resume...");
+            updateProgress(90, window.t('prog_finalize_best', "Finalizing Best Version"), window.t('prog_finalize_best_desc', "Finalizing high-scoring tailored resume..."));
           }
         } else {
           if (cur < 50) {
-            updateProgress(50, "Synthesizing with Master Profile", "Matching verified projects & metrics without hallucination...");
+            updateProgress(50, window.t('prog_synth_profile', "Synthesizing with Master Profile"), window.t('prog_synth_profile_desc', "Matching verified projects & metrics without hallucination..."));
           } else if (cur < 80) {
-            updateProgress(80, "AI Substantive Tailoring", "Sharpening bullets & ordering skills by Job Description relevance...");
+            updateProgress(80, window.t('prog_tailoring', "AI Substantive Tailoring"), window.t('prog_tailoring_desc', "Sharpening bullets & ordering skills by Job Description relevance..."));
           } else if (cur < 95) {
-            updateProgress(95, "Compiling Vector PDF", "Verifying layout margins and zero visual collision...");
+            updateProgress(95, window.t('prog_compiling', "Compiling Vector PDF"), window.t('prog_compiling_desc', "Verifying layout margins and zero visual collision..."));
           }
         }
       }, 3000);
 
       try {
-        const res = await fetch('/api/tailor', { method: 'POST', body: formData });
+        const res = await fetch('/api/tailor', {
+          method: 'POST',
+          headers: authHeaders(),
+          body: formData
+        });
         clearInterval(interval);
         if (!res.ok) {
-          let errMsg = "Tailoring failed";
+          let errMsg = `Server error (${res.status})`;
           try {
-            const err = await res.json();
-            errMsg = err.detail || errMsg;
-          } catch (_) {
             const raw = await res.text();
-            errMsg = raw || `Server error (${res.status})`;
-          }
+            try {
+              const err = JSON.parse(raw);
+              errMsg = err.detail || err.message || raw || errMsg;
+            } catch (_) {
+              errMsg = raw || errMsg;
+            }
+          } catch (_) {}
           throw new Error(errMsg);
         }
         const data = await res.json();
-        updateProgress(100, "Complete!", "Resume tailored successfully.");
+        if (data.rate_limit) {
+          updateRateLimitBadge(data.rate_limit);
+        }
+        updateProgress(100, window.t('prog_complete', "Complete!"), window.t('prog_complete_desc', "Resume tailored successfully."));
 
         setTimeout(() => {
           progressCard.classList.add('hidden');
@@ -2584,6 +4133,14 @@
       }
     });
 
+    previewIframe?.addEventListener('load', () => {
+      try {
+        if (previewIframe.contentWindow) {
+          previewIframe.contentWindow.postMessage({ type: 'SET_LANG', lang: currentLanguage }, '*');
+        }
+      } catch (_) {}
+    });
+
     btnReset.addEventListener('click', () => {
       selectedFile = null;
       resumeFileInput.value = '';
@@ -2617,7 +4174,7 @@
 
       const fit = data.fit_analysis || {};
       const overall = fit.match_score || 88;
-      matchScoreBadge.textContent = `${overall}% Overall Match`;
+      matchScoreBadge.textContent = `${overall}% ${window.t('overall_match', 'Overall Match')}`;
 
       // 1. Keyword & Skills Match
       const kwScore = fit.keyword_score != null ? fit.keyword_score : overall;
@@ -2629,9 +4186,10 @@
       const kwStats = fit.keyword_stats || {};
       if (elKwSub) {
         if (kwStats.total_count) {
-          elKwSub.textContent = `${kwStats.found_count} of ${kwStats.total_count} tech keywords matched`;
+          const ofStr = window.t('of_prep', 'of');
+          elKwSub.textContent = `${kwStats.found_count} ${ofStr} ${kwStats.total_count} ${window.t('tech_keywords_matched', 'tech keywords matched')}`;
         } else {
-          elKwSub.textContent = "Technical skills matched to Job Description";
+          elKwSub.textContent = window.t('tech_skills_matched_jd', "Technical skills matched to Job Description");
         }
       }
 
@@ -2645,7 +4203,7 @@
       const strongLen = (fit.match || []).length;
       const partLen = (fit.partial || []).length;
       const gapLen = (fit.gap || []).length;
-      if (elReqSub) elReqSub.textContent = `${strongLen} Strong · ${partLen} Partial · ${gapLen} Gaps`;
+      if (elReqSub) elReqSub.textContent = `${strongLen} ${window.t('strong_matches_short', 'Strong')} · ${partLen} ${window.t('partial_matches_short', 'Partial')} · ${gapLen} ${window.t('gaps_short', 'Gaps')}`;
 
       // 3. Experience & Impact Alignment
       const expScore = fit.experience_score != null ? fit.experience_score : overall;
@@ -2654,7 +4212,7 @@
       const elExpSub = document.getElementById('expSubtitle');
       if (elExpBadge) elExpBadge.textContent = `${expScore}%`;
       if (elExpBar) elExpBar.style.width = `${expScore}%`;
-      if (elExpSub) elExpSub.textContent = expScore >= 85 ? "High accomplishment alignment" : "Solid engineering alignment";
+      if (elExpSub) elExpSub.textContent = expScore >= 85 ? window.t('high_alignment', "High accomplishment alignment") : window.t('solid_alignment', "Solid engineering alignment");
 
       if (pitchAngleText) pitchAngleText.textContent = fit.pitch_angle || "";
 
@@ -2716,6 +4274,9 @@
         }
       }
     }
+
+    // Initialize localization on load after all DOM elements and state variables are declared
+    applyLanguage(currentLanguage);
   </script>
 </body>
 </html>

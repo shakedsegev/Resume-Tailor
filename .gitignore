@@ -225,3 +225,12 @@ my_master_profile.json
 *.pdf
 outputs/*
 !outputs/.gitkeep
+data/*
+!data/.gitkeep
+*.db
+*.sqlite
+*.sqlite3
+client_secret*.json
+*.json.client_secret
+.DS_Store
+**/.DS_Store

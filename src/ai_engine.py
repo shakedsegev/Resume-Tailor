@@ -30,6 +30,7 @@ HARD RULES:
 3. KEYWORD ALIGNMENT: Naturally incorporate relevant keywords and terminology from the job description to optimize for ATS filters, but only when describing legitimate matching experience.
 4. ACTION-ORIENTED & CONCISE: Format bullet points using strong action verbs, context, and clear impact (e.g., "Accomplished [X] as measured by [Y], by doing [Z]"). Avoid padding, buzzwords, and fluff.
 5. NO FLATTERY: Be objective and honest about match gaps and alignment.
+6. OUTPUT LANGUAGE STRICTNESS: All generated and tailored resume content (including professional summary, technical skills, project descriptions, and experience bullets) MUST ALWAYS be generated and exported in professional English, even if the user interface or job notes contain text in other languages.
 """
 
 

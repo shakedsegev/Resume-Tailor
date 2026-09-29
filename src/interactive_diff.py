@@ -484,10 +484,10 @@ INTERACTIVE_RESUME_TEMPLATE = """<!DOCTYPE html>
 <body>
 
 <!-- Interactive Info Banner -->
-<div class="diff-banner">
+<div class="diff-banner" id="diffBanner">
   <span class="diff-banner-icon">✨</span>
-  <div>
-    <strong>Interactive Preview:</strong> Tailored edits are highlighted in green — hover over any highlight to see changes and rationale. <em>The downloaded PDF is 100% clean and unhighlighted.</em>
+  <div id="diffBannerContent">
+    <strong id="diffBannerTitle">Interactive Preview:</strong> <span id="diffBannerDesc">Tailored edits are highlighted in green — hover over any highlight to see changes and rationale.</span> <em id="diffBannerPdfNote">The downloaded PDF is 100% clean and unhighlighted.</em>
   </div>
 </div>
 
@@ -614,11 +614,11 @@ INTERACTIVE_RESUME_TEMPLATE = """<!DOCTYPE html>
 <div id="tooltip">
   <div class="tt-sec" id="ttSec"></div>
   <div class="tt-from">
-    <strong>Changed from:</strong>
+    <strong id="ttFromLabel">Changed from:</strong>
     <p id="ttOrig"></p>
   </div>
   <div class="tt-why">
-    <strong>💡 Why this was changed:</strong>
+    <strong id="ttWhyLabel">💡 Why this was changed:</strong>
     <p id="ttRat"></p>
   </div>
 </div>
@@ -628,12 +628,129 @@ INTERACTIVE_RESUME_TEMPLATE = """<!DOCTYPE html>
   const ttSec = document.getElementById('ttSec');
   const ttOrig = document.getElementById('ttOrig');
   const ttRat = document.getElementById('ttRat');
+  const ttFromLabel = document.getElementById('ttFromLabel');
+  const ttWhyLabel = document.getElementById('ttWhyLabel');
+
+  const DIFF_I18N = {
+    en: {
+      title: "Interactive Preview:",
+      desc: "Tailored edits are highlighted in green — hover over any highlight to see changes and rationale.",
+      pdfNote: "The downloaded PDF is 100% clean and unhighlighted.",
+      fromLabel: "Changed from:",
+      whyLabel: "💡 Why this was changed:",
+      sec_default: "Tailored Section",
+      orig_default: "Original resume phrasing",
+      rat_default: "Tailored to align with target job description requirements."
+    },
+    he: {
+      title: "תצוגה מקדימה אינטראקטיבית:",
+      desc: "שינויים מותאמים מודגשים בירוק — רחפו מעל כל הדגשה כדי לראות את השינויים והנימוק.",
+      pdfNote: "קובץ ה-PDF להורדה נקי לחלוטין וללא הדגשות (100% clean).",
+      fromLabel: "שונה מ:",
+      whyLabel: "💡 מדוע שונה:",
+      sec_default: "סעיף מותאם",
+      orig_default: "ניסוח מקורי בקורות החיים",
+      rat_default: "הותאם לדרישות תיאור המשרה שנבחרה."
+    },
+    es: {
+      title: "Vista previa interactiva:",
+      desc: "Las modificaciones personalizadas están resaltadas en verde; pase el cursor sobre cualquier resaltado para ver los cambios y la justificación.",
+      pdfNote: "El PDF descargado es 100% limpio y sin resaltados.",
+      fromLabel: "Cambiado de:",
+      whyLabel: "💡 Por qué se cambió:",
+      sec_default: "Sección personalizada",
+      orig_default: "Redacción original del currículum",
+      rat_default: "Personalizado para alinearse con los requisitos de la vacante."
+    },
+    zh: {
+      title: "交互式预览：",
+      desc: "定制的修改以绿色高亮显示 — 悬停在任何高亮处即可查看修改内容和理由。",
+      pdfNote: "下载的 PDF 文件为 100% 干净格式，无高亮标注。",
+      fromLabel: "原内容：",
+      whyLabel: "💡 修改原因：",
+      sec_default: "定制部分",
+      orig_default: "简历原始表述",
+      rat_default: "已根据目标职位描述的要求进行定制调整。"
+    },
+    ar: {
+      title: "معاينة تفاعلية:",
+      desc: "يتم تمييز التعديلات المخصصة باللون الأخضر — مرر مؤشر الماوس فوق أي تمييز لرؤية التغييرات والتبرير.",
+      pdfNote: "ملف الـ PDF الذي تم تنزيله نظيف بنسبة 100% وخالٍ من أي تمييز.",
+      fromLabel: "تم تغييره من:",
+      whyLabel: "💡 سبب التغيير:",
+      sec_default: "قسم مخصص",
+      orig_default: "الصياغة الأصلية في السيرة الذاتية",
+      rat_default: "مخصص ليتوافق مع متطلبات الوصف الوظيفي المستهدف."
+    },
+    fr: {
+      title: "Aperçu interactif :",
+      desc: "Les modifications adaptées sont surlignées en vert — survolez un surlignage pour voir les détails et la justification.",
+      pdfNote: "Le PDF téléchargé est 100 % propre et sans aucun surlignage.",
+      fromLabel: "Modifié depuis :",
+      whyLabel: "💡 Pourquoi ce changement :",
+      sec_default: "Section adaptée",
+      orig_default: "Formulation originale du CV",
+      rat_default: "Adapté pour correspondre aux exigences du poste cible."
+    },
+    de: {
+      title: "Interaktive Vorschau:",
+      desc: "Angepasste Änderungen sind grün hervorgehoben – fahren Sie mit der Maus darüber, um Details und Begründung zu sehen.",
+      pdfNote: "Das heruntergeladene PDF ist zu 100 % sauber und ohne Hervorhebungen.",
+      fromLabel: "Geändert von:",
+      whyLabel: "💡 Warum dies geändert wurde:",
+      sec_default: "Angepasster Abschnitt",
+      orig_default: "Ursprüngliche Formulierung im Lebenslauf",
+      rat_default: "Angepasst an die Anforderungen der Zielstellenbeschreibung."
+    }
+  };
+
+  let currentDiffLang = 'en';
+
+  function applyDiffLang(lang) {
+    if (!lang) return;
+    const data = DIFF_I18N[lang] || DIFF_I18N['en'];
+    currentDiffLang = lang;
+
+    const banner = document.getElementById('diffBanner');
+    const bannerTitle = document.getElementById('diffBannerTitle');
+    const bannerDesc = document.getElementById('diffBannerDesc');
+    const bannerPdfNote = document.getElementById('diffBannerPdfNote');
+
+    if (banner) {
+      if (lang === 'he' || lang === 'ar') {
+        banner.setAttribute('dir', 'rtl');
+        banner.style.textAlign = 'right';
+      } else {
+        banner.setAttribute('dir', 'ltr');
+        banner.style.textAlign = 'left';
+      }
+    }
+    if (bannerTitle) bannerTitle.textContent = data.title;
+    if (bannerDesc) bannerDesc.textContent = " " + data.desc + " ";
+    if (bannerPdfNote) bannerPdfNote.textContent = data.pdfNote;
+    if (ttFromLabel) ttFromLabel.textContent = data.fromLabel;
+    if (ttWhyLabel) ttWhyLabel.textContent = data.whyLabel;
+  }
+
+  // Detect language immediately from localStorage
+  try {
+    const saved = localStorage.getItem('resume_tailor_lang');
+    if (saved) applyDiffLang(saved);
+  } catch (_) {}
+
+  // React to language toggle message from parent app
+  window.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'SET_LANG' && event.data.lang) {
+      applyDiffLang(event.data.lang);
+    }
+  });
 
   document.querySelectorAll('.change-highlight').forEach(el => {
     el.addEventListener('mouseenter', (e) => {
-      ttSec.textContent = e.currentTarget.getAttribute('data-section') || 'Tailored Section';
-      ttOrig.textContent = e.currentTarget.getAttribute('data-original') || 'Original resume phrasing';
-      ttRat.textContent = e.currentTarget.getAttribute('data-rationale') || 'Tailored to align with target job description requirements.';
+      const data = DIFF_I18N[currentDiffLang] || DIFF_I18N['en'];
+      ttSec.textContent = e.currentTarget.getAttribute('data-section') || data.sec_default;
+      ttOrig.textContent = e.currentTarget.getAttribute('data-original') || data.orig_default;
+      ttRat.textContent = e.currentTarget.getAttribute('data-rationale') || data.rat_default;
       tooltip.style.display = 'block';
     });
 

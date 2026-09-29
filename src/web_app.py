@@ -13,13 +13,46 @@ import re
 from pathlib import Path
 from typing import Optional, Any
 from pydantic import BaseModel
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Body
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Body, Request
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 
 import sys
 project_root = Path(__file__).parent.parent.resolve()
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
+
+from src.database import (
+    upsert_user,
+    create_session,
+    get_user_by_session,
+    delete_session,
+    get_user_profile,
+    save_user_profile,
+    set_user_profile_active,
+    delete_user_profile,
+    get_user_base_resume,
+    save_user_base_resume,
+    set_user_base_resume_active,
+    delete_user_base_resume,
+    check_rate_limit,
+    increment_daily_usage,
+    check_deep_boost_limit,
+    increment_deep_boost_usage,
+    USER_RESUMES_DIR,
+    verify_admin_secret_key,
+    create_admin_session,
+    list_all_users_with_daily_usage,
+    list_active_guests_with_daily_usage,
+    admin_reset_daily_usage,
+    admin_add_daily_usage,
+    admin_adjust_tailors,
+    admin_reset_deep_boost,
+    admin_adjust_deep_boost,
+    get_system_stats,
+    ADMIN_GOOGLE_ID,
+)
 
 # pyrefly: ignore [missing-import]
 from src.universal_parser import extract_text_from_file
@@ -42,6 +75,35 @@ from src.universal_models import (
     sanitize_universal_resume,
     compute_multi_metric_fit,
 )
+
+GOOGLE_CLIENT_ID = os.getenv(
+    "GOOGLE_CLIENT_ID",
+    "1057142254812-2pfj4d8dk8nsmfpm0k8pkg5043bpade1.apps.googleusercontent.com",
+)
+
+
+def get_session_token_from_request(request: Request) -> Optional[str]:
+    auth = request.headers.get("authorization")
+    if auth and auth.startswith("Bearer "):
+        return auth[7:].strip()
+    token = request.headers.get("x-session-token")
+    if token:
+        return token.strip()
+    return request.cookies.get("session_token")
+
+
+def get_current_user_optional(request: Request) -> Optional[dict]:
+    token = get_session_token_from_request(request)
+    if not token:
+        return None
+    return get_user_by_session(token)
+
+
+def get_client_ip(request: Request) -> str:
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else "127.0.0.1"
 
 app = FastAPI(
     title="Resume-Tailor 🎯",
@@ -77,8 +139,363 @@ async def get_sample_profile():
     return GENERIC_SAMPLE_PROFILE
 
 
+class GoogleAuthPayload(BaseModel):
+    credential: str
+
+
+class ToggleActivePayload(BaseModel):
+    is_active: bool
+
+
+class AdminLoginPayload(BaseModel):
+    secret_key: str
+
+
+class AdminIdentifierPayload(BaseModel):
+    identifier: str
+
+
+class AdminAddTailorsPayload(BaseModel):
+    identifier: str
+    count: int = 3
+
+
+class AdminResetDeepBoostPayload(BaseModel):
+    google_id: str
+
+
+class AdminAdjustDeepBoostPayload(BaseModel):
+    google_id: str
+    count: int = 1
+
+
+def require_admin_user(request: Request) -> dict[str, Any]:
+    user = get_current_user_optional(request)
+    if not user or not user.get("is_admin"):
+        raise HTTPException(
+            status_code=403,
+            detail="Forbidden: Admin access required."
+        )
+    return user
+
+
+@app.get("/admin", response_class=HTMLResponse)
+async def serve_admin_dashboard():
+    """Serves the dedicated Admin Dashboard interface."""
+    admin_file = TEMPLATES_DIR / "admin.html"
+    if not admin_file.exists():
+        raise HTTPException(status_code=404, detail="Admin template not found.")
+    return HTMLResponse(content=admin_file.read_text(encoding="utf-8"))
+
+
+@app.post("/api/admin/login")
+async def admin_login(payload: AdminLoginPayload):
+    """Authenticates admin using secret access key."""
+    if not verify_admin_secret_key(payload.secret_key):
+        raise HTTPException(status_code=401, detail="Invalid admin secret access key.")
+    token, user = create_admin_session()
+    return JSONResponse(
+        content={
+            "status": "success",
+            "session_token": token,
+            "user": user,
+            "message": "Admin session authenticated successfully."
+        }
+    )
+
+
+@app.get("/api/admin/users")
+async def admin_get_users(request: Request):
+    """Returns all registered users, active guests, and system KPIs for the admin dashboard."""
+    require_admin_user(request)
+    users = list_all_users_with_daily_usage()
+    guests = list_active_guests_with_daily_usage()
+    stats = get_system_stats()
+    return JSONResponse(
+        content={
+            "status": "success",
+            "users": users,
+            "guests": guests,
+            "stats": stats,
+        }
+    )
+
+
+@app.post("/api/admin/user/reset-tailors")
+async def admin_user_reset_tailors(payload: AdminIdentifierPayload, request: Request):
+    """Resets daily tailoring count for a user or guest IP."""
+    require_admin_user(request)
+    admin_reset_daily_usage(payload.identifier)
+    return JSONResponse(
+        content={
+            "status": "success",
+            "message": f"Daily tailoring quota reset for {payload.identifier}."
+        }
+    )
+
+
+@app.post("/api/admin/user/add-tailors")
+async def admin_user_add_tailors(payload: AdminAddTailorsPayload, request: Request):
+    """Adds bonus tailoring runs for a user or guest IP."""
+    require_admin_user(request)
+    new_count = admin_add_daily_usage(payload.identifier, payload.count)
+    return JSONResponse(
+        content={
+            "status": "success",
+            "message": f"Added {payload.count} tailors for {payload.identifier} (new usage: {new_count})."
+        }
+    )
+
+
+@app.post("/api/admin/user/reset-deep-boost")
+async def admin_user_reset_deep_boost(payload: AdminResetDeepBoostPayload, request: Request):
+    """Unlocks another Deep Quality Boost for a registered user."""
+    require_admin_user(request)
+    admin_reset_deep_boost(payload.google_id)
+    return JSONResponse(
+        content={
+            "status": "success",
+            "message": f"Deep Quality Boost unlocked for user {payload.google_id}."
+        }
+    )
+
+
+@app.post("/api/admin/user/adjust-deep-boost")
+async def admin_user_adjust_deep_boost(payload: AdminAdjustDeepBoostPayload, request: Request):
+    """Adjusts (adds or subtracts) bonus Deep Quality Boosts for a registered user."""
+    require_admin_user(request)
+    new_bonus = admin_adjust_deep_boost(payload.google_id, payload.count)
+    return JSONResponse(
+        content={
+            "status": "success",
+            "message": f"Adjusted Deep Quality Boost by {payload.count} for user {payload.google_id} (bonus: {new_bonus})."
+        }
+    )
+
+
+@app.get("/api/auth/config")
+async def get_auth_config():
+    """Returns the Google Client ID configured for this instance."""
+    return {"google_client_id": GOOGLE_CLIENT_ID}
+
+
+@app.post("/api/auth/google")
+async def auth_google(payload: GoogleAuthPayload, request: Request):
+    """
+    Verifies Google ID token from Google Identity Services and creates a persistent user session.
+    """
+    try:
+        id_info = id_token.verify_oauth2_token(
+            payload.credential,
+            google_requests.Request(),
+            GOOGLE_CLIENT_ID,
+            clock_skew_in_seconds=10,
+        )
+        google_id = id_info.get("sub")
+        email = id_info.get("email")
+        name = id_info.get("name")
+        picture = id_info.get("picture")
+
+        if not google_id or not email:
+            raise HTTPException(status_code=400, detail="Invalid Google token payload.")
+
+        user = upsert_user(google_id, email, name, picture)
+        session_token = create_session(google_id)
+
+        saved_profile = get_user_profile(google_id)
+        saved_base = get_user_base_resume(google_id)
+        client_ip = get_client_ip(request)
+        limit_info = check_rate_limit(f"user:{google_id}", is_authenticated=True, client_ip=client_ip)
+
+        return JSONResponse(
+            content={
+                "status": "success",
+                "session_token": session_token,
+                "user": user,
+                "rate_limit": limit_info,
+                "has_profile": saved_profile is not None,
+                "profile": saved_profile.get("profile") if saved_profile else None,
+                "profile_is_active": saved_profile.get("is_active", True) if saved_profile else False,
+                "has_base_resume": saved_base is not None,
+                "base_resume": {
+                    "filename": saved_base["filename"],
+                    "is_active": saved_base["is_active"],
+                    "file_ext": saved_base["file_ext"],
+                } if saved_base else None,
+            }
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=f"Google authentication failed: {e}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Server error during authentication: {e}")
+
+
+@app.get("/api/auth/me")
+async def get_current_user_info(request: Request):
+    """
+    Returns the current user profile, active base resume, and rate limit status.
+    """
+    user = get_current_user_optional(request)
+    client_ip = get_client_ip(request)
+    if user:
+        identifier = f"user:{user['google_id']}"
+        limit_info = check_rate_limit(identifier, is_authenticated=True, client_ip=client_ip)
+        saved_profile = get_user_profile(user["google_id"])
+        saved_base = get_user_base_resume(user["google_id"])
+        return JSONResponse(
+            content={
+                "is_authenticated": True,
+                "user": user,
+                "rate_limit": limit_info,
+                "has_profile": saved_profile is not None,
+                "profile": saved_profile.get("profile") if saved_profile else None,
+                "profile_is_active": saved_profile.get("is_active", True) if saved_profile else False,
+                "has_base_resume": saved_base is not None,
+                "base_resume": {
+                    "filename": saved_base["filename"],
+                    "is_active": saved_base["is_active"],
+                    "file_ext": saved_base["file_ext"],
+                } if saved_base else None,
+            }
+        )
+    else:
+        identifier = f"ip:{client_ip}"
+        limit_info = check_rate_limit(identifier, is_authenticated=False)
+        return JSONResponse(
+            content={
+                "is_authenticated": False,
+                "rate_limit": limit_info,
+                "has_profile": False,
+                "has_base_resume": False,
+            }
+        )
+
+
+@app.post("/api/auth/logout")
+async def logout_endpoint(request: Request):
+    token = get_session_token_from_request(request)
+    if token:
+        delete_session(token)
+    return JSONResponse(content={"status": "logged_out"})
+
+
+# ---------------- USER PROFILE PERSISTENCE ----------------
+
+@app.get("/api/user/profile")
+async def get_user_profile_endpoint(request: Request):
+    user = get_current_user_optional(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required.")
+    prof = get_user_profile(user["google_id"])
+    return JSONResponse(content=prof or {"profile": None, "is_active": False})
+
+
+@app.post("/api/user/profile")
+async def save_user_profile_endpoint(request: Request, payload: dict = Body(...)):
+    user = get_current_user_optional(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required.")
+    profile_dict = payload.get("profile") if "profile" in payload else payload
+    is_active = payload.get("is_active", True)
+    save_user_profile(user["google_id"], profile_dict, is_active=is_active)
+    return JSONResponse(content={"status": "saved", "is_active": is_active})
+
+
+@app.post("/api/user/profile/toggle")
+async def toggle_user_profile_endpoint(request: Request, payload: ToggleActivePayload):
+    user = get_current_user_optional(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required.")
+    set_user_profile_active(user["google_id"], payload.is_active)
+    return JSONResponse(content={"status": "updated", "is_active": payload.is_active})
+
+
+@app.delete("/api/user/profile")
+async def delete_user_profile_endpoint(request: Request):
+    user = get_current_user_optional(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required.")
+    delete_user_profile(user["google_id"])
+    return JSONResponse(content={"status": "deleted"})
+
+
+# ---------------- USER BASE RESUME PERSISTENCE ----------------
+
+@app.get("/api/user/base-resume")
+async def get_user_base_resume_endpoint(request: Request):
+    user = get_current_user_optional(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required.")
+    base = get_user_base_resume(user["google_id"])
+    if not base:
+        return JSONResponse(content={"has_base_resume": False})
+    return JSONResponse(
+        content={
+            "has_base_resume": True,
+            "filename": base["filename"],
+            "file_ext": base["file_ext"],
+            "is_active": base["is_active"],
+            "updated_at": base["updated_at"],
+        }
+    )
+
+
+@app.post("/api/user/base-resume")
+async def upload_user_base_resume_endpoint(
+    request: Request,
+    base_file: UploadFile = File(...),
+):
+    user = get_current_user_optional(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required to save base resume.")
+
+    filename = base_file.filename or "base_resume.pdf"
+    file_ext = Path(filename).suffix.lower()
+    if file_ext not in [".pdf", ".pptx", ".ppt", ".docx", ".txt"]:
+        raise HTTPException(status_code=400, detail="Supported formats: PDF, PPTX, DOCX, TXT")
+
+    dest_path = USER_RESUMES_DIR / f"{user['google_id']}_base{file_ext}"
+    content_bytes = await base_file.read()
+    dest_path.write_bytes(content_bytes)
+
+    save_user_base_resume(
+        google_id=user["google_id"],
+        filename=filename,
+        file_path=str(dest_path),
+        file_ext=file_ext,
+        is_active=True,
+    )
+    return JSONResponse(
+        content={
+            "status": "success",
+            "filename": filename,
+            "file_ext": file_ext,
+            "is_active": True,
+        }
+    )
+
+
+@app.post("/api/user/base-resume/toggle")
+async def toggle_user_base_resume_endpoint(request: Request, payload: ToggleActivePayload):
+    user = get_current_user_optional(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required.")
+    set_user_base_resume_active(user["google_id"], payload.is_active)
+    return JSONResponse(content={"status": "updated", "is_active": payload.is_active})
+
+
+@app.delete("/api/user/base-resume")
+async def delete_user_base_resume_endpoint(request: Request):
+    user = get_current_user_optional(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentication required.")
+    delete_user_base_resume(user["google_id"])
+    return JSONResponse(content={"status": "deleted"})
+
+
 @app.post("/api/profile/upload")
 async def upload_profile_endpoint(
+    request: Request,
     profile_files: list[UploadFile] = File(default=[]),
     profile_file: Optional[UploadFile] = File(None),
     notes_text: Optional[str] = Form(None),
@@ -110,6 +527,10 @@ async def upload_profile_endpoint(
             try:
                 data = json.loads(content_bytes.decode("utf-8"))
                 profile = CandidateProfile.model_validate(data)
+                # Auto-save to user profile if signed in
+                user = get_current_user_optional(request)
+                if user:
+                    save_user_profile(user["google_id"], profile.model_dump(), is_active=True)
                 return JSONResponse(content=profile.model_dump())
             except Exception:
                 txt = content_bytes.decode("utf-8", errors="ignore")
@@ -118,7 +539,6 @@ async def upload_profile_endpoint(
 
     # Extract text from all files
     for f in all_files:
-        # Check if already processed in fast-path fallback
         if extracted_sections and len(all_files) == 1:
             break
         file_ext = Path(f.filename or "notes.txt").suffix.lower()
@@ -142,6 +562,10 @@ async def upload_profile_endpoint(
 
     try:
         profile = convert_document_to_profile(raw_content)
+        # Auto-save to user profile if signed in
+        user = get_current_user_optional(request)
+        if user:
+            save_user_profile(user["google_id"], profile.model_dump(), is_active=True)
         return JSONResponse(content=profile.model_dump())
     except Exception as err:
         raise HTTPException(
@@ -151,7 +575,7 @@ async def upload_profile_endpoint(
 
 
 @app.post("/api/profile/questionnaire")
-async def questionnaire_profile_endpoint(payload: dict[str, Any] = Body(...)):
+async def questionnaire_profile_endpoint(request: Request, payload: dict[str, Any] = Body(...)):
     """
     Builds a structured CandidateProfile from questionnaire wizard responses.
     """
@@ -159,6 +583,9 @@ async def questionnaire_profile_endpoint(payload: dict[str, Any] = Body(...)):
         raise HTTPException(status_code=400, detail="Empty questionnaire data.")
     try:
         profile = build_profile_from_questionnaire(payload)
+        user = get_current_user_optional(request)
+        if user:
+            save_user_profile(user["google_id"], profile.model_dump(), is_active=True)
         return JSONResponse(content=profile.model_dump())
     except Exception as err:
         raise HTTPException(
@@ -191,14 +618,18 @@ async def analyze_format_endpoint(resume_file: UploadFile = File(...)):
 
 @app.post("/api/tailor")
 async def tailor_resume_endpoint(
-    resume_file: UploadFile = File(...),
+    request: Request,
+    resume_file: Optional[UploadFile] = File(None),
     jd_text: str = Form(...),
     profile_json: Optional[str] = Form(None),
     format_strategy: str = Form("auto"),
     tournament_passes: int = Form(2),
+    use_saved_base: bool = Form(False),
 ):
     """
     Universal Tailoring Pipeline:
+    - Enforces daily rate limits (2/day for guests, 5/day for authenticated users).
+    - Supports 1-click tailoring with user's saved base resume.
     - Analyzes resume format for ATS parser risks.
     - If user chooses 'ats_optimized', outputs a 100% ATS-compliant single-column clean format.
     - If user chooses 'preserve_design', preserves visual layout (PPTX/Canva) and provides ATS version.
@@ -207,14 +638,66 @@ async def tailor_resume_endpoint(
     if not jd_text or not jd_text.strip():
         raise HTTPException(status_code=400, detail="Job description cannot be empty.")
 
-    if not resume_file:
-        raise HTTPException(status_code=400, detail="Please upload your resume file.")
+    user = get_current_user_optional(request)
+    is_admin = bool(user and user.get("is_admin"))
+    client_ip = get_client_ip(request)
+    if user:
+        identifier = f"user:{user['google_id']}"
+        is_auth = True
+    else:
+        identifier = f"ip:{client_ip}"
+        is_auth = False
+
+    # Enforce quota based on mode:
+    # 5 passes = Deep Quality Boost (Exclusive to signed-in accounts, limit 1/day, separate counter)
+    if is_admin:
+        pass  # Admin has unlimited tailoring & unlimited Deep Quality Boost runs
+    elif tournament_passes == 5:
+        if not user or not is_auth:
+            raise HTTPException(
+                status_code=403,
+                detail="Deep Quality Boost is exclusive to signed-in accounts. Sign in with Google to use it."
+            )
+        deep_limit = check_deep_boost_limit(user["google_id"])
+        if not deep_limit["allowed"]:
+            raise HTTPException(
+                status_code=429,
+                detail="You have used your 1 free Deep Quality Boost for today. Daily quota resets at midnight UTC."
+            )
+    else:
+        limit_info = check_rate_limit(identifier, is_authenticated=is_auth, client_ip=client_ip)
+        if not limit_info["allowed"]:
+            raise HTTPException(
+                status_code=429,
+                detail=(
+                    f"Daily tailoring limit reached ({limit_info['limit']} per day for {'signed-in users' if is_auth else 'guests'}). "
+                    + ("Sign in with Google to get 5 daily tailors!" if not is_auth else "Your limit resets at midnight UTC.")
+                ),
+            )
 
     job_id = f"job_{uuid.uuid4().hex[:10]}"
-    file_ext = Path(resume_file.filename or "resume.pdf").suffix.lower()
-    dest_path = UPLOADS_DIR / f"{job_id}{file_ext}"
-    contents = await resume_file.read()
-    dest_path.write_bytes(contents)
+    dest_path = None
+    file_ext = ".pdf"
+
+    if resume_file and resume_file.filename and resume_file.filename.strip():
+        file_ext = Path(resume_file.filename).suffix.lower() or ".pdf"
+        dest_path = UPLOADS_DIR / f"{job_id}{file_ext}"
+        contents = await resume_file.read()
+        dest_path.write_bytes(contents)
+    elif use_saved_base and user:
+        saved_base = get_user_base_resume(user["google_id"])
+        if saved_base and saved_base.get("file_path") and Path(saved_base["file_path"]).exists():
+            file_ext = saved_base.get("file_ext", ".pdf")
+            dest_path = UPLOADS_DIR / f"{job_id}{file_ext}"
+            saved_content = Path(saved_base["file_path"]).read_bytes()
+            dest_path.write_bytes(saved_content)
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="No active base resume found in your account. Please upload a resume file."
+            )
+    else:
+        raise HTTPException(status_code=400, detail="Please upload your resume file.")
 
     # Analyze format compatibility
     format_report = analyze_resume_format(dest_path)
@@ -224,13 +707,17 @@ async def tailor_resume_endpoint(
     if file_ext not in [".pptx", ".ppt"]:
         effective_strategy = "ats_optimized"
 
-    # Load master profile context if provided
+    # Load master profile context if provided or from user account
     profile_dict = None
-    if profile_json:
+    if profile_json and profile_json.strip():
         try:
             profile_dict = json.loads(profile_json)
         except Exception:
             profile_dict = None
+    elif user:
+        user_prof = get_user_profile(user["google_id"])
+        if user_prof and user_prof.get("is_active"):
+            profile_dict = user_prof.get("profile")
 
     # 1. Design-Preserving PPTX Tailoring (when requested or auto-suggested)
     if file_ext in [".pptx", ".ppt"] and effective_strategy != "ats_optimized":
@@ -354,6 +841,14 @@ async def tailor_resume_endpoint(
                 ats_resume.model_dump_json(indent=2), encoding="utf-8"
             )
 
+            if not is_admin:
+                if tournament_passes == 5 and user:
+                    increment_deep_boost_usage(user["google_id"])
+                else:
+                    increment_daily_usage(identifier)
+                    if user and client_ip:
+                        increment_daily_usage(f"ip:{client_ip}")
+            limit_status = check_rate_limit(identifier, is_authenticated=is_auth, client_ip=client_ip)
             return JSONResponse(
                 content={
                     "status": "success",
@@ -367,6 +862,7 @@ async def tailor_resume_endpoint(
                     "format_strategy": "preserve_design",
                     "ats_report": format_report.model_dump(),
                     "tailored_resume": ats_resume.model_dump(),
+                    "rate_limit": limit_status,
                 }
             )
         except Exception as err:
@@ -425,6 +921,14 @@ async def tailor_resume_endpoint(
         jd_text.strip(), encoding="utf-8"
     )
 
+    if not is_admin:
+        if tournament_passes == 5 and user:
+            increment_deep_boost_usage(user["google_id"])
+        else:
+            increment_daily_usage(identifier)
+            if user and client_ip:
+                increment_daily_usage(f"ip:{client_ip}")
+    limit_status = check_rate_limit(identifier, is_authenticated=is_auth, client_ip=client_ip)
     return JSONResponse(
         content={
             "status": "success",
@@ -437,6 +941,7 @@ async def tailor_resume_endpoint(
             "format_strategy": effective_strategy,
             "ats_report": format_report.model_dump(),
             "tailored_resume": tailored_output.tailored_resume.model_dump(),
+            "rate_limit": limit_status,
         }
     )
 

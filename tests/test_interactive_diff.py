@@ -271,3 +271,46 @@ def test_find_matching_change_section_isolation():
     )
     assert match3 is None
 
+
+def test_interactive_diff_banner_and_i18n(tmp_path):
+    """Verifies that the interactive diff template includes internationalization for all 7 languages."""
+    resume = UniversalResume(
+        contact=ContactInfo(name="Candidate Name", email="test@example.com"),
+        summary="Experienced engineer.",
+        skills=SkillCategories(programming_languages=["Python"]),
+    )
+    out_file = tmp_path / "i18n_diff.html"
+    result_path = build_interactive_resume_diff_html(
+        resume=resume,
+        changes_log=[],
+        output_html_path=out_file,
+    )
+    content = result_path.read_text(encoding="utf-8")
+
+    # Banner element & IDs
+    assert 'id="diffBanner"' in content
+    assert 'id="diffBannerTitle"' in content
+    assert 'id="diffBannerDesc"' in content
+    assert 'id="diffBannerPdfNote"' in content
+
+    # Tooltip label IDs
+    assert 'id="ttFromLabel"' in content
+    assert 'id="ttWhyLabel"' in content
+
+    # DIFF_I18N presence and language support
+    for lang in ['en', 'he', 'es', 'zh', 'ar', 'fr', 'de']:
+        assert f"{lang}: {{" in content
+
+    # Language banner snippets
+    assert "תצוגה מקדימה אינטראקטיבית:" in content
+    assert "Vista previa interactiva:" in content
+    assert "交互式预览：" in content
+    assert "معاينة تفاعلية:" in content
+    assert "Aperçu interactif :" in content
+    assert "Interaktive Vorschau:" in content
+
+    # PostMessage listener
+    assert "SET_LANG" in content
+    assert "applyDiffLang" in content
+
+

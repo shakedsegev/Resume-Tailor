@@ -347,6 +347,10 @@ When a Candidate Master Profile is provided, actively synthesize and enrich the 
    - Aim for the ABSOLUTE BEST possible tailored resume for this target JD.
    - For every single bullet, actively evaluate: "How can this bullet be rewritten to showcase maximum candidate strength for this JD while staying 100% true to verified facts?"
    - In FitAnalysis: Systematically categorize matches based on JD priority (core must-have qualifications in 'match', adjacent skills in 'partial', missing requirements in 'gap').
+
+10. MANDATORY ENGLISH EXPORT:
+   - The tailored resume and all its sections (summary, skills, bullets, projects) MUST ALWAYS be generated in professional English.
+   - Never translate the resume content or section headings into other languages.
 """
 
         config = types.GenerateContentConfig(
