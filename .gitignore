@@ -234,3 +234,4 @@ client_secret*.json
 *.json.client_secret
 .DS_Store
 **/.DS_Store
+node_modules/

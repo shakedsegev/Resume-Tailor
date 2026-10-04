@@ -87,9 +87,12 @@ class DbConnection:
 
     def execute(self, sql: str, params: tuple = ()):
         if self._is_pg:
-            pg_sql = sql.replace("?", "%s")
             cur = self._conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-            cur.execute(pg_sql, params)
+            if params:
+                pg_sql = sql.replace("%", "%%").replace("?", "%s")
+                cur.execute(pg_sql, params)
+            else:
+                cur.execute(sql)
             return DbCursor(cur, is_pg=True)
         else:
             cur = self._conn.execute(sql, params)
