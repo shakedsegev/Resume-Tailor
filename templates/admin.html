@@ -117,17 +117,18 @@
   <div id="dashboardScreen" class="hidden min-h-screen pb-16">
     <!-- Navbar -->
     <header class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
-      <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2.5 sm:py-0 sm:h-16 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
+      <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-0 sm:h-16 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <!-- Row 1 on Mobile / Left Group on Desktop: Brand and Quick Link -->
-        <div class="flex items-center justify-between sm:justify-start gap-3">
-          <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-800 dark:bg-slate-700 flex items-center justify-center text-base sm:text-lg text-white shadow-sm border border-slate-700 shrink-0">
+        <div class="flex items-center justify-between sm:justify-start gap-2">
+          <div class="flex items-center gap-2 min-w-0">
+            <div class="w-7 h-7 sm:w-9 sm:h-9 rounded-xl bg-slate-800 dark:bg-slate-700 flex items-center justify-center text-sm sm:text-lg text-white shadow-sm border border-slate-700 shrink-0">
               ⚙️
             </div>
-            <div>
-              <h1 class="text-xs sm:text-sm font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5 sm:gap-2">
-                Resume-Tailor Master Admin
-                <span class="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+            <div class="min-w-0">
+              <h1 class="text-xs sm:text-sm font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5 truncate">
+                <span class="hidden sm:inline">Resume-Tailor Master Admin</span>
+                <span class="sm:hidden">Master Admin</span>
+                <span class="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shrink-0">
                   Live
                 </span>
               </h1>
@@ -137,7 +138,7 @@
           <!-- Mobile-only quick back to app link -->
           <a 
             href="/" 
-            class="sm:hidden px-2.5 py-1 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition flex items-center gap-1 shrink-0"
+            class="sm:hidden px-2 py-1 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition flex items-center gap-1 shrink-0"
             title="Return to Resume-Tailor"
           >
             <span>🚀</span>
@@ -146,7 +147,7 @@
         </div>
 
         <!-- Row 2 on Mobile / Right Group on Desktop: Action Buttons -->
-        <div class="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2.5 w-full sm:w-auto pt-1 sm:pt-0 border-t border-slate-100 dark:border-slate-800/80 sm:border-t-0 shrink-0">
+        <div class="flex items-center justify-between sm:justify-end gap-1.5 sm:gap-2.5 w-full sm:w-auto pt-1 sm:pt-0 border-t border-slate-100 dark:border-slate-800/80 sm:border-t-0">
           <a 
             href="/" 
             class="hidden sm:flex px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition items-center gap-1.5 shrink-0"
@@ -159,17 +160,17 @@
           <button 
             type="button" 
             id="btnToggleAdminPersona" 
-            class="flex-1 sm:flex-initial px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer shadow-xs border bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 whitespace-nowrap shrink-0"
+            class="flex-1 sm:flex-initial px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer shadow-xs border bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 whitespace-nowrap min-w-0"
             title="Log in as Admin in the main app to tailor without limits"
           >
             <span id="adminPersonaIcon">⚡</span>
-            <span id="adminPersonaText">Log In as Admin in Main App</span>
+            <span id="adminPersonaText" class="truncate">Admin in App</span>
           </button>
 
           <button 
             type="button" 
             id="btnRefreshData" 
-            class="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
+            class="px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
             title="Reload latest users and stats"
           >
             <span id="refreshSpinner">🔄</span>
@@ -179,7 +180,7 @@
           <button 
             type="button" 
             id="btnLockAdminPanel" 
-            class="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
+            class="px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer whitespace-nowrap shrink-0"
             title="Lock Admin Panel (Requires secret key to access again)"
           >
             <span>🔒</span>
@@ -190,7 +191,7 @@
     </header>
 
     <!-- Main Content Body -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-6">
+    <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 mt-6 space-y-6">
 
       <!-- Top KPI Stats Grid -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -353,7 +354,7 @@
         </div>
 
         <!-- Users Table -->
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto max-w-full">
           <table class="w-full text-left text-xs">
             <thead class="bg-slate-100/70 dark:bg-slate-800/50 uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
               <tr>
@@ -388,7 +389,7 @@
         </div>
 
         <!-- Guests Table -->
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto max-w-full">
           <table class="w-full text-left text-xs">
             <thead class="bg-slate-100/70 dark:bg-slate-800/50 uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
               <tr>
@@ -550,11 +551,11 @@
       const isMobile = window.innerWidth < 640;
 
       if (isAppAdmin) {
-        btnToggleAdminPersona.className = "flex-1 sm:flex-initial px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white border border-amber-600 transition flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer shadow-xs whitespace-nowrap shrink-0";
+        btnToggleAdminPersona.className = "flex-1 sm:flex-initial px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white border border-amber-600 transition flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer shadow-xs whitespace-nowrap min-w-0";
         if (adminPersonaIcon) adminPersonaIcon.textContent = "✅";
-        if (adminPersonaText) adminPersonaText.textContent = isMobile ? "Active in App" : "Admin Active in App (Click to Exit)";
+        if (adminPersonaText) adminPersonaText.textContent = isMobile ? "Active (Exit)" : "Admin Active in App (Click to Exit)";
       } else {
-        btnToggleAdminPersona.className = "flex-1 sm:flex-initial px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer shadow-xs whitespace-nowrap shrink-0";
+        btnToggleAdminPersona.className = "flex-1 sm:flex-initial px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer shadow-xs whitespace-nowrap min-w-0";
         if (adminPersonaIcon) adminPersonaIcon.textContent = "⚡";
         if (adminPersonaText) adminPersonaText.textContent = isMobile ? "Admin in App" : "Log In as Admin in Main App";
       }
