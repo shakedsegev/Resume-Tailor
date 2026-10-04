@@ -547,7 +547,7 @@
         <form id="tailorForm" class="space-y-6" novalidate>
           
           <!-- STEP 1: Upload Designed Resume -->
-          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+          <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider" data-i18n="step1_title">
@@ -565,19 +565,19 @@
             </div>
 
             <!-- Saved Base Resume Active Banner in Step 1 -->
-            <div id="savedBaseResumeActiveCard" class="hidden p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl space-y-2 transition-all">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-2.5 overflow-hidden">
-                  <span class="text-xl">📄</span>
-                  <div class="truncate">
-                    <div class="flex items-center space-x-1.5">
-                      <p id="savedBaseResumeActiveName" class="text-xs font-bold text-emerald-900 truncate">my_resume.pdf</p>
-                      <span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-200 text-emerald-800" data-i18n="base_resume_active_badge">Base Resume Active</span>
+            <div id="savedBaseResumeActiveCard" class="hidden p-3 sm:p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl transition-all">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <div class="flex items-center space-x-2.5 overflow-hidden min-w-0">
+                  <span class="text-xl shrink-0">📄</span>
+                  <div class="truncate min-w-0">
+                    <div class="flex flex-wrap items-center gap-1.5">
+                      <p id="savedBaseResumeActiveName" class="text-xs font-bold text-emerald-900 truncate max-w-[180px] sm:max-w-xs">my_resume.pdf</p>
+                      <span class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-200 text-emerald-800 shrink-0" data-i18n="base_resume_active_badge">Base Resume Active</span>
                     </div>
-                    <p class="text-[10px] text-emerald-700" data-i18n="base_resume_step1_sub">Ready to go! Paste the Job Description in Step 2 below.</p>
+                    <p class="text-[10px] text-emerald-700 mt-0.5" data-i18n="base_resume_step1_sub">Ready to go! Paste the Job Description in Step 2 below.</p>
                   </div>
                 </div>
-                <div class="flex items-center space-x-1.5 shrink-0">
+                <div class="flex items-center space-x-1.5 shrink-0 self-end sm:self-auto">
                   <button type="button" id="btnStep1ToggleBaseResume" class="text-[11px] px-2.5 py-1 rounded-lg border border-emerald-300 font-semibold bg-white hover:bg-emerald-100 text-emerald-800 transition-colors cursor-pointer" title="Toggle off to upload a different resume for this run" data-i18n="btn_toggle_off" data-i18n-title="btn_toggle_off">
                     Toggle Off
                   </button>
@@ -586,17 +586,17 @@
             </div>
 
             <!-- Saved Base Resume Paused Banner in Step 1 -->
-            <div id="savedBaseResumePausedBanner" class="hidden p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between transition-all">
-              <div class="flex items-center space-x-2.5 overflow-hidden">
-                <span class="text-lg">⏸️</span>
-                <div class="truncate">
+            <div id="savedBaseResumePausedBanner" class="hidden p-3 bg-amber-50 border border-amber-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 transition-all">
+              <div class="flex items-center space-x-2.5 overflow-hidden min-w-0">
+                <span class="text-lg shrink-0">⏸️</span>
+                <div class="min-w-0">
                   <p class="text-xs font-semibold text-amber-900 truncate">
                     <span data-i18n="base_resume_paused_prefix">Base Resume paused:</span> <span id="savedBaseResumePausedName" class="font-bold">resume.pdf</span>
                   </p>
-                  <p class="text-[10px] text-amber-700" data-i18n="base_resume_paused_sub">Upload a different file below, or click to use your Base Resume.</p>
+                  <p class="text-[10px] text-amber-700 mt-0.5" data-i18n="base_resume_paused_sub">Upload a different file below, or click to use your Base Resume.</p>
                 </div>
               </div>
-              <div class="flex items-center space-x-1.5 shrink-0">
+              <div class="flex items-center space-x-1.5 shrink-0 self-end sm:self-auto">
                 <button type="button" id="btnStep1EnableBaseResume" class="text-[11px] px-2.5 py-1 rounded-lg border border-amber-300 font-semibold bg-white hover:bg-amber-100 text-amber-900 transition-colors cursor-pointer" data-i18n="btn_use_base_resume">
                   Use Base Resume
                 </button>
@@ -604,14 +604,15 @@
             </div>
 
             <!-- Dropzone -->
-            <div id="dropzone" class="border-2 border-dashed border-slate-300 hover:border-sky-500 transition-colors rounded-xl p-5 text-center cursor-pointer bg-slate-50/50 hover:bg-sky-50/30">
+            <div id="dropzone" class="border-2 border-dashed border-slate-300 hover:border-sky-500 transition-colors rounded-xl p-4 sm:p-5 text-center cursor-pointer bg-slate-50/50 hover:bg-sky-50/30">
               <input type="file" id="resumeFileInput" name="resume_file" accept=".pdf,.docx,.doc,.pptx,.ppt,.txt" class="hidden">
               <div class="flex flex-col items-center justify-center space-y-2">
-                <div class="w-10 h-10 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center text-xl">
+                <div class="w-10 h-10 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center text-xl shrink-0">
                   📄
                 </div>
-                <div class="text-xs font-medium text-slate-700">
-                  <span class="text-sky-600 font-semibold" data-i18n="dropzone_prompt">Click to select resume</span> <span data-i18n="dropzone_sub">or drag & drop</span>
+                <div class="text-xs font-medium text-slate-700 flex flex-wrap items-center justify-center gap-1.5 px-2">
+                  <span class="text-sky-600 font-semibold" data-i18n="dropzone_prompt">Click to select resume</span>
+                  <span data-i18n="dropzone_sub">or drag & drop</span>
                 </div>
                 <p class="text-[11px] text-slate-400" data-i18n="dropzone_types">
                   Canva PPTX, Word DOCX, or PDF
@@ -620,15 +621,15 @@
             </div>
 
             <!-- File Selected Card -->
-            <div id="fileStatusCard" class="hidden p-3 bg-sky-50 border border-sky-200 rounded-xl flex items-center justify-between">
-              <div class="flex items-center space-x-3 overflow-hidden">
-                <span class="text-lg">📎</span>
-                <div class="truncate">
+            <div id="fileStatusCard" class="hidden p-3 bg-sky-50 border border-sky-200 rounded-xl flex items-center justify-between gap-2">
+              <div class="flex items-center space-x-3 overflow-hidden min-w-0">
+                <span class="text-lg shrink-0">📎</span>
+                <div class="truncate min-w-0">
                   <p id="fileName" class="text-xs font-semibold text-slate-800 truncate">resume.pptx</p>
                   <p id="fileSize" class="text-[10px] text-slate-500">124 KB</p>
                 </div>
               </div>
-              <button type="button" id="btnRemoveFile" class="text-xs text-slate-400 hover:text-rose-600 font-bold p-1">
+              <button type="button" id="btnRemoveFile" class="text-xs text-slate-400 hover:text-rose-600 font-bold p-1.5 shrink-0 cursor-pointer" title="Remove file">
                 ✕
               </button>
             </div>
@@ -962,10 +963,10 @@
       </div>
 
       <!-- Saved Base Resume Card (1-Click Tailoring) -->
-      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+      <div class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl">
+            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl shrink-0">
               📄
             </div>
             <div>
@@ -979,10 +980,22 @@
 
         <!-- Base Resume Upload / Active Display -->
         <div id="baseResumeContainer">
-          <!-- Dropzone when no base resume saved -->
-          <div id="baseResumeDropzone" class="border-2 border-dashed border-slate-300 hover:border-emerald-500 transition-colors rounded-xl p-5 text-center cursor-pointer bg-slate-50/50 hover:bg-emerald-50/30">
+          <!-- Guest Locked Card -->
+          <div id="baseResumeGuestCard" class="p-3.5 sm:p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center space-x-3 min-w-0">
+              <span class="text-xl shrink-0">🔒</span>
+              <div class="min-w-0">
+                <p class="text-xs font-bold text-slate-800" data-i18n="base_resume_guest_title">Sign In to Save Your Base Resume</p>
+                <p class="text-[11px] text-slate-500 mt-0.5" data-i18n="base_resume_guest_desc">Save your standard resume to tailor in 1 click across any device by pasting only the Job Description.</p>
+              </div>
+            </div>
+            <div id="baseResumeGoogleBtn" class="shrink-0 flex items-center justify-center min-h-[40px] w-full sm:w-auto"></div>
+          </div>
+
+          <!-- Dropzone when signed in but no base resume saved -->
+          <div id="baseResumeDropzone" class="hidden border-2 border-dashed border-slate-300 hover:border-emerald-500 transition-colors rounded-xl p-4 sm:p-5 text-center cursor-pointer bg-slate-50/50 hover:bg-emerald-50/30">
             <input type="file" id="baseResumeFileInput" accept=".pdf,.docx,.doc,.pptx,.ppt,.txt" class="hidden">
-            <div class="flex items-center justify-center space-x-2 text-xs font-medium text-slate-700">
+            <div class="flex flex-wrap items-center justify-center gap-1.5 text-xs font-medium text-slate-700 px-2">
               <span>📄</span>
               <span class="text-emerald-600 font-semibold" data-i18n="base_resume_dropzone_click">Click to upload base resume</span>
               <span data-i18n="dropzone_sub">or drag & drop</span>
@@ -994,22 +1007,22 @@
           </div>
 
           <!-- Active Base Resume Card -->
-          <div id="baseResumeInfoCard" class="hidden p-4 bg-emerald-50/70 border border-emerald-200 rounded-xl flex items-center justify-between">
-            <div class="flex items-center space-x-3 overflow-hidden">
+          <div id="baseResumeInfoCard" class="hidden p-3.5 sm:p-4 bg-emerald-50/70 border border-emerald-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center space-x-3 overflow-hidden min-w-0 w-full sm:w-auto">
               <span class="text-2xl shrink-0">📎</span>
-              <div class="truncate">
-                <div class="flex items-center gap-2">
-                  <p id="baseResumeFileName" class="text-xs font-bold text-slate-800 truncate">my_resume.pdf</p>
-                  <span id="baseResumeSyncBadge" class="text-[10px] px-1.5 py-0.5 rounded font-bold"></span>
+              <div class="truncate min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <p id="baseResumeFileName" class="text-xs font-bold text-slate-800 truncate max-w-[180px] sm:max-w-xs">my_resume.pdf</p>
+                  <span id="baseResumeSyncBadge" class="text-[10px] px-2 py-0.5 rounded-full font-bold"></span>
                 </div>
                 <p id="baseResumeStatusText" class="text-[11px] text-emerald-700 font-medium mt-0.5" data-i18n="base_resume_active_status">✅ Active: Used automatically in Step 1</p>
               </div>
             </div>
-            <div class="flex items-center space-x-2 shrink-0">
+            <div class="flex items-center flex-wrap gap-2 w-full sm:w-auto justify-end sm:justify-start shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-emerald-200/50">
               <button type="button" id="btnToggleBaseResumeActive" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs" data-i18n="btn_toggle_off">
                 Toggle Off
               </button>
-              <button type="button" id="btnReplaceBaseResume" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-200 bg-white border border-slate-200 transition-colors cursor-pointer" title="Replace Base Resume">
+              <button type="button" id="btnReplaceBaseResume" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-200 bg-white border border-slate-200 transition-colors cursor-pointer" title="Replace Base Resume" data-i18n="btn_replace">
                 Replace
               </button>
               <button type="button" id="btnDeleteBaseResume" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-rose-600 hover:bg-rose-50 border border-rose-200 transition-colors cursor-pointer" title="Delete Base Resume" data-i18n="btn_delete" data-i18n-title="btn_delete">
@@ -1024,9 +1037,9 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         <!-- OPTION A: Upload Background Document / Notes -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 flex flex-col justify-between">
+        <div class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 flex flex-col justify-between">
           <div>
-            <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center text-xl mb-3">
+            <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center text-xl mb-3 shrink-0">
               📤
             </div>
             <h3 class="text-sm font-bold text-slate-800" data-i18n="opt_a_title">Option A: Upload Files Or Raw Text</h3>
@@ -1039,7 +1052,7 @@
             <!-- Fully Styled English Dropzone (Supports Multiple Files) -->
             <div id="profileDropzone" class="border-2 border-dashed border-slate-300 hover:border-sky-500 transition-colors rounded-xl p-4 text-center cursor-pointer bg-slate-50/50 hover:bg-sky-50/30">
               <input type="file" id="profileFileInput" accept=".txt,.json,.md,.pdf,.docx" multiple class="hidden">
-              <div class="flex items-center justify-center space-x-2 text-xs font-medium text-slate-700">
+              <div class="flex flex-wrap items-center justify-center gap-1.5 text-xs font-medium text-slate-700 px-2">
                 <span>📄</span>
                 <span class="text-sky-600 font-semibold" data-i18n="opt_a_click">Click to select files</span>
                 <span data-i18n="opt_a_drag">or drag & drop</span>
@@ -1060,9 +1073,9 @@
         </div>
 
         <!-- OPTION B: Interactive Questionnaire Wizard -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 flex flex-col justify-between">
+        <div class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 flex flex-col justify-between">
           <div>
-            <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl mb-3">
+            <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl mb-3 shrink-0">
               📋
             </div>
             <h3 class="text-sm font-bold text-slate-800" data-i18n="opt_b_title">Option B: Questionnaire Wizard</h3>
@@ -2727,6 +2740,9 @@
 
         tabContentProfile.classList.remove('hidden');
         tabContentTailor.classList.add('hidden');
+        if (!currentUser && typeof renderBaseResumeGoogleButton === 'function') {
+          setTimeout(renderBaseResumeGoogleButton, 50);
+        }
       }
     }
 
@@ -2914,6 +2930,9 @@
     const rateLimitBadge = document.getElementById('rateLimitBadge');
     const rateLimitText = document.getElementById('rateLimitText');
     // Base Resume elements
+    const baseResumeContainer = document.getElementById('baseResumeContainer');
+    const baseResumeGuestCard = document.getElementById('baseResumeGuestCard');
+    const baseResumeGoogleBtn = document.getElementById('baseResumeGoogleBtn');
     const baseResumeDropzone = document.getElementById('baseResumeDropzone');
     const baseResumeFileInput = document.getElementById('baseResumeFileInput');
     const baseResumeSyncHint = document.getElementById('baseResumeSyncHint');
@@ -3009,9 +3028,34 @@
       }
     }
 
+    function renderBaseResumeGoogleButton() {
+      if (!window.google?.accounts?.id || currentUser) return;
+      const tabProfile = document.getElementById('tabContentProfile');
+      if (tabProfile && tabProfile.classList.contains('hidden')) {
+        // Tab is currently hidden; render when user switches to Master Profile tab
+        return;
+      }
+      const baseBtn = document.getElementById('baseResumeGoogleBtn');
+      if (baseBtn) {
+        baseBtn.innerHTML = '';
+        const isDark = document.documentElement.classList.contains('dark');
+        const isMobile = window.innerWidth < 640;
+        const targetLocale = gsiLangMap[currentLanguage] || 'en';
+        google.accounts.id.renderButton(baseBtn, {
+          theme: isDark ? 'filled_black' : 'outline',
+          size: isMobile ? 'small' : 'medium',
+          shape: 'rectangular',
+          text: isMobile ? 'signin' : 'signin_with',
+          width: isMobile ? 180 : 250,
+          locale: targetLocale
+        });
+      }
+    }
+
     function renderAllGoogleButtons() {
       renderNavGoogleButton();
       renderTournamentGoogleButton();
+      renderBaseResumeGoogleButton();
     }
 
     function reloadGoogleAuthWithLang(lang) {
@@ -3037,55 +3081,56 @@
 
     function updateBaseResumeDisplay() {
       // 1. Master Profile Tab: Base Resume Card State
-      if (savedBaseResume) {
+      if (!currentUser) {
+        // Guest mode: strictly locked
+        baseResumeGuestCard?.classList.remove('hidden');
         baseResumeDropzone?.classList.add('hidden');
-        baseResumeInfoCard?.classList.remove('hidden');
-        if (baseResumeFileName) baseResumeFileName.textContent = savedBaseResume.filename;
+        baseResumeInfoCard?.classList.add('hidden');
+        renderBaseResumeGoogleButton();
+      } else {
+        // Registered / logged-in user
+        baseResumeGuestCard?.classList.add('hidden');
+        if (savedBaseResume) {
+          baseResumeDropzone?.classList.add('hidden');
+          baseResumeInfoCard?.classList.remove('hidden');
+          if (baseResumeFileName) baseResumeFileName.textContent = savedBaseResume.filename;
 
-        // Sync Badge: Cloud or Local
-        if (baseResumeSyncBadge) {
-          if (currentUser) {
+          // Sync Badge: Cloud
+          if (baseResumeSyncBadge) {
             baseResumeSyncBadge.textContent = "☁️ " + window.t('badge_synced_cloud', "Synced to Cloud");
-            baseResumeSyncBadge.className = "text-[10px] px-2 py-0.5 rounded-full font-bold bg-sky-100 text-sky-700 border border-sky-200";
-          } else {
-            baseResumeSyncBadge.textContent = "💾 " + window.t('badge_saved_locally', "Saved locally");
-            baseResumeSyncBadge.className = "text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700 border border-emerald-200";
+            baseResumeSyncBadge.className = "text-[10px] px-2 py-0.5 rounded-full font-bold bg-sky-100 text-sky-700 border border-sky-200 shrink-0";
           }
-        }
 
-        if (isSavedBaseResumeActive) {
-          if (baseResumeStatusText) {
-            baseResumeStatusText.textContent = window.t('base_resume_active_status', "✅ Active: Used automatically in Step 1");
-            baseResumeStatusText.className = "text-[11px] text-emerald-700 font-medium";
-          }
-          if (btnToggleBaseResumeActive) {
-            btnToggleBaseResumeActive.textContent = window.t('btn_toggle_off', "Toggle Off");
-            btnToggleBaseResumeActive.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs";
+          if (isSavedBaseResumeActive) {
+            if (baseResumeStatusText) {
+              baseResumeStatusText.textContent = window.t('base_resume_active_status', "✅ Active: Used automatically in Step 1");
+              baseResumeStatusText.className = "text-[11px] text-emerald-700 font-medium";
+            }
+            if (btnToggleBaseResumeActive) {
+              btnToggleBaseResumeActive.textContent = window.t('btn_toggle_off', "Toggle Off");
+              btnToggleBaseResumeActive.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs";
+            }
+          } else {
+            if (baseResumeStatusText) {
+              baseResumeStatusText.textContent = window.t('base_resume_inactive_status', "⏸️ Inactive: Using manual file upload in Step 1");
+              baseResumeStatusText.className = "text-[11px] text-amber-700 font-medium";
+            }
+            if (btnToggleBaseResumeActive) {
+              btnToggleBaseResumeActive.textContent = window.t('btn_toggle_on', "Toggle On");
+              btnToggleBaseResumeActive.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer bg-slate-200 hover:bg-slate-300 text-slate-800 shadow-xs";
+            }
           }
         } else {
-          if (baseResumeStatusText) {
-            baseResumeStatusText.textContent = window.t('base_resume_inactive_status', "⏸️ Inactive: Using manual file upload in Step 1");
-            baseResumeStatusText.className = "text-[11px] text-amber-700 font-medium";
-          }
-          if (btnToggleBaseResumeActive) {
-            btnToggleBaseResumeActive.textContent = window.t('btn_toggle_on', "Toggle On");
-            btnToggleBaseResumeActive.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer bg-slate-200 hover:bg-slate-300 text-slate-800 shadow-xs";
-          }
-        }
-      } else {
-        baseResumeDropzone?.classList.remove('hidden');
-        baseResumeInfoCard?.classList.add('hidden');
-        if (baseResumeSyncHint) {
-          if (currentUser) {
+          baseResumeDropzone?.classList.remove('hidden');
+          baseResumeInfoCard?.classList.add('hidden');
+          if (baseResumeSyncHint) {
             baseResumeSyncHint.textContent = window.t('hint_sync_cloud', "☁️ Automatically syncs to your account across all devices");
-          } else {
-            baseResumeSyncHint.textContent = window.t('hint_sync_local', "💾 Works instantly in your browser (Sign in to sync across devices)");
           }
         }
       }
 
       // 2. Step 1: Base Resume vs. Manual Upload Isolation
-      if (savedBaseResume && isSavedBaseResumeActive) {
+      if (currentUser && savedBaseResume && isSavedBaseResumeActive) {
         // Active Base Resume: Show ONLY Base Resume Card; Hide paused banner, dropzone, and fileStatusCard
         savedBaseResumeActiveCard?.classList.remove('hidden');
         savedBaseResumePausedBanner?.classList.add('hidden');
@@ -3098,10 +3143,10 @@
         btnSubmit.disabled = false;
         btnSubmit.classList.remove('opacity-70', 'cursor-not-allowed');
       } else {
-        // Base Resume Inactive (or user has no base resume)
+        // Base Resume Inactive (or guest, or user has no base resume)
         savedBaseResumeActiveCard?.classList.add('hidden');
 
-        if (savedBaseResume) {
+        if (currentUser && savedBaseResume) {
           savedBaseResumePausedBanner?.classList.remove('hidden');
           if (savedBaseResumePausedName) savedBaseResumePausedName.textContent = savedBaseResume.filename;
         } else {
@@ -3159,6 +3204,10 @@
 
     async function uploadBaseResume(file) {
       if (!file) return;
+      if (!currentUser) {
+        alert(window.t('alert_signin_base_resume', "Please sign in with Google at the top to save your Base Resume!"));
+        return;
+      }
       const fileExt = '.' + (file.name.split('.').pop() || 'pdf').toLowerCase();
       const allowedExts = ['.pdf', '.pptx', '.ppt', '.docx', '.doc', '.txt'];
       if (!allowedExts.includes(fileExt)) {
@@ -3166,63 +3215,47 @@
         return;
       }
 
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const dataUrl = reader.result;
-        const resumeItem = {
-          filename: file.name,
-          file_ext: fileExt,
-          fileType: file.type || 'application/pdf',
-          dataUrl: dataUrl,
-          is_active: true,
-          updatedAt: Date.now()
-        };
-
-        // 1. Instant local display update (0ms latency!)
-        savedBaseResume = resumeItem;
-        isSavedBaseResumeActive = true;
-        updateBaseResumeDisplay();
-
-        try {
-          localStorage.setItem('rt_local_base_resume', JSON.stringify(resumeItem));
-          if (currentUser?.google_id) {
-            localStorage.setItem('rt_backup_base_resume_' + currentUser.google_id, JSON.stringify(resumeItem));
-          }
-        } catch (e) {
-          console.warn("Storage quota warning for base resume:", e);
-        }
-
-        // 2. If signed in, sync to cloud PostgreSQL in background
-        if (currentUser) {
-          const formData = new FormData();
-          formData.append('base_file', file);
-          try {
-            const res = await fetch('/api/user/base-resume', {
-              method: 'POST',
-              headers: authHeaders(),
-              body: formData
-            });
-            if (!res.ok) {
-              if (res.status === 401) {
-                localStorage.removeItem('resume_tailor_session');
-                applyAuthState({ is_authenticated: false });
-                alert(window.t('alert_session_expired', "Your session has expired. Please sign in with Google again."));
-                return;
-              }
-              const err = await res.json();
-              throw new Error(err.detail || "Failed to save base resume to cloud");
-            }
-            const data = await res.json();
-            savedBaseResume.filename = data.filename;
-            savedBaseResume.file_ext = data.file_ext;
-            savedBaseResume.is_active = data.is_active;
-            updateBaseResumeDisplay();
-          } catch (err) {
-            console.warn("Cloud base resume sync error:", err);
-          }
-        }
+      // Optimistic instant UI update
+      savedBaseResume = {
+        filename: file.name,
+        file_ext: fileExt,
+        is_active: true
       };
-      reader.readAsDataURL(file);
+      isSavedBaseResumeActive = true;
+      updateBaseResumeDisplay();
+
+      // Cloud upload to PostgreSQL / Lakebase storage
+      const formData = new FormData();
+      formData.append('base_file', file);
+      try {
+        const res = await fetch('/api/user/base-resume', {
+          method: 'POST',
+          headers: authHeaders(),
+          body: formData
+        });
+        if (!res.ok) {
+          if (res.status === 401) {
+            localStorage.removeItem('resume_tailor_session');
+            applyAuthState({ is_authenticated: false });
+            alert(window.t('alert_session_expired', "Your session has expired. Please sign in with Google again."));
+            return;
+          }
+          const err = await res.json();
+          throw new Error(err.detail || "Failed to save base resume to cloud");
+        }
+        const data = await res.json();
+        savedBaseResume.filename = data.filename;
+        savedBaseResume.file_ext = data.file_ext;
+        savedBaseResume.is_active = data.is_active;
+        if (currentUser?.google_id) {
+          try {
+            localStorage.setItem('rt_backup_base_resume_' + currentUser.google_id, JSON.stringify(savedBaseResume));
+          } catch (_) {}
+        }
+        updateBaseResumeDisplay();
+      } catch (err) {
+        console.warn("Cloud base resume sync error:", err);
+      }
     }
 
     async function toggleBaseResume(nextState) {
@@ -3490,26 +3523,12 @@
         }
         updateProfileDisplay();
 
-        // Restore guest Base Resume from local storage
+        // For guest: base resume is strictly locked and null
+        savedBaseResume = null;
+        isSavedBaseResumeActive = false;
         try {
-          const localResumeStr = localStorage.getItem('rt_local_base_resume');
-          if (localResumeStr) {
-            const localResume = JSON.parse(localResumeStr);
-            if (localResume && localResume.filename && localResume.dataUrl) {
-              savedBaseResume = localResume;
-              isSavedBaseResumeActive = localResume.is_active !== false;
-            } else {
-              savedBaseResume = null;
-              isSavedBaseResumeActive = false;
-            }
-          } else {
-            savedBaseResume = null;
-            isSavedBaseResumeActive = false;
-          }
-        } catch (_) {
-          savedBaseResume = null;
-          isSavedBaseResumeActive = false;
-        }
+          localStorage.removeItem('rt_local_base_resume');
+        } catch (_) {}
         updateBaseResumeDisplay();
       }
 
@@ -3521,26 +3540,35 @@
       }
     }
 
-    let isCheckingAuth = false;
+    let currentAuthPromise = null;
     async function checkAuthStatus(isInitialOrLogin = false) {
-      if (isCheckingAuth) return;
-      isCheckingAuth = true;
-      try {
-        const res = await fetch('/api/auth/me', { headers: authHeaders() });
-        if (res.ok) {
-          const data = await res.json();
-          applyAuthState(data, isInitialOrLogin);
-        } else {
-          if (res.status === 401) {
-            localStorage.removeItem('resume_tailor_session');
-          }
-          applyAuthState({ is_authenticated: false }, isInitialOrLogin);
-        }
-      } catch (err) {
-        console.warn("Auth check notice:", err);
-      } finally {
-        isCheckingAuth = false;
+      if (currentAuthPromise && !isInitialOrLogin) {
+        return currentAuthPromise;
       }
+      const doCheck = async () => {
+        try {
+          const res = await fetch('/api/auth/me', { headers: authHeaders() });
+          if (res.ok) {
+            const data = await res.json();
+            applyAuthState(data, isInitialOrLogin);
+          } else {
+            if (res.status === 401) {
+              localStorage.removeItem('resume_tailor_session');
+            }
+            applyAuthState({ is_authenticated: false }, isInitialOrLogin);
+          }
+        } catch (err) {
+          console.warn("Auth check notice:", err);
+        }
+      };
+
+      if (currentAuthPromise && isInitialOrLogin) {
+        try { await currentAuthPromise; } catch (_) {}
+      }
+      currentAuthPromise = doCheck();
+      const result = await currentAuthPromise;
+      currentAuthPromise = null;
+      return result;
     }
 
     window.handleGoogleCredentialResponse = async function(response) {
@@ -3792,10 +3820,10 @@
       }
       profileFilesList.classList.remove('hidden');
       profileFilesList.innerHTML = selectedProfileFiles.map((file, idx) => `
-        <div class="flex items-center justify-between p-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs transition-all">
-          <div class="flex items-center space-x-2 min-w-0 pr-2">
+        <div class="flex items-center justify-between p-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs transition-all gap-2">
+          <div class="flex items-center space-x-2 min-w-0 pr-1 overflow-hidden">
             <span class="text-sky-600 dark:text-sky-400 shrink-0">📎</span>
-            <span class="font-medium text-slate-800 dark:text-slate-200 truncate" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</span>
+            <span class="font-medium text-slate-800 dark:text-slate-200 truncate min-w-0" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</span>
             <span class="text-[10px] text-slate-500 dark:text-slate-400 shrink-0 font-normal">(${formatFileSize(file.size)})</span>
           </div>
           <button type="button" onclick="removeProfileFile(${idx})" class="text-slate-400 hover:text-rose-500 font-bold px-1.5 py-0.5 rounded transition-colors shrink-0 cursor-pointer" title="Remove file">✕</button>
