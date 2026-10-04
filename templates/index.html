@@ -979,19 +979,8 @@
 
         <!-- Base Resume Upload / Active Display -->
         <div id="baseResumeContainer">
-          <!-- Guest Locked Card -->
-          <div id="baseResumeGuestCard" class="p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div class="flex items-center space-x-3">
-              <span class="text-xl shrink-0">🔒</span>
-              <div>
-                <p class="text-xs font-bold text-slate-800" data-i18n="base_resume_guest_title">Sign In to Save Your Base Resume</p>
-              </div>
-            </div>
-            <div id="baseResumeGoogleBtn" class="shrink-0 flex items-center justify-center min-h-[40px]"></div>
-          </div>
-
-          <!-- Dropzone when signed in but no base resume saved -->
-          <div id="baseResumeDropzone" class="hidden border-2 border-dashed border-slate-300 hover:border-emerald-500 transition-colors rounded-xl p-5 text-center cursor-pointer bg-slate-50/50 hover:bg-emerald-50/30">
+          <!-- Dropzone when no base resume saved -->
+          <div id="baseResumeDropzone" class="border-2 border-dashed border-slate-300 hover:border-emerald-500 transition-colors rounded-xl p-5 text-center cursor-pointer bg-slate-50/50 hover:bg-emerald-50/30">
             <input type="file" id="baseResumeFileInput" accept=".pdf,.docx,.doc,.pptx,.ppt,.txt" class="hidden">
             <div class="flex items-center justify-center space-x-2 text-xs font-medium text-slate-700">
               <span>📄</span>
@@ -1001,20 +990,27 @@
             <p class="text-[10px] text-slate-400 mt-1" data-i18n="dropzone_types">
               PDF, Word DOCX, or Canva PPTX
             </p>
+            <p id="baseResumeSyncHint" class="text-[10px] text-slate-400 mt-1 font-medium"></p>
           </div>
 
-          <!-- Active Base Resume Card (Logged-in only) -->
+          <!-- Active Base Resume Card -->
           <div id="baseResumeInfoCard" class="hidden p-4 bg-emerald-50/70 border border-emerald-200 rounded-xl flex items-center justify-between">
             <div class="flex items-center space-x-3 overflow-hidden">
-              <span class="text-2xl">📎</span>
+              <span class="text-2xl shrink-0">📎</span>
               <div class="truncate">
-                <p id="baseResumeFileName" class="text-xs font-bold text-slate-800 truncate">my_resume.pdf</p>
-                <p id="baseResumeStatusText" class="text-[11px] text-emerald-700 font-medium" data-i18n="base_resume_active_status">✅ Active: Used automatically in Step 1</p>
+                <div class="flex items-center gap-2">
+                  <p id="baseResumeFileName" class="text-xs font-bold text-slate-800 truncate">my_resume.pdf</p>
+                  <span id="baseResumeSyncBadge" class="text-[10px] px-1.5 py-0.5 rounded font-bold"></span>
+                </div>
+                <p id="baseResumeStatusText" class="text-[11px] text-emerald-700 font-medium mt-0.5" data-i18n="base_resume_active_status">✅ Active: Used automatically in Step 1</p>
               </div>
             </div>
             <div class="flex items-center space-x-2 shrink-0">
               <button type="button" id="btnToggleBaseResumeActive" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs" data-i18n="btn_toggle_off">
                 Toggle Off
+              </button>
+              <button type="button" id="btnReplaceBaseResume" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-200 bg-white border border-slate-200 transition-colors cursor-pointer" title="Replace Base Resume">
+                Replace
               </button>
               <button type="button" id="btnDeleteBaseResume" class="px-2.5 py-1.5 rounded-lg text-xs font-bold text-rose-600 hover:bg-rose-50 border border-rose-200 transition-colors cursor-pointer" title="Delete Base Resume" data-i18n="btn_delete" data-i18n-title="btn_delete">
                 Delete
@@ -1592,6 +1588,12 @@
         prog_compiling_desc: "Verifying layout margins and zero visual collision...",
         prog_complete: "Complete!",
         prog_complete_desc: "Resume tailored successfully.",
+        badge_synced_cloud: "Synced to Cloud",
+        badge_saved_locally: "Saved locally",
+        hint_sync_cloud: "☁️ Automatically syncs to your account across all devices",
+        hint_sync_local: "💾 Works instantly in your browser (Sign in to sync across devices)",
+        alert_unsupported_resume_type: "Supported formats: PDF, Word DOCX, PPTX, or TXT",
+        btn_replace: "Replace",
         of_prep: "of"
       },
       he: {
@@ -1750,6 +1752,12 @@
         prog_compiling_desc: "מוודא שוליים ואפס התנגשויות ויזואליות...",
         prog_complete: "הסתיים בהצלחה!",
         prog_complete_desc: "קורות החיים הותאמו בהצלחה.",
+        badge_synced_cloud: "מסונכרן לענן",
+        badge_saved_locally: "שמור מקומית בדפדפן",
+        hint_sync_cloud: "☁️ מסתנכרן אוטומטית לחשבונך בכל המכשירים",
+        hint_sync_local: "💾 עובד מיידית בדפדפן (התחבר כדי לסנכרן בין מכשירים)",
+        alert_unsupported_resume_type: "פורמטים נתמכים: PDF, Word DOCX, PPTX, או TXT",
+        btn_replace: "החלף קובץ",
         of_prep: "מתוך"
       },
       es: {
@@ -2719,9 +2727,6 @@
 
         tabContentProfile.classList.remove('hidden');
         tabContentTailor.classList.add('hidden');
-        setTimeout(() => {
-          if (typeof renderBaseResumeGoogleButton === 'function') renderBaseResumeGoogleButton();
-        }, 50);
       }
     }
 
@@ -2809,37 +2814,48 @@
     btnToggleProfileActive?.addEventListener('click', async () => {
       if (!activeProfile || btnToggleProfileActive.disabled) return;
       const nextState = !isProfileActive;
-      btnToggleProfileActive.disabled = true;
-      btnToggleProfileActive.classList.add('opacity-60');
+      isProfileActive = nextState;
+      updateProfileDisplay();
+
+      // Local storage update (immediate)
       try {
-        const res = await fetch('/api/user/profile/toggle', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...authHeaders() },
-          body: JSON.stringify({ is_active: nextState })
-        });
-        if (res.ok) {
-          isProfileActive = nextState;
-          updateProfileDisplay();
-          if (currentUser?.google_id) {
-            try {
-              const cached = localStorage.getItem('rt_backup_profile_' + currentUser.google_id);
-              if (cached) {
-                const parsed = JSON.parse(cached);
-                parsed.is_active = isProfileActive;
-                localStorage.setItem('rt_backup_profile_' + currentUser.google_id, JSON.stringify(parsed));
-              }
-            } catch (_) {}
-          }
-        } else if (res.status === 401) {
-          localStorage.removeItem('resume_tailor_session');
-          applyAuthState({ is_authenticated: false });
-          alert(window.t('alert_session_expired', "Your session has expired. Please sign in with Google again."));
+        const local = localStorage.getItem('rt_local_profile');
+        if (local) {
+          const parsed = JSON.parse(local);
+          parsed.is_active = nextState;
+          localStorage.setItem('rt_local_profile', JSON.stringify(parsed));
         }
-      } catch (err) {
-        console.warn("Toggle profile error:", err);
-      } finally {
-        btnToggleProfileActive.disabled = false;
-        btnToggleProfileActive.classList.remove('opacity-60');
+        if (currentUser?.google_id) {
+          const cached = localStorage.getItem('rt_backup_profile_' + currentUser.google_id);
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            parsed.is_active = nextState;
+            localStorage.setItem('rt_backup_profile_' + currentUser.google_id, JSON.stringify(parsed));
+          }
+        }
+      } catch (_) {}
+
+      // Cloud sync if authenticated
+      if (currentUser) {
+        btnToggleProfileActive.disabled = true;
+        btnToggleProfileActive.classList.add('opacity-60');
+        try {
+          const res = await fetch('/api/user/profile/toggle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...authHeaders() },
+            body: JSON.stringify({ is_active: nextState })
+          });
+          if (res.status === 401) {
+            localStorage.removeItem('resume_tailor_session');
+            applyAuthState({ is_authenticated: false });
+            alert(window.t('alert_session_expired', "Your session has expired. Please sign in with Google again."));
+          }
+        } catch (err) {
+          console.warn("Toggle profile error:", err);
+        } finally {
+          btnToggleProfileActive.disabled = false;
+          btnToggleProfileActive.classList.remove('opacity-60');
+        }
       }
     });
 
@@ -2848,20 +2864,21 @@
       if (confirm(window.t('confirm_delete_profile', "Are you sure you want to delete this master profile and create one from scratch?"))) {
         btnDeleteProfile.disabled = true;
         btnDeleteProfile.classList.add('opacity-60');
-        if (currentUser?.google_id) {
-          try {
+        try {
+          localStorage.removeItem('rt_local_profile');
+          if (currentUser?.google_id) {
             localStorage.removeItem('rt_backup_profile_' + currentUser.google_id);
-          } catch (_) {}
-        }
+          }
+        } catch (_) {}
         activeProfile = null;
         isProfileActive = true;
         selectedProfileFiles = [];
-        profileFileInput.value = '';
+        if (profileFileInput) profileFileInput.value = '';
         renderProfileFiles();
-        profileNotesText.value = '';
+        if (profileNotesText) profileNotesText.value = '';
         updateProfileDisplay();
-        const token = localStorage.getItem('resume_tailor_session');
-        if (token) {
+
+        if (currentUser) {
           try {
             const res = await fetch('/api/user/profile', {
               method: 'DELETE',
@@ -2897,13 +2914,15 @@
     const rateLimitBadge = document.getElementById('rateLimitBadge');
     const rateLimitText = document.getElementById('rateLimitText');
     // Base Resume elements
-    const baseResumeGuestCard = document.getElementById('baseResumeGuestCard');
     const baseResumeDropzone = document.getElementById('baseResumeDropzone');
     const baseResumeFileInput = document.getElementById('baseResumeFileInput');
+    const baseResumeSyncHint = document.getElementById('baseResumeSyncHint');
     const baseResumeInfoCard = document.getElementById('baseResumeInfoCard');
     const baseResumeFileName = document.getElementById('baseResumeFileName');
+    const baseResumeSyncBadge = document.getElementById('baseResumeSyncBadge');
     const baseResumeStatusText = document.getElementById('baseResumeStatusText');
     const btnToggleBaseResumeActive = document.getElementById('btnToggleBaseResumeActive');
+    const btnReplaceBaseResume = document.getElementById('btnReplaceBaseResume');
     const btnDeleteBaseResume = document.getElementById('btnDeleteBaseResume');
 
     // Step 1 Base Resume elements
@@ -2971,25 +2990,6 @@
       }, 200);
     });
 
-    function renderBaseResumeGoogleButton() {
-      if (!window.google?.accounts?.id || currentUser) return;
-      const baseBtn = document.getElementById('baseResumeGoogleBtn');
-      if (baseBtn) {
-        baseBtn.innerHTML = '';
-        const isDark = document.documentElement.classList.contains('dark');
-        const isMobile = window.innerWidth < 640;
-        const targetLocale = gsiLangMap[currentLanguage] || 'en';
-        google.accounts.id.renderButton(baseBtn, {
-          theme: isDark ? 'filled_black' : 'outline',
-          size: isMobile ? 'small' : 'medium',
-          shape: 'rectangular',
-          text: isMobile ? 'signin' : 'signin_with',
-          width: isMobile ? 180 : 240,
-          locale: targetLocale
-        });
-      }
-    }
-
     function renderTournamentGoogleButton() {
       if (!window.google?.accounts?.id || currentUser) return;
       const modalBtn = document.getElementById('tournamentGoogleBtn');
@@ -3011,33 +3011,13 @@
 
     function renderAllGoogleButtons() {
       renderNavGoogleButton();
-      renderBaseResumeGoogleButton();
       renderTournamentGoogleButton();
     }
 
-    let currentGsiHl = gsiLangMap[localStorage.getItem('resume_tailor_lang') || 'en'] || 'en';
-
     function reloadGoogleAuthWithLang(lang) {
-      const targetHl = gsiLangMap[lang] || 'en';
       if (window.google?.accounts?.id) {
         renderAllGoogleButtons();
       }
-      if (targetHl === currentGsiHl) {
-        return;
-      }
-      currentGsiHl = targetHl;
-      const oldScript = document.getElementById('gsiScript');
-      if (oldScript) oldScript.remove();
-
-      const script = document.createElement('script');
-      script.id = 'gsiScript';
-      script.src = `https://accounts.google.com/gsi/client?hl=${targetHl}`;
-      script.async = true;
-      script.defer = true;
-      script.onload = () => {
-        if (typeof initGoogleAuth === 'function') initGoogleAuth();
-      };
-      document.head.appendChild(script);
     }
 
     function updateRateLimitBadge(rateLimit) {
@@ -3057,42 +3037,50 @@
 
     function updateBaseResumeDisplay() {
       // 1. Master Profile Tab: Base Resume Card State
-      if (!currentUser) {
-        baseResumeGuestCard?.classList.remove('hidden');
+      if (savedBaseResume) {
         baseResumeDropzone?.classList.add('hidden');
-        baseResumeInfoCard?.classList.add('hidden');
-        setTimeout(() => {
-          renderBaseResumeGoogleButton();
-        }, 50);
-      } else {
-        baseResumeGuestCard?.classList.add('hidden');
-        if (savedBaseResume) {
-          baseResumeDropzone?.classList.add('hidden');
-          baseResumeInfoCard?.classList.remove('hidden');
-          if (baseResumeFileName) baseResumeFileName.textContent = savedBaseResume.filename;
+        baseResumeInfoCard?.classList.remove('hidden');
+        if (baseResumeFileName) baseResumeFileName.textContent = savedBaseResume.filename;
 
-          if (isSavedBaseResumeActive) {
-            if (baseResumeStatusText) {
-              baseResumeStatusText.textContent = window.t('base_resume_active_status', "✅ Active: Used automatically in Step 1");
-              baseResumeStatusText.className = "text-[11px] text-emerald-700 font-medium";
-            }
-            if (btnToggleBaseResumeActive) {
-              btnToggleBaseResumeActive.textContent = window.t('btn_toggle_off', "Toggle Off");
-              btnToggleBaseResumeActive.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs";
-            }
+        // Sync Badge: Cloud or Local
+        if (baseResumeSyncBadge) {
+          if (currentUser) {
+            baseResumeSyncBadge.textContent = "☁️ " + window.t('badge_synced_cloud', "Synced to Cloud");
+            baseResumeSyncBadge.className = "text-[10px] px-2 py-0.5 rounded-full font-bold bg-sky-100 text-sky-700 border border-sky-200";
           } else {
-            if (baseResumeStatusText) {
-              baseResumeStatusText.textContent = window.t('base_resume_inactive_status', "⏸️ Inactive: Using manual file upload in Step 1");
-              baseResumeStatusText.className = "text-[11px] text-amber-700 font-medium";
-            }
-            if (btnToggleBaseResumeActive) {
-              btnToggleBaseResumeActive.textContent = window.t('btn_toggle_on', "Toggle On");
-              btnToggleBaseResumeActive.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer bg-slate-200 hover:bg-slate-300 text-slate-800 shadow-xs";
-            }
+            baseResumeSyncBadge.textContent = "💾 " + window.t('badge_saved_locally', "Saved locally");
+            baseResumeSyncBadge.className = "text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-700 border border-emerald-200";
+          }
+        }
+
+        if (isSavedBaseResumeActive) {
+          if (baseResumeStatusText) {
+            baseResumeStatusText.textContent = window.t('base_resume_active_status', "✅ Active: Used automatically in Step 1");
+            baseResumeStatusText.className = "text-[11px] text-emerald-700 font-medium";
+          }
+          if (btnToggleBaseResumeActive) {
+            btnToggleBaseResumeActive.textContent = window.t('btn_toggle_off', "Toggle Off");
+            btnToggleBaseResumeActive.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs";
           }
         } else {
-          baseResumeDropzone?.classList.remove('hidden');
-          baseResumeInfoCard?.classList.add('hidden');
+          if (baseResumeStatusText) {
+            baseResumeStatusText.textContent = window.t('base_resume_inactive_status', "⏸️ Inactive: Using manual file upload in Step 1");
+            baseResumeStatusText.className = "text-[11px] text-amber-700 font-medium";
+          }
+          if (btnToggleBaseResumeActive) {
+            btnToggleBaseResumeActive.textContent = window.t('btn_toggle_on', "Toggle On");
+            btnToggleBaseResumeActive.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer bg-slate-200 hover:bg-slate-300 text-slate-800 shadow-xs";
+          }
+        }
+      } else {
+        baseResumeDropzone?.classList.remove('hidden');
+        baseResumeInfoCard?.classList.add('hidden');
+        if (baseResumeSyncHint) {
+          if (currentUser) {
+            baseResumeSyncHint.textContent = window.t('hint_sync_cloud', "☁️ Automatically syncs to your account across all devices");
+          } else {
+            baseResumeSyncHint.textContent = window.t('hint_sync_local', "💾 Works instantly in your browser (Sign in to sync across devices)");
+          }
         }
       }
 
@@ -3149,7 +3137,7 @@
       }
     }
 
-    baseResumeDropzone?.addEventListener('click', () => baseResumeFileInput.click());
+    baseResumeDropzone?.addEventListener('click', () => baseResumeFileInput?.click());
     baseResumeDropzone?.addEventListener('dragover', (e) => {
       e.preventDefault();
       baseResumeDropzone.classList.add('border-emerald-500', 'bg-emerald-50/50');
@@ -3170,202 +3158,152 @@
     });
 
     async function uploadBaseResume(file) {
-      if (!currentUser) {
-        alert(window.t('alert_signin_base_resume', "Please sign in with Google at the top to save your Base Resume!"));
+      if (!file) return;
+      const fileExt = '.' + (file.name.split('.').pop() || 'pdf').toLowerCase();
+      const allowedExts = ['.pdf', '.pptx', '.ppt', '.docx', '.doc', '.txt'];
+      if (!allowedExts.includes(fileExt)) {
+        alert(window.t('alert_unsupported_resume_type', "Supported formats: PDF, Word DOCX, PPTX, or TXT"));
         return;
       }
-      const formData = new FormData();
-      formData.append('base_file', file);
-      const origHtml = baseResumeDropzone ? baseResumeDropzone.innerHTML : null;
-      if (baseResumeDropzone) {
-        baseResumeDropzone.innerHTML = `<div class="flex items-center justify-center space-x-2 text-xs font-semibold text-emerald-600 animate-pulse"><span class="animate-spin text-sm">⏳</span> <span>Saving to cloud...</span></div>`;
-        baseResumeDropzone.classList.add('pointer-events-none');
-      }
-      try {
-        const res = await fetch('/api/user/base-resume', {
-          method: 'POST',
-          headers: authHeaders(),
-          body: formData
-        });
-        if (!res.ok) {
-          if (res.status === 401) {
-            localStorage.removeItem('resume_tailor_session');
-            applyAuthState({ is_authenticated: false });
-            alert(window.t('alert_session_expired', "Your session has expired. Please sign in with Google again."));
-            return;
+
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const dataUrl = reader.result;
+        const resumeItem = {
+          filename: file.name,
+          file_ext: fileExt,
+          fileType: file.type || 'application/pdf',
+          dataUrl: dataUrl,
+          is_active: true,
+          updatedAt: Date.now()
+        };
+
+        // 1. Instant local display update (0ms latency!)
+        savedBaseResume = resumeItem;
+        isSavedBaseResumeActive = true;
+        updateBaseResumeDisplay();
+
+        try {
+          localStorage.setItem('rt_local_base_resume', JSON.stringify(resumeItem));
+          if (currentUser?.google_id) {
+            localStorage.setItem('rt_backup_base_resume_' + currentUser.google_id, JSON.stringify(resumeItem));
           }
-          const err = await res.json();
-          throw new Error(err.detail || "Failed to save base resume");
+        } catch (e) {
+          console.warn("Storage quota warning for base resume:", e);
+        }
+
+        // 2. If signed in, sync to cloud PostgreSQL in background
+        if (currentUser) {
+          const formData = new FormData();
+          formData.append('base_file', file);
+          try {
+            const res = await fetch('/api/user/base-resume', {
+              method: 'POST',
+              headers: authHeaders(),
+              body: formData
+            });
+            if (!res.ok) {
+              if (res.status === 401) {
+                localStorage.removeItem('resume_tailor_session');
+                applyAuthState({ is_authenticated: false });
+                alert(window.t('alert_session_expired', "Your session has expired. Please sign in with Google again."));
+                return;
+              }
+              const err = await res.json();
+              throw new Error(err.detail || "Failed to save base resume to cloud");
+            }
+            const data = await res.json();
+            savedBaseResume.filename = data.filename;
+            savedBaseResume.file_ext = data.file_ext;
+            savedBaseResume.is_active = data.is_active;
+            updateBaseResumeDisplay();
+          } catch (err) {
+            console.warn("Cloud base resume sync error:", err);
+          }
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function toggleBaseResume(nextState) {
+      isSavedBaseResumeActive = nextState;
+      if (savedBaseResume) {
+        savedBaseResume.is_active = nextState;
+      }
+      updateBaseResumeDisplay();
+
+      // Update local storage immediately
+      try {
+        const local = localStorage.getItem('rt_local_base_resume');
+        if (local) {
+          const parsed = JSON.parse(local);
+          parsed.is_active = nextState;
+          localStorage.setItem('rt_local_base_resume', JSON.stringify(parsed));
         }
         if (currentUser?.google_id) {
-          const reader = new FileReader();
-          reader.onload = () => {
-            try {
-              localStorage.setItem('rt_backup_base_resume_' + currentUser.google_id, JSON.stringify({
-                filename: file.name,
-                fileType: file.type || 'application/pdf',
-                dataUrl: reader.result,
-                is_active: true
-              }));
-            } catch (storageErr) {
-              console.warn("Base resume exceeds localStorage limit:", storageErr);
-            }
-          };
-          reader.readAsDataURL(file);
+          const cached = localStorage.getItem('rt_backup_base_resume_' + currentUser.google_id);
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            parsed.is_active = nextState;
+            localStorage.setItem('rt_backup_base_resume_' + currentUser.google_id, JSON.stringify(parsed));
+          }
         }
-        await checkAuthStatus(false);
-      } catch (err) {
-        alert(`Error: ${err.message}`);
-      } finally {
-        if (baseResumeDropzone && origHtml) {
-          baseResumeDropzone.innerHTML = origHtml;
-          baseResumeDropzone.classList.remove('pointer-events-none');
+      } catch (_) {}
+
+      // If signed in, sync toggle state to Neon cloud DB
+      if (currentUser) {
+        try {
+          await fetch('/api/user/base-resume/toggle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...authHeaders() },
+            body: JSON.stringify({ is_active: nextState })
+          });
+        } catch (err) {
+          console.warn("Cloud toggle base resume error:", err);
         }
       }
     }
 
-    btnToggleBaseResumeActive?.addEventListener('click', async () => {
-      if (!savedBaseResume || btnToggleBaseResumeActive.disabled) return;
-      const nextState = !isSavedBaseResumeActive;
-      btnToggleBaseResumeActive.disabled = true;
-      btnToggleBaseResumeActive.classList.add('opacity-60');
-      try {
-        const res = await fetch('/api/user/base-resume/toggle', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...authHeaders() },
-          body: JSON.stringify({ is_active: nextState })
-        });
-        if (res.ok) {
-          isSavedBaseResumeActive = nextState;
-          updateBaseResumeDisplay();
-          if (currentUser?.google_id) {
-            try {
-              const cached = localStorage.getItem('rt_backup_base_resume_' + currentUser.google_id);
-              if (cached) {
-                const parsed = JSON.parse(cached);
-                parsed.is_active = isSavedBaseResumeActive;
-                localStorage.setItem('rt_backup_base_resume_' + currentUser.google_id, JSON.stringify(parsed));
-              }
-            } catch (_) {}
-          }
-        } else if (res.status === 401) {
-          localStorage.removeItem('resume_tailor_session');
-          applyAuthState({ is_authenticated: false });
-          alert(window.t('alert_session_expired', "Your session has expired. Please sign in with Google again."));
-        }
-      } catch (err) {
-        console.warn("Toggle base resume error:", err);
-      } finally {
-        btnToggleBaseResumeActive.disabled = false;
-        btnToggleBaseResumeActive.classList.remove('opacity-60');
-      }
+    btnToggleBaseResumeActive?.addEventListener('click', () => {
+      if (!savedBaseResume) return;
+      toggleBaseResume(!isSavedBaseResumeActive);
     });
 
-    btnStep1ToggleBaseResume?.addEventListener('click', async () => {
-      if (btnStep1ToggleBaseResume.disabled) return;
-      const nextState = !isSavedBaseResumeActive;
-      btnStep1ToggleBaseResume.disabled = true;
-      btnStep1ToggleBaseResume.classList.add('opacity-60');
-      try {
-        const res = await fetch('/api/user/base-resume/toggle', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...authHeaders() },
-          body: JSON.stringify({ is_active: nextState })
-        });
-        if (res.ok) {
-          isSavedBaseResumeActive = nextState;
-          updateBaseResumeDisplay();
-          if (currentUser?.google_id) {
-            try {
-              const cached = localStorage.getItem('rt_backup_base_resume_' + currentUser.google_id);
-              if (cached) {
-                const parsed = JSON.parse(cached);
-                parsed.is_active = isSavedBaseResumeActive;
-                localStorage.setItem('rt_backup_base_resume_' + currentUser.google_id, JSON.stringify(parsed));
-              }
-            } catch (_) {}
-          }
-        } else if (res.status === 401) {
-          localStorage.removeItem('resume_tailor_session');
-          applyAuthState({ is_authenticated: false });
-          alert(window.t('alert_session_expired', "Your session has expired. Please sign in with Google again."));
-        }
-      } catch (err) {
-        console.warn("Step 1 toggle error:", err);
-      } finally {
-        btnStep1ToggleBaseResume.disabled = false;
-        btnStep1ToggleBaseResume.classList.remove('opacity-60');
-      }
+    btnStep1ToggleBaseResume?.addEventListener('click', () => {
+      toggleBaseResume(!isSavedBaseResumeActive);
     });
 
-    btnStep1EnableBaseResume?.addEventListener('click', async () => {
-      if (btnStep1EnableBaseResume.disabled) return;
-      btnStep1EnableBaseResume.disabled = true;
-      btnStep1EnableBaseResume.classList.add('opacity-60');
-      try {
-        const res = await fetch('/api/user/base-resume/toggle', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', ...authHeaders() },
-          body: JSON.stringify({ is_active: true })
-        });
-        if (res.ok) {
-          isSavedBaseResumeActive = true;
-          updateBaseResumeDisplay();
-          if (currentUser?.google_id) {
-            try {
-              const cached = localStorage.getItem('rt_backup_base_resume_' + currentUser.google_id);
-              if (cached) {
-                const parsed = JSON.parse(cached);
-                parsed.is_active = true;
-                localStorage.setItem('rt_backup_base_resume_' + currentUser.google_id, JSON.stringify(parsed));
-              }
-            } catch (_) {}
-          }
-        } else if (res.status === 401) {
-          localStorage.removeItem('resume_tailor_session');
-          applyAuthState({ is_authenticated: false });
-          alert(window.t('alert_session_expired', "Your session has expired. Please sign in with Google again."));
-        }
-      } catch (err) {
-        console.warn("Step 1 enable error:", err);
-      } finally {
-        btnStep1EnableBaseResume.disabled = false;
-        btnStep1EnableBaseResume.classList.remove('opacity-60');
-      }
+    btnStep1EnableBaseResume?.addEventListener('click', () => {
+      toggleBaseResume(true);
+    });
+
+    btnReplaceBaseResume?.addEventListener('click', () => {
+      baseResumeFileInput?.click();
     });
 
     btnDeleteBaseResume?.addEventListener('click', async () => {
-      if (!savedBaseResume || btnDeleteBaseResume.disabled) return;
-      if (confirm(window.t('confirm_delete_base_resume', "Are you sure you want to delete your saved base resume?"))) {
-        btnDeleteBaseResume.disabled = true;
-        btnDeleteBaseResume.classList.add('opacity-60');
+      if (!savedBaseResume) return;
+      if (!confirm(window.t('confirm_delete_base_resume', "Are you sure you want to delete your saved base resume?"))) return;
+
+      savedBaseResume = null;
+      isSavedBaseResumeActive = false;
+      updateBaseResumeDisplay();
+
+      try {
+        localStorage.removeItem('rt_local_base_resume');
         if (currentUser?.google_id) {
-          try {
-            localStorage.removeItem('rt_backup_base_resume_' + currentUser.google_id);
-          } catch (_) {}
+          localStorage.removeItem('rt_backup_base_resume_' + currentUser.google_id);
         }
+      } catch (_) {}
+
+      if (currentUser) {
         try {
-          const res = await fetch('/api/user/base-resume', {
+          await fetch('/api/user/base-resume', {
             method: 'DELETE',
             headers: authHeaders()
           });
-          if (res.ok) {
-            savedBaseResume = null;
-            isSavedBaseResumeActive = false;
-            updateBaseResumeDisplay();
-          } else if (res.status === 401) {
-            localStorage.removeItem('resume_tailor_session');
-            applyAuthState({ is_authenticated: false });
-            alert(window.t('alert_session_expired', "Your session has expired. Please sign in with Google again."));
-          } else {
-            const err = await res.json();
-            throw new Error(err.detail || "Failed to delete base resume");
-          }
         } catch (err) {
-          alert(`Error: ${err.message}`);
-        } finally {
-          btnDeleteBaseResume.disabled = false;
-          btnDeleteBaseResume.classList.remove('opacity-60');
+          console.warn("Cloud delete base resume error:", err);
         }
       }
     });
@@ -3415,6 +3353,7 @@
           activeProfile = data.profile;
           isProfileActive = data.profile_is_active !== false;
           updateProfileDisplay();
+          localStorage.removeItem('rt_local_profile');
           if (currentUser?.google_id) {
             try {
               localStorage.setItem('rt_backup_profile_' + currentUser.google_id, JSON.stringify({
@@ -3424,20 +3363,44 @@
             } catch (_) {}
           }
         } else {
-          activeProfile = null;
-          isProfileActive = false;
-          if (currentUser?.google_id) {
-            try {
-              localStorage.removeItem('rt_backup_profile_' + currentUser.google_id);
-            } catch (_) {}
+          // Check if guest had a local profile to auto-migrate to cloud account
+          let migratedProfile = false;
+          try {
+            const localProfStr = localStorage.getItem('rt_local_profile');
+            if (localProfStr) {
+              const localProf = JSON.parse(localProfStr);
+              if (localProf && localProf.profile) {
+                activeProfile = localProf.profile;
+                isProfileActive = localProf.is_active !== false;
+                updateProfileDisplay();
+                migratedProfile = true;
+                localStorage.removeItem('rt_local_profile');
+                fetch('/api/user/profile', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', ...authHeaders() },
+                  body: JSON.stringify({ profile: activeProfile, is_active: isProfileActive })
+                }).catch(err => console.warn("Auto-migrate profile error:", err));
+              }
+            }
+          } catch (_) {}
+
+          if (!migratedProfile) {
+            activeProfile = null;
+            isProfileActive = false;
+            if (currentUser?.google_id) {
+              try {
+                localStorage.removeItem('rt_backup_profile_' + currentUser.google_id);
+              } catch (_) {}
+            }
+            updateProfileDisplay();
           }
-          updateProfileDisplay();
         }
 
         // 2. Base Resume sync from server (Single Source of Truth)
         if (data.has_base_resume && data.base_resume) {
           savedBaseResume = data.base_resume;
           isSavedBaseResumeActive = data.base_resume.is_active !== false;
+          localStorage.removeItem('rt_local_base_resume');
           if (currentUser?.google_id) {
             try {
               localStorage.setItem('rt_backup_base_resume_' + currentUser.google_id, JSON.stringify({
@@ -3447,13 +3410,55 @@
               }));
             } catch (_) {}
           }
+          updateBaseResumeDisplay();
         } else {
-          savedBaseResume = null;
-          isSavedBaseResumeActive = false;
-          if (currentUser?.google_id) {
-            try {
-              localStorage.removeItem('rt_backup_base_resume_' + currentUser.google_id);
-            } catch (_) {}
+          // Check if guest had a local base resume to auto-migrate to cloud account
+          let migratedResume = false;
+          try {
+            const localResumeStr = localStorage.getItem('rt_local_base_resume') || (currentUser?.google_id ? localStorage.getItem('rt_backup_base_resume_' + currentUser.google_id) : null);
+            if (localResumeStr) {
+              const localResume = JSON.parse(localResumeStr);
+              if (localResume && localResume.filename && localResume.dataUrl) {
+                savedBaseResume = localResume;
+                isSavedBaseResumeActive = localResume.is_active !== false;
+                updateBaseResumeDisplay();
+                migratedResume = true;
+                localStorage.removeItem('rt_local_base_resume');
+                fetch(localResume.dataUrl)
+                  .then(r => r.blob())
+                  .then(blob => {
+                    const restoredFile = new File([blob], localResume.filename, { type: localResume.fileType || blob.type || 'application/pdf' });
+                    const formData = new FormData();
+                    formData.append('base_file', restoredFile);
+                    return fetch('/api/user/base-resume', {
+                      method: 'POST',
+                      headers: authHeaders(),
+                      body: formData
+                    });
+                  })
+                  .then(r => r.json())
+                  .then(res => {
+                    if (res && res.status === 'success') {
+                      savedBaseResume.filename = res.filename;
+                      savedBaseResume.file_ext = res.file_ext;
+                      savedBaseResume.is_active = res.is_active;
+                      updateBaseResumeDisplay();
+                    }
+                  })
+                  .catch(err => console.warn("Auto-migrate base resume error:", err));
+              }
+            }
+          } catch (_) {}
+
+          if (!migratedResume) {
+            savedBaseResume = null;
+            isSavedBaseResumeActive = false;
+            if (currentUser?.google_id) {
+              try {
+                localStorage.removeItem('rt_backup_base_resume_' + currentUser.google_id);
+              } catch (_) {}
+            }
+            updateBaseResumeDisplay();
           }
         }
       } else {
@@ -3462,8 +3467,50 @@
         loggedInView?.classList.add('hidden');
         adminPersonaView?.classList.add('hidden');
         if (data && data.rate_limit) updateRateLimitBadge(data.rate_limit);
-        savedBaseResume = null;
-        isSavedBaseResumeActive = false;
+
+        // Restore guest Master Profile from local storage
+        try {
+          const localProfStr = localStorage.getItem('rt_local_profile');
+          if (localProfStr) {
+            const localProf = JSON.parse(localProfStr);
+            if (localProf && localProf.profile) {
+              activeProfile = localProf.profile;
+              isProfileActive = localProf.is_active !== false;
+            } else {
+              activeProfile = null;
+              isProfileActive = false;
+            }
+          } else {
+            activeProfile = null;
+            isProfileActive = false;
+          }
+        } catch (_) {
+          activeProfile = null;
+          isProfileActive = false;
+        }
+        updateProfileDisplay();
+
+        // Restore guest Base Resume from local storage
+        try {
+          const localResumeStr = localStorage.getItem('rt_local_base_resume');
+          if (localResumeStr) {
+            const localResume = JSON.parse(localResumeStr);
+            if (localResume && localResume.filename && localResume.dataUrl) {
+              savedBaseResume = localResume;
+              isSavedBaseResumeActive = localResume.is_active !== false;
+            } else {
+              savedBaseResume = null;
+              isSavedBaseResumeActive = false;
+            }
+          } else {
+            savedBaseResume = null;
+            isSavedBaseResumeActive = false;
+          }
+        } catch (_) {
+          savedBaseResume = null;
+          isSavedBaseResumeActive = false;
+        }
+        updateBaseResumeDisplay();
       }
 
       // Synchronize session tailored resume and Step 1 display for current user
@@ -3545,6 +3592,8 @@
       selectedFile = null;
       if (fileStatusCard) fileStatusCard.classList.add('hidden');
       if (dropzone) dropzone.classList.remove('hidden');
+      localStorage.removeItem('rt_local_profile');
+      localStorage.removeItem('rt_local_base_resume');
       updateProfileDisplay();
       updateBaseResumeDisplay();
       if (window.google?.accounts?.id) {
@@ -3635,6 +3684,7 @@
       }
     });
 
+    let isGoogleAuthInitialized = false;
     async function initGoogleAuth() {
       try {
         const res = await fetch('/api/auth/config');
@@ -3646,12 +3696,15 @@
         const checkGis = setInterval(() => {
           if (window.google?.accounts?.id) {
             clearInterval(checkGis);
-            google.accounts.id.initialize({
-              client_id: clientId,
-              callback: window.handleGoogleCredentialResponse,
-              auto_select: false,
-              cancel_on_tap_outside: true,
-            });
+            if (!isGoogleAuthInitialized) {
+              isGoogleAuthInitialized = true;
+              google.accounts.id.initialize({
+                client_id: clientId,
+                callback: window.handleGoogleCredentialResponse,
+                auto_select: false,
+                cancel_on_tap_outside: true,
+              });
+            }
             renderAllGoogleButtons();
           }
         }, 150);
@@ -3790,8 +3843,14 @@
               is_active: isProfileActive
             }));
           } catch (_) {}
+        } else {
+          try {
+            localStorage.setItem('rt_local_profile', JSON.stringify({
+              profile: activeProfile,
+              is_active: isProfileActive
+            }));
+          } catch (_) {}
         }
-        await checkAuthStatus();
         alert(window.t('alert_profile_generated', "Master Profile successfully generated!"));
       } catch (err) {
         alert(`Error: ${err.message}`);
@@ -3839,8 +3898,14 @@
               is_active: isProfileActive
             }));
           } catch (_) {}
+        } else {
+          try {
+            localStorage.setItem('rt_local_profile', JSON.stringify({
+              profile: activeProfile,
+              is_active: isProfileActive
+            }));
+          } catch (_) {}
         }
-        await checkAuthStatus();
         alert(window.t('alert_profile_created_wiz', "Master Profile created from questionnaire!"));
       } catch (err) {
         alert(`Error: ${err.message}`);
@@ -3894,6 +3959,13 @@
           if (currentUser?.google_id) {
             try {
               localStorage.setItem('rt_backup_profile_' + currentUser.google_id, JSON.stringify({
+                profile: activeProfile,
+                is_active: true
+              }));
+            } catch (_) {}
+          } else {
+            try {
+              localStorage.setItem('rt_local_profile', JSON.stringify({
                 profile: activeProfile,
                 is_active: true
               }));
@@ -4531,7 +4603,20 @@
       } else if (hasExistingJob) {
         formData.append('existing_job_id', lastTailoredData.job_id);
       } else if (savedBaseResume && isSavedBaseResumeActive) {
-        formData.append('use_saved_base', 'true');
+        if (currentUser) {
+          formData.append('use_saved_base', 'true');
+        } else if (savedBaseResume.dataUrl) {
+          try {
+            const blob = await fetch(savedBaseResume.dataUrl).then(r => r.blob());
+            const fileObj = new File([blob], savedBaseResume.filename, { type: savedBaseResume.fileType || blob.type || 'application/pdf' });
+            formData.append('resume_file', fileObj);
+          } catch (e) {
+            console.warn("Could not convert local base resume dataUrl to blob:", e);
+            formData.append('use_saved_base', 'true');
+          }
+        } else {
+          formData.append('use_saved_base', 'true');
+        }
       }
       formData.append('jd_text', jdText.value.trim());
       if (activeProfile && isProfileActive) formData.append('profile_json', JSON.stringify(activeProfile));
