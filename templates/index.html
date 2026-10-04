@@ -1566,6 +1566,7 @@
         confirm_delete_profile: "Are you sure you want to delete this master profile and create one from scratch?",
         alert_signin_base_resume: "Please sign in with Google at the top to save your Base Resume!",
         confirm_delete_base_resume: "Are you sure you want to delete your saved base resume?",
+        alert_session_expired: "Your session has expired. Please sign in with Google again.",
         alert_select_profile_input: "Please select at least one profile file or paste background notes.",
         alert_profile_generated: "Master Profile successfully generated!",
         alert_profile_imported: "Master Profile successfully imported!",
@@ -1723,6 +1724,7 @@
         confirm_delete_profile: "האם אתה בטוח שברצונך למחוק את הפרופיל הראשי ולהתחיל מאפס?",
         alert_signin_base_resume: "נא להתחבר באמצעות Google בראש העמוד כדי לשמור את קורות החיים הראשיים שלך!",
         confirm_delete_base_resume: "האם אתה בטוח שברצונך למחוק את קורות החיים הראשיים השמורים?",
+        alert_session_expired: "פג תוקף החיבור שלך. אנא התחבר מחדש עם Google.",
         alert_select_profile_input: "נא לבחור לפחות קובץ פרופיל אחד או להדביק הערות רקע.",
         alert_profile_generated: "פרופיל ראשי נוצר בהצלחה!",
         alert_profile_imported: "פרופיל המאסטר יובא בהצלחה!",
@@ -1879,6 +1881,7 @@
         confirm_delete_profile: "¿Está seguro de que desea eliminar este perfil maestro y comenzar desde cero?",
         alert_signin_base_resume: "¡Inicie sesión con Google en la parte superior para guardar su Currículum Base!",
         confirm_delete_base_resume: "¿Está seguro de que desea eliminar su currículum base guardado?",
+        alert_session_expired: "Su sesión ha expirado. Por favor, inicie sesión con Google nuevamente.",
         alert_select_profile_input: "Por favor, seleccione al menos un archivo de perfil o pegue notas de antecedentes.",
         alert_profile_generated: "¡Perfil Maestro generado con éxito!",
         alert_profile_imported: "¡Perfil maestro importado con éxito!",
@@ -2036,6 +2039,7 @@
         confirm_delete_profile: "确定要删除此核心背景档案并重新开始吗？",
         alert_signin_base_resume: "请在页面顶部使用 Google 登录以保存您的基准简历！",
         confirm_delete_base_resume: "确定要删除已保存的基准简历吗？",
+        alert_session_expired: "您的会话已过期，请重新使用 Google 登录。",
         alert_select_profile_input: "请选择至少一个档案文件或粘贴背景笔记。",
         alert_profile_generated: "核心背景档案生成成功！",
         alert_profile_imported: "主档案导入成功！",
@@ -2193,6 +2197,7 @@
         confirm_delete_profile: "هل أنت متأكد من رغبتك في حذف هذا الملف المرجعي والبدء من جديد؟",
         alert_signin_base_resume: "يرجى تسجيل الدخول عبر Google أعلى الصفحة لحفظ سيرتك الذاتية الأساسية!",
         confirm_delete_base_resume: "هل أنت متأكد من رغبتك في حذف السيرة الذاتية الأساسية المحفوظة؟",
+        alert_session_expired: "انتهت جلستك. يرجى تسجيل الدخول باستخدام Google مرة أخرى.",
         alert_select_profile_input: "يرجى اختيار ملف مرجعي واحد على الأقل أو لصق ملاحظاتك.",
         alert_profile_generated: "تم إنشاء الملف المرجعي بنجاح!",
         alert_profile_imported: "تم استيراد الملف المرجعي بنجاح!",
@@ -2350,6 +2355,7 @@
         confirm_delete_profile: "Êtes-vous sûr de vouloir supprimer ce profil maître et recommencer à zéro ?",
         alert_signin_base_resume: "Veuillez vous connecter avec Google en haut pour enregistrer votre CV de Base !",
         confirm_delete_base_resume: "Êtes-vous sûr de vouloir supprimer votre CV de base enregistré ?",
+        alert_session_expired: "Votre session a expiré. Veuillez vous reconnecter avec Google.",
         alert_select_profile_input: "Veuillez sélectionner au moins un fichier ou coller vos notes d'expérience.",
         alert_profile_generated: "Profil Maître généré avec succès !",
         alert_profile_imported: "Profil principal importé avec succès !",
@@ -2507,6 +2513,7 @@
         confirm_delete_profile: "Sind Sie sicher, dass Sie dieses Master-Profil löschen und von Grund auf neu beginnen möchten?",
         alert_signin_base_resume: "Bitte melden Sie sich oben mit Google an, um Ihren Basis-Lebenslauf zu speichern!",
         confirm_delete_base_resume: "Sind Sie sicher, dass Sie Ihren gespeicherten Basis-Lebenslauf löschen möchten?",
+        alert_session_expired: "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut mit Google an.",
         alert_select_profile_input: "Bitte wählen Sie mindestens eine Datei aus oder fügen Sie Hintergrundnotizen ein.",
         alert_profile_generated: "Master-Profil erfolgreich erstellt!",
         alert_profile_imported: "Master-Profil erfolgreich importiert!",
@@ -3140,6 +3147,12 @@
           body: formData
         });
         if (!res.ok) {
+          if (res.status === 401) {
+            localStorage.removeItem('resume_tailor_session');
+            applyAuthState({ is_authenticated: false });
+            alert(window.t('alert_session_expired', "Your session has expired. Please sign in with Google again."));
+            return;
+          }
           const err = await res.json();
           throw new Error(err.detail || "Failed to save base resume");
         }
@@ -3809,7 +3822,15 @@
               headers: { 'Content-Type': 'application/json', ...authHeaders() },
               body: JSON.stringify({ profile: profileData, is_active: true })
             });
-            if (!res.ok) throw new Error("Failed to save profile to server");
+            if (!res.ok) {
+              if (res.status === 401) {
+                localStorage.removeItem('resume_tailor_session');
+                applyAuthState({ is_authenticated: false });
+                alert(window.t('alert_session_expired', "Your session has expired. Please sign in with Google again."));
+                return;
+              }
+              throw new Error("Failed to save profile to server");
+            }
           }
 
           activeProfile = profileData;
