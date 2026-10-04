@@ -3168,29 +3168,40 @@
           baseResumeInfoCard?.classList.remove('hidden');
           if (baseResumeFileName) baseResumeFileName.textContent = savedBaseResume.filename;
 
-          // Sync Badge: Cloud
-          if (baseResumeSyncBadge) {
-            baseResumeSyncBadge.textContent = "☁️ " + window.t('badge_synced_cloud', "Synced to Cloud");
-            baseResumeSyncBadge.className = "text-[10px] px-2 py-0.5 rounded-full font-bold bg-sky-100 text-sky-700 border border-sky-200 shrink-0";
-          }
-
-          if (isSavedBaseResumeActive) {
-            if (baseResumeStatusText) {
-              baseResumeStatusText.textContent = window.t('base_resume_active_status', "✅ Active: Used automatically in Step 1");
-              baseResumeStatusText.className = "text-[11px] text-emerald-700 font-medium";
+          if (savedBaseResume.is_uploading) {
+            if (baseResumeSyncBadge) {
+              baseResumeSyncBadge.textContent = "⏳ " + window.t('badge_uploading', "Saving to Cloud...");
+              baseResumeSyncBadge.className = "text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 animate-pulse shrink-0";
             }
-            if (btnToggleBaseResumeActive) {
-              btnToggleBaseResumeActive.textContent = window.t('btn_toggle_off', "Toggle Off");
-              btnToggleBaseResumeActive.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs";
+            if (baseResumeStatusText) {
+              baseResumeStatusText.textContent = window.t('base_resume_uploading_status', "Saving and syncing to cloud...");
+              baseResumeStatusText.className = "text-[11px] text-sky-600 dark:text-sky-400 font-medium animate-pulse";
             }
           } else {
-            if (baseResumeStatusText) {
-              baseResumeStatusText.textContent = window.t('base_resume_inactive_status', "⏸️ Inactive: Using manual file upload in Step 1");
-              baseResumeStatusText.className = "text-[11px] text-amber-700 font-medium";
+            // Sync Badge: Cloud
+            if (baseResumeSyncBadge) {
+              baseResumeSyncBadge.textContent = "☁️ " + window.t('badge_synced_cloud', "Synced to Cloud");
+              baseResumeSyncBadge.className = "text-[10px] px-2 py-0.5 rounded-full font-bold bg-sky-100 text-sky-700 border border-sky-200 shrink-0";
             }
-            if (btnToggleBaseResumeActive) {
-              btnToggleBaseResumeActive.textContent = window.t('btn_toggle_on', "Toggle On");
-              btnToggleBaseResumeActive.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer bg-slate-200 hover:bg-slate-300 text-slate-800 shadow-xs";
+
+            if (isSavedBaseResumeActive) {
+              if (baseResumeStatusText) {
+                baseResumeStatusText.textContent = window.t('base_resume_active_status', "✅ Active: Used automatically in Step 1");
+                baseResumeStatusText.className = "text-[11px] text-emerald-700 font-medium";
+              }
+              if (btnToggleBaseResumeActive) {
+                btnToggleBaseResumeActive.textContent = window.t('btn_toggle_off', "Toggle Off");
+                btnToggleBaseResumeActive.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs";
+              }
+            } else {
+              if (baseResumeStatusText) {
+                baseResumeStatusText.textContent = window.t('base_resume_inactive_status', "⏸️ Inactive: Using manual file upload in Step 1");
+                baseResumeStatusText.className = "text-[11px] text-amber-700 font-medium";
+              }
+              if (btnToggleBaseResumeActive) {
+                btnToggleBaseResumeActive.textContent = window.t('btn_toggle_on', "Toggle On");
+                btnToggleBaseResumeActive.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer bg-slate-200 hover:bg-slate-300 text-slate-800 shadow-xs";
+              }
             }
           }
         } else {
@@ -3207,14 +3218,20 @@
         // Active Base Resume: Show ONLY Base Resume Card; Hide paused banner, dropzone, and fileStatusCard
         savedBaseResumeActiveCard?.classList.remove('hidden');
         savedBaseResumePausedBanner?.classList.add('hidden');
-        if (savedBaseResumeActiveName) savedBaseResumeActiveName.textContent = savedBaseResume.filename;
+        if (savedBaseResumeActiveName) {
+          savedBaseResumeActiveName.textContent = savedBaseResume.filename + (savedBaseResume.is_uploading ? " (Saving...)" : "");
+        }
         if (btnStep1ToggleBaseResume) btnStep1ToggleBaseResume.textContent = window.t('btn_toggle_off', "Toggle Off");
 
         dropzone?.classList.add('hidden');
         fileStatusCard?.classList.add('hidden');
 
-        btnSubmit.disabled = false;
-        btnSubmit.classList.remove('opacity-70', 'cursor-not-allowed');
+        btnSubmit.disabled = Boolean(savedBaseResume.is_uploading);
+        if (savedBaseResume.is_uploading) {
+          btnSubmit.classList.add('opacity-70', 'cursor-not-allowed');
+        } else {
+          btnSubmit.classList.remove('opacity-70', 'cursor-not-allowed');
+        }
       } else {
         // Base Resume Inactive (or guest, or user has no base resume)
         savedBaseResumeActiveCard?.classList.add('hidden');
@@ -3275,6 +3292,8 @@
       }
     });
 
+    let isUploadingBaseResume = false;
+
     async function uploadBaseResume(file) {
       if (!file) return;
       if (!currentUser) {
@@ -3288,16 +3307,24 @@
         return;
       }
 
-      // Optimistic instant UI update
+      // 1. Immediately abort any in-flight auth/me checks so they cannot wipe or overwrite this upload
+      if (authAbortController) {
+        try { authAbortController.abort(); } catch (_) {}
+      }
+      authSyncSeq++;
+      isUploadingBaseResume = true;
+
+      // 2. Optimistic instant UI update with uploading indicator
       savedBaseResume = {
         filename: file.name,
         file_ext: fileExt,
-        is_active: true
+        is_active: true,
+        is_uploading: true
       };
       isSavedBaseResumeActive = true;
       updateBaseResumeDisplay();
 
-      // Cloud upload to PostgreSQL / Lakebase storage
+      // 3. Cloud upload to PostgreSQL / Lakebase storage
       const formData = new FormData();
       formData.append('base_file', file);
       try {
@@ -3318,13 +3345,23 @@
         }
         const data = await res.json();
         authSyncSeq++;
-        savedBaseResume.filename = data.filename;
-        savedBaseResume.file_ext = data.file_ext;
-        savedBaseResume.is_active = data.is_active;
+        savedBaseResume = {
+          filename: data.filename,
+          file_ext: data.file_ext,
+          is_active: data.is_active,
+          is_uploading: false
+        };
+        isSavedBaseResumeActive = data.is_active !== false;
         updateBaseResumeDisplay();
         rtSyncChannel?.postMessage({ type: 'BASE_RESUME_UPLOADED', base_resume: savedBaseResume });
       } catch (err) {
         console.warn("Cloud base resume sync error:", err);
+        alert(window.t('alert_upload_error', "Error uploading base resume: ") + err.message);
+        savedBaseResume = null;
+        isSavedBaseResumeActive = false;
+        updateBaseResumeDisplay();
+      } finally {
+        isUploadingBaseResume = false;
       }
     }
 
@@ -3480,15 +3517,17 @@
         }
 
         // 2. Base Resume sync from server (Single Source of Truth)
-        if (data.has_base_resume && data.base_resume) {
-          savedBaseResume = data.base_resume;
-          isSavedBaseResumeActive = data.base_resume.is_active !== false;
-          updateBaseResumeDisplay();
-        } else {
-          // Server is single source of truth: base resume was deleted or never uploaded
-          savedBaseResume = null;
-          isSavedBaseResumeActive = false;
-          updateBaseResumeDisplay();
+        if (!isUploadingBaseResume) {
+          if (data.has_base_resume && data.base_resume) {
+            savedBaseResume = data.base_resume;
+            isSavedBaseResumeActive = data.base_resume.is_active !== false;
+            updateBaseResumeDisplay();
+          } else {
+            // Server is single source of truth: base resume was deleted or never uploaded
+            savedBaseResume = null;
+            isSavedBaseResumeActive = false;
+            updateBaseResumeDisplay();
+          }
         }
       } else {
         currentUser = null;
@@ -3547,7 +3586,7 @@
     let googleSignInTimeout = null;
 
     async function checkAuthStatus(isInitialOrLogin = false) {
-      if (isSigningInWithGoogle && !isInitialOrLogin) {
+      if ((isSigningInWithGoogle || isUploadingBaseResume) && !isInitialOrLogin) {
         return Promise.resolve();
       }
       const now = Date.now();
@@ -3964,7 +4003,7 @@
     });
 
     window.addEventListener('focus', () => {
-      if (!isSigningInWithGoogle) {
+      if (!isSigningInWithGoogle && !isUploadingBaseResume) {
         checkAuthStatus(false);
       }
     });

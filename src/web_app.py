@@ -504,16 +504,20 @@ async def upload_user_base_resume_endpoint(
 
     dest_path = USER_RESUMES_DIR / f"{user['google_id']}_base{file_ext}"
     content_bytes = await base_file.read()
-    dest_path.write_bytes(content_bytes)
 
-    save_user_base_resume(
-        google_id=user["google_id"],
-        filename=filename,
-        file_path=str(dest_path),
-        file_ext=file_ext,
-        is_active=True,
-        file_bytes=content_bytes,
-    )
+    def _persist():
+        dest_path.write_bytes(content_bytes)
+        save_user_base_resume(
+            google_id=user["google_id"],
+            filename=filename,
+            file_path=str(dest_path),
+            file_ext=file_ext,
+            is_active=True,
+            file_bytes=content_bytes,
+        )
+
+    await asyncio.to_thread(_persist)
+
     return JSONResponse(
         content={
             "status": "success",
