@@ -469,6 +469,7 @@ async def upload_user_base_resume_endpoint(
         file_path=str(dest_path),
         file_ext=file_ext,
         is_active=True,
+        file_bytes=content_bytes,
     )
     return JSONResponse(
         content={

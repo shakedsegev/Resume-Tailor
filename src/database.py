@@ -1,15 +1,26 @@
 """
-SQLite-backed persistent storage for users, master profiles, base resumes, sessions, and daily rate limits.
+SQLite and PostgreSQL-backed persistent storage for users, master profiles, base resumes, sessions, and daily rate limits.
 """
 
 import hmac
 import json
+import logging
 import os
 import sqlite3
 import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional, Any
+
+logger = logging.getLogger(__name__)
+
+try:
+    import psycopg2
+    import psycopg2.extras
+    import psycopg2.pool
+    HAS_PSYCOPG2 = True
+except ImportError:
+    HAS_PSYCOPG2 = False
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
@@ -18,6 +29,111 @@ USER_RESUMES_DIR = DATA_DIR / "user_resumes"
 
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 USER_RESUMES_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def clean_database_url(url: str) -> str:
+    url = url.strip()
+    if url.startswith("postgres://"):
+        url = "postgresql://" + url[len("postgres://"):]
+    return url
+
+
+_pg_pool: Optional[Any] = None
+
+
+def is_postgres() -> bool:
+    return bool(os.environ.get("DATABASE_URL") and HAS_PSYCOPG2)
+
+
+def get_pg_pool():
+    global _pg_pool
+    if _pg_pool is None:
+        raw_url = os.environ.get("DATABASE_URL", "")
+        db_url = clean_database_url(raw_url)
+        _pg_pool = psycopg2.pool.ThreadedConnectionPool(minconn=1, maxconn=10, dsn=db_url)
+    return _pg_pool
+
+
+class DbCursor:
+    def __init__(self, raw_cursor, is_pg: bool = False):
+        self._cursor = raw_cursor
+        self._is_pg = is_pg
+
+    def fetchone(self):
+        row = self._cursor.fetchone()
+        if row is None:
+            return None
+        return dict(row)
+
+    def fetchall(self):
+        rows = self._cursor.fetchall()
+        return [dict(r) for r in rows]
+
+    def __iter__(self):
+        for row in self._cursor:
+            yield dict(row)
+
+    @property
+    def rowcount(self):
+        return self._cursor.rowcount
+
+
+class DbConnection:
+    def __init__(self, raw_conn, is_pg: bool = False, pool=None):
+        self._conn = raw_conn
+        self._is_pg = is_pg
+        self._pool = pool
+        self._closed = False
+
+    def execute(self, sql: str, params: tuple = ()):
+        if self._is_pg:
+            pg_sql = sql.replace("?", "%s")
+            cur = self._conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            cur.execute(pg_sql, params)
+            return DbCursor(cur, is_pg=True)
+        else:
+            cur = self._conn.execute(sql, params)
+            return DbCursor(cur, is_pg=False)
+
+    def commit(self):
+        self._conn.commit()
+
+    def rollback(self):
+        self._conn.rollback()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type is not None:
+            self._conn.rollback()
+        else:
+            self._conn.commit()
+
+    def close(self):
+        if self._closed:
+            return
+        self._closed = True
+        if self._is_pg:
+            if self._pool is not None:
+                try:
+                    self._conn.rollback()
+                except Exception:
+                    pass
+                try:
+                    self._pool.putconn(self._conn)
+                except Exception:
+                    pass
+            else:
+                try:
+                    self._conn.close()
+                except Exception:
+                    pass
+        else:
+            try:
+                self._conn.close()
+            except Exception:
+                pass
 
 
 def get_db_path() -> Path:
@@ -29,104 +145,196 @@ def get_db_path() -> Path:
     return _DEFAULT_DB_PATH
 
 
-def get_db_connection(db_path: Optional[Path] = None) -> sqlite3.Connection:
+def get_db_connection(db_path: Optional[Path] = None) -> DbConnection:
+    if is_postgres() and db_path is None:
+        try:
+            pool = get_pg_pool()
+            raw_conn = pool.getconn()
+            return DbConnection(raw_conn, is_pg=True, pool=pool)
+        except Exception as err:
+            logger.error(f"PostgreSQL connection error: {err}. Falling back to SQLite.")
+
     path = db_path or get_db_path()
     conn = sqlite3.connect(str(path), check_same_thread=False)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL;")
     conn.execute("PRAGMA foreign_keys=ON;")
-    return conn
+    return DbConnection(conn, is_pg=False)
 
 
 def init_db(db_path: Optional[Path] = None) -> None:
     """Initializes tables if they do not already exist."""
     conn = get_db_connection(db_path)
     with conn:
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS users (
-                google_id TEXT PRIMARY KEY,
-                email TEXT NOT NULL,
-                name TEXT,
-                picture TEXT,
-                created_at TEXT NOT NULL,
-                last_login TEXT NOT NULL
-            );
-        """)
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS sessions (
-                session_token TEXT PRIMARY KEY,
-                google_id TEXT NOT NULL,
-                created_at TEXT NOT NULL,
-                expires_at TEXT NOT NULL,
-                FOREIGN KEY (google_id) REFERENCES users (google_id) ON DELETE CASCADE
-            );
-        """)
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS user_profiles (
-                google_id TEXT PRIMARY KEY,
-                profile_json TEXT NOT NULL,
-                is_active INTEGER NOT NULL DEFAULT 1,
-                updated_at TEXT NOT NULL,
-                FOREIGN KEY (google_id) REFERENCES users (google_id) ON DELETE CASCADE
-            );
-        """)
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS user_base_resumes (
-                google_id TEXT PRIMARY KEY,
-                filename TEXT NOT NULL,
-                file_path TEXT NOT NULL,
-                file_ext TEXT NOT NULL,
-                is_active INTEGER NOT NULL DEFAULT 1,
-                updated_at TEXT NOT NULL,
-                FOREIGN KEY (google_id) REFERENCES users (google_id) ON DELETE CASCADE
-            );
-        """)
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS daily_usage (
-                identifier TEXT NOT NULL,
-                usage_date TEXT NOT NULL,
-                count INTEGER NOT NULL DEFAULT 0,
-                PRIMARY KEY (identifier, usage_date)
-            );
-        """)
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS daily_bonuses (
-                identifier TEXT NOT NULL,
-                usage_date TEXT NOT NULL,
-                bonus_tailors INTEGER NOT NULL DEFAULT 0,
-                bonus_deep_boosts INTEGER NOT NULL DEFAULT 0,
-                tailors_reset_offset INTEGER NOT NULL DEFAULT 0,
-                deep_boost_reset_offset INTEGER NOT NULL DEFAULT 0,
-                PRIMARY KEY (identifier, usage_date)
-            );
-        """)
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS tailor_runs (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                run_date TEXT NOT NULL,
-                run_time TEXT NOT NULL,
-                identifier TEXT NOT NULL,
-                google_id TEXT,
-                client_ip TEXT NOT NULL,
-                is_deep_boost INTEGER NOT NULL DEFAULT 0
-            );
-        """)
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS user_ips (
-                google_id TEXT NOT NULL,
-                ip_address TEXT NOT NULL,
-                last_seen TEXT NOT NULL,
-                PRIMARY KEY (google_id, ip_address),
-                FOREIGN KEY (google_id) REFERENCES users (google_id) ON DELETE CASCADE
-            );
-        """)
-        # Ensure migration columns exist on daily_bonuses
-        cursor = conn.execute("PRAGMA table_info(daily_bonuses);")
-        existing_cols = [row["name"] for row in cursor.fetchall()]
-        if "tailors_reset_offset" not in existing_cols:
-            conn.execute("ALTER TABLE daily_bonuses ADD COLUMN tailors_reset_offset INTEGER NOT NULL DEFAULT 0;")
-        if "deep_boost_reset_offset" not in existing_cols:
-            conn.execute("ALTER TABLE daily_bonuses ADD COLUMN deep_boost_reset_offset INTEGER NOT NULL DEFAULT 0;")
+        if conn._is_pg:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    google_id TEXT PRIMARY KEY,
+                    email TEXT NOT NULL,
+                    name TEXT,
+                    picture TEXT,
+                    created_at TEXT NOT NULL,
+                    last_login TEXT NOT NULL
+                );
+            """)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS sessions (
+                    session_token TEXT PRIMARY KEY,
+                    google_id TEXT NOT NULL REFERENCES users (google_id) ON DELETE CASCADE,
+                    created_at TEXT NOT NULL,
+                    expires_at TEXT NOT NULL
+                );
+            """)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS user_profiles (
+                    google_id TEXT PRIMARY KEY REFERENCES users (google_id) ON DELETE CASCADE,
+                    profile_json TEXT NOT NULL,
+                    is_active INTEGER NOT NULL DEFAULT 1,
+                    updated_at TEXT NOT NULL
+                );
+            """)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS user_base_resumes (
+                    google_id TEXT PRIMARY KEY REFERENCES users (google_id) ON DELETE CASCADE,
+                    filename TEXT NOT NULL,
+                    file_path TEXT NOT NULL,
+                    file_ext TEXT NOT NULL,
+                    file_bytes BYTEA,
+                    is_active INTEGER NOT NULL DEFAULT 1,
+                    updated_at TEXT NOT NULL
+                );
+            """)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS daily_usage (
+                    identifier TEXT NOT NULL,
+                    usage_date TEXT NOT NULL,
+                    count INTEGER NOT NULL DEFAULT 0,
+                    PRIMARY KEY (identifier, usage_date)
+                );
+            """)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS daily_bonuses (
+                    identifier TEXT NOT NULL,
+                    usage_date TEXT NOT NULL,
+                    bonus_tailors INTEGER NOT NULL DEFAULT 0,
+                    bonus_deep_boosts INTEGER NOT NULL DEFAULT 0,
+                    tailors_reset_offset INTEGER NOT NULL DEFAULT 0,
+                    deep_boost_reset_offset INTEGER NOT NULL DEFAULT 0,
+                    PRIMARY KEY (identifier, usage_date)
+                );
+            """)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS tailor_runs (
+                    id SERIAL PRIMARY KEY,
+                    run_date TEXT NOT NULL,
+                    run_time TEXT NOT NULL,
+                    identifier TEXT NOT NULL,
+                    google_id TEXT,
+                    client_ip TEXT NOT NULL,
+                    is_deep_boost INTEGER NOT NULL DEFAULT 0
+                );
+            """)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS user_ips (
+                    google_id TEXT NOT NULL REFERENCES users (google_id) ON DELETE CASCADE,
+                    ip_address TEXT NOT NULL,
+                    last_seen TEXT NOT NULL,
+                    PRIMARY KEY (google_id, ip_address)
+                );
+            """)
+        else:
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    google_id TEXT PRIMARY KEY,
+                    email TEXT NOT NULL,
+                    name TEXT,
+                    picture TEXT,
+                    created_at TEXT NOT NULL,
+                    last_login TEXT NOT NULL
+                );
+            """)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS sessions (
+                    session_token TEXT PRIMARY KEY,
+                    google_id TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    expires_at TEXT NOT NULL,
+                    FOREIGN KEY (google_id) REFERENCES users (google_id) ON DELETE CASCADE
+                );
+            """)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS user_profiles (
+                    google_id TEXT PRIMARY KEY,
+                    profile_json TEXT NOT NULL,
+                    is_active INTEGER NOT NULL DEFAULT 1,
+                    updated_at TEXT NOT NULL,
+                    FOREIGN KEY (google_id) REFERENCES users (google_id) ON DELETE CASCADE
+                );
+            """)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS user_base_resumes (
+                    google_id TEXT PRIMARY KEY,
+                    filename TEXT NOT NULL,
+                    file_path TEXT NOT NULL,
+                    file_ext TEXT NOT NULL,
+                    file_bytes BLOB,
+                    is_active INTEGER NOT NULL DEFAULT 1,
+                    updated_at TEXT NOT NULL,
+                    FOREIGN KEY (google_id) REFERENCES users (google_id) ON DELETE CASCADE
+                );
+            """)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS daily_usage (
+                    identifier TEXT NOT NULL,
+                    usage_date TEXT NOT NULL,
+                    count INTEGER NOT NULL DEFAULT 0,
+                    PRIMARY KEY (identifier, usage_date)
+                );
+            """)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS daily_bonuses (
+                    identifier TEXT NOT NULL,
+                    usage_date TEXT NOT NULL,
+                    bonus_tailors INTEGER NOT NULL DEFAULT 0,
+                    bonus_deep_boosts INTEGER NOT NULL DEFAULT 0,
+                    tailors_reset_offset INTEGER NOT NULL DEFAULT 0,
+                    deep_boost_reset_offset INTEGER NOT NULL DEFAULT 0,
+                    PRIMARY KEY (identifier, usage_date)
+                );
+            """)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS tailor_runs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    run_date TEXT NOT NULL,
+                    run_time TEXT NOT NULL,
+                    identifier TEXT NOT NULL,
+                    google_id TEXT,
+                    client_ip TEXT NOT NULL,
+                    is_deep_boost INTEGER NOT NULL DEFAULT 0
+                );
+            """)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS user_ips (
+                    google_id TEXT NOT NULL,
+                    ip_address TEXT NOT NULL,
+                    last_seen TEXT NOT NULL,
+                    PRIMARY KEY (google_id, ip_address),
+                    FOREIGN KEY (google_id) REFERENCES users (google_id) ON DELETE CASCADE
+                );
+            """)
+            # Ensure migration columns exist on daily_bonuses
+            cursor = conn.execute("PRAGMA table_info(daily_bonuses);")
+            existing_cols = [row["name"] for row in cursor.fetchall()]
+            if "tailors_reset_offset" not in existing_cols:
+                conn.execute("ALTER TABLE daily_bonuses ADD COLUMN tailors_reset_offset INTEGER NOT NULL DEFAULT 0;")
+            if "deep_boost_reset_offset" not in existing_cols:
+                conn.execute("ALTER TABLE daily_bonuses ADD COLUMN deep_boost_reset_offset INTEGER NOT NULL DEFAULT 0;")
+
+            # Ensure migration column exists on user_base_resumes
+            cursor_base = conn.execute("PRAGMA table_info(user_base_resumes);")
+            existing_base_cols = [row["name"] for row in cursor_base.fetchall()]
+            if "file_bytes" not in existing_base_cols:
+                conn.execute("ALTER TABLE user_base_resumes ADD COLUMN file_bytes BLOB;")
     conn.close()
 
 
@@ -262,13 +470,25 @@ def delete_user_profile(google_id: str) -> None:
 def get_user_base_resume(google_id: str) -> Optional[dict[str, Any]]:
     conn = get_db_connection()
     row = conn.execute(
-        "SELECT filename, file_path, file_ext, is_active, updated_at FROM user_base_resumes WHERE google_id = ?",
+        "SELECT filename, file_path, file_ext, file_bytes, is_active, updated_at FROM user_base_resumes WHERE google_id = ?",
         (google_id,)
     ).fetchone()
     conn.close()
     if not row:
         return None
     file_path = Path(row["file_path"])
+    raw_bytes = row.get("file_bytes")
+    file_bytes = bytes(raw_bytes) if raw_bytes else None
+
+    # If the local file does not exist on this machine/container, reconstruct it from DB bytes!
+    if not file_path.exists() and file_bytes:
+        USER_RESUMES_DIR.mkdir(parents=True, exist_ok=True)
+        file_path = USER_RESUMES_DIR / f"{google_id}_base{row['file_ext']}"
+        try:
+            file_path.write_bytes(file_bytes)
+        except Exception:
+            pass
+
     if not file_path.exists():
         return None
     return {
@@ -281,21 +501,35 @@ def get_user_base_resume(google_id: str) -> Optional[dict[str, Any]]:
 
 
 def save_user_base_resume(
-    google_id: str, filename: str, file_path: str, file_ext: str, is_active: bool = True
+    google_id: str,
+    filename: str,
+    file_path: str,
+    file_ext: str,
+    is_active: bool = True,
+    file_bytes: Optional[bytes] = None,
 ) -> None:
     now = datetime.utcnow().isoformat()
+    if file_bytes is None and Path(file_path).exists():
+        try:
+            file_bytes = Path(file_path).read_bytes()
+        except Exception:
+            pass
+
     conn = get_db_connection()
+    binary_data = psycopg2.Binary(file_bytes) if (conn._is_pg and file_bytes) else file_bytes
+
     with conn:
         conn.execute("""
-            INSERT INTO user_base_resumes (google_id, filename, file_path, file_ext, is_active, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO user_base_resumes (google_id, filename, file_path, file_ext, file_bytes, is_active, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(google_id) DO UPDATE SET
                 filename = excluded.filename,
                 file_path = excluded.file_path,
                 file_ext = excluded.file_ext,
+                file_bytes = excluded.file_bytes,
                 is_active = excluded.is_active,
                 updated_at = excluded.updated_at;
-        """, (google_id, filename, file_path, file_ext, 1 if is_active else 0, now))
+        """, (google_id, filename, file_path, file_ext, binary_data, 1 if is_active else 0, now))
     conn.close()
 
 

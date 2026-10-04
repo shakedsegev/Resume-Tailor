@@ -95,6 +95,38 @@ def test_database_base_resume(tmp_path):
     assert get_user_base_resume(test_gid) is None
 
 
+def test_database_base_resume_auto_reconstruction(tmp_path):
+    test_gid = "test_reconstruct_user_123"
+    upsert_user(test_gid, "reconstruct@example.com")
+
+    dummy_file = tmp_path / "cloud_base.pdf"
+    dummy_file.write_text("precious resume content across reboots")
+
+    save_user_base_resume(
+        google_id=test_gid,
+        filename="cloud_base.pdf",
+        file_path=str(dummy_file),
+        file_ext=".pdf",
+        is_active=True,
+    )
+
+    # Simulate container rebuild / wiped ephemeral disk:
+    dummy_file.unlink()
+    assert not dummy_file.exists()
+
+    # get_user_base_resume should seamlessly reconstruct the file from DB bytes!
+    base = get_user_base_resume(test_gid)
+    assert base is not None
+    assert base["filename"] == "cloud_base.pdf"
+    reconstructed_path = Path(base["file_path"])
+    assert reconstructed_path.exists()
+    assert reconstructed_path.read_text() == "precious resume content across reboots"
+
+    # Clean up
+    delete_user_base_resume(test_gid)
+    assert get_user_base_resume(test_gid) is None
+
+
 def test_auth_config_endpoint():
     res = client.get("/api/auth/config")
     assert res.status_code == 200
