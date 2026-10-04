@@ -3734,19 +3734,19 @@
       }
     };
 
-    btnSignOut?.addEventListener('click', async () => {
-      // Subtle 150ms fade transition for clean visual feedback of signing out
-      document.body.classList.add('transition-opacity', 'duration-150', 'opacity-30');
-      try {
-        await fetch('/api/auth/logout', { method: 'POST', headers: authHeaders() });
-      } catch (_) {}
-      if (typeof clearUserSessionData === 'function') {
-        clearUserSessionData(getActiveUserScopeKey());
-      }
-      if (typeof resetTailorUI === 'function') {
-        resetTailorUI();
-      }
+    btnSignOut?.addEventListener('click', () => {
+      const logoutHeaders = authHeaders();
+      const prevScope = typeof getActiveUserScopeKey === 'function' ? getActiveUserScopeKey() : null;
+
+      // 1. Instantly clear auth session and disable auto-select
       localStorage.removeItem('resume_tailor_session');
+      if (window.google?.accounts?.id) {
+        try {
+          google.accounts.id.disableAutoSelect();
+        } catch (_) {}
+      }
+
+      // 2. Clear user and profile state immediately
       currentUser = null;
       savedBaseResume = null;
       isSavedBaseResumeActive = false;
@@ -3764,8 +3764,20 @@
       if (dropzone) dropzone.classList.remove('hidden');
       localStorage.removeItem('rt_local_profile');
       localStorage.removeItem('rt_local_base_resume');
-      updateProfileDisplay();
-      updateBaseResumeDisplay();
+
+      if (typeof clearUserSessionData === 'function') {
+        clearUserSessionData(prevScope);
+      }
+      if (typeof resetTailorUI === 'function') {
+        resetTailorUI();
+      }
+
+      // 3. Immediately switch views synchronously (avatar disappears instantly, Google button appears)
+      loggedInView?.classList.add('hidden');
+      loggedOutView?.classList.remove('hidden');
+      adminPersonaView?.classList.add('hidden');
+
+      // 4. Update rate limit badge immediately for guest
       try {
         const cached = localStorage.getItem('rt_last_rate_limit');
         if (cached) {
@@ -3781,14 +3793,18 @@
       } catch (_) {
         updateRateLimitBadge({ remaining: 2, limit: 2, used: 0, is_authenticated: false });
       }
-      if (window.google?.accounts?.id) {
-        google.accounts.id.disableAutoSelect();
-      }
-      await checkAuthStatus();
-      setTimeout(renderAllGoogleButtons, 100);
-      setTimeout(() => {
-        document.body.classList.remove('opacity-30');
-      }, 150);
+
+      // 5. Update components and render buttons immediately
+      updateProfileDisplay();
+      updateBaseResumeDisplay();
+      renderAllGoogleButtons();
+
+      // 6. Notify backend in background & sync guest status non-blockingly
+      fetch('/api/auth/logout', { method: 'POST', headers: logoutHeaders })
+        .catch(() => {})
+        .finally(() => {
+          checkAuthStatus(false);
+        });
     });
 
     // Admin Master Login Modal Handling
