@@ -52,6 +52,8 @@ from src.database import (
     admin_adjust_deep_boost,
     get_system_stats,
     ADMIN_GOOGLE_ID,
+    link_user_ip,
+    record_tailor_run,
 )
 
 # pyrefly: ignore [missing-import]
@@ -157,7 +159,7 @@ class AdminIdentifierPayload(BaseModel):
 
 class AdminAddTailorsPayload(BaseModel):
     identifier: str
-    count: int = 3
+    count: int = 1
 
 
 class AdminResetDeepBoostPayload(BaseModel):
@@ -305,6 +307,7 @@ async def auth_google(payload: GoogleAuthPayload, request: Request):
         saved_profile = get_user_profile(google_id)
         saved_base = get_user_base_resume(google_id)
         client_ip = get_client_ip(request)
+        link_user_ip(google_id, client_ip)
         limit_info = check_rate_limit(f"user:{google_id}", is_authenticated=True, client_ip=client_ip)
 
         return JSONResponse(
@@ -338,6 +341,8 @@ async def get_current_user_info(request: Request):
     user = get_current_user_optional(request)
     client_ip = get_client_ip(request)
     if user:
+        if not user.get("is_admin"):
+            link_user_ip(user["google_id"], client_ip)
         identifier = f"user:{user['google_id']}"
         limit_info = check_rate_limit(identifier, is_authenticated=True, client_ip=client_ip)
         saved_profile = get_user_profile(user["google_id"])
@@ -625,6 +630,7 @@ async def tailor_resume_endpoint(
     format_strategy: str = Form("auto"),
     tournament_passes: int = Form(2),
     use_saved_base: bool = Form(False),
+    existing_job_id: Optional[str] = Form(None),
 ):
     """
     Universal Tailoring Pipeline:
@@ -695,6 +701,18 @@ async def tailor_resume_endpoint(
             raise HTTPException(
                 status_code=400,
                 detail="No active base resume found in your account. Please upload a resume file."
+            )
+    elif existing_job_id:
+        existing_matches = list(UPLOADS_DIR.glob(f"{existing_job_id}.*"))
+        if existing_matches and existing_matches[0].exists():
+            existing_path = existing_matches[0]
+            file_ext = existing_path.suffix.lower() or ".pdf"
+            dest_path = UPLOADS_DIR / f"{job_id}{file_ext}"
+            dest_path.write_bytes(existing_path.read_bytes())
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="Original resume file not found for this session. Please upload your resume file."
             )
     else:
         raise HTTPException(status_code=400, detail="Please upload your resume file.")
@@ -841,13 +859,27 @@ async def tailor_resume_endpoint(
                 ats_resume.model_dump_json(indent=2), encoding="utf-8"
             )
 
+            if user and not is_admin:
+                link_user_ip(user["google_id"], client_ip)
+
             if not is_admin:
                 if tournament_passes == 5 and user:
                     increment_deep_boost_usage(user["google_id"])
                 else:
                     increment_daily_usage(identifier)
-                    if user and client_ip:
-                        increment_daily_usage(f"ip:{client_ip}")
+                record_tailor_run(
+                    identifier=identifier,
+                    client_ip=client_ip,
+                    google_id=user["google_id"] if user else None,
+                    is_deep_boost=(tournament_passes == 5),
+                )
+            else:
+                record_tailor_run(
+                    identifier=f"user:{ADMIN_GOOGLE_ID}",
+                    client_ip=client_ip,
+                    google_id=ADMIN_GOOGLE_ID,
+                    is_deep_boost=(tournament_passes == 5),
+                )
             limit_status = check_rate_limit(identifier, is_authenticated=is_auth, client_ip=client_ip)
             return JSONResponse(
                 content={
@@ -921,13 +953,27 @@ async def tailor_resume_endpoint(
         jd_text.strip(), encoding="utf-8"
     )
 
+    if user and not is_admin:
+        link_user_ip(user["google_id"], client_ip)
+
     if not is_admin:
         if tournament_passes == 5 and user:
             increment_deep_boost_usage(user["google_id"])
         else:
             increment_daily_usage(identifier)
-            if user and client_ip:
-                increment_daily_usage(f"ip:{client_ip}")
+        record_tailor_run(
+            identifier=identifier,
+            client_ip=client_ip,
+            google_id=user["google_id"] if user else None,
+            is_deep_boost=(tournament_passes == 5),
+        )
+    else:
+        record_tailor_run(
+            identifier=f"user:{ADMIN_GOOGLE_ID}",
+            client_ip=client_ip,
+            google_id=ADMIN_GOOGLE_ID,
+            is_deep_boost=(tournament_passes == 5),
+        )
     limit_status = check_rate_limit(identifier, is_authenticated=is_auth, client_ip=client_ip)
     return JSONResponse(
         content={

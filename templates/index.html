@@ -328,6 +328,25 @@
       background-color: rgba(16, 185, 129, 0.2) !important;
       color: #6ee7b7 !important;
     }
+    html.dark #savedBaseResumePausedBanner {
+      background-color: rgba(120, 53, 15, 0.25) !important;
+      border-color: rgba(245, 158, 11, 0.35) !important;
+    }
+    html.dark #savedBaseResumePausedName {
+      color: #fde68a !important;
+    }
+    html.dark #savedBaseResumePausedBanner p {
+      color: #fcd34d !important;
+    }
+    html.dark #btnStep1EnableBaseResume {
+      background-color: #1e293b !important;
+      border-color: rgba(245, 158, 11, 0.4) !important;
+      color: #fbbf24 !important;
+    }
+    html.dark #btnStep1EnableBaseResume:hover {
+      background-color: rgba(245, 158, 11, 0.2) !important;
+      color: #fde68a !important;
+    }
     html.dark #baseResumeGuestCard {
       background-color: #1e293b !important;
       border-color: #334155 !important;
@@ -405,6 +424,17 @@
             </div>
             <button id="btnSignOut" type="button" class="text-xs text-slate-500 hover:text-rose-600 font-semibold px-1.5 py-1 rounded-lg transition-colors cursor-pointer whitespace-nowrap" title="Sign Out" data-i18n="btn_sign_out" data-i18n-title="btn_sign_out">
               Sign Out
+            </button>
+          </div>
+
+          <!-- Admin Persona Active View -->
+          <div id="adminPersonaView" class="hidden flex items-center space-x-2">
+            <div class="flex items-center space-x-1.5 bg-amber-50 dark:bg-amber-950/60 py-1 px-2.5 rounded-xl border border-amber-300 dark:border-amber-700 shadow-2xs">
+              <span class="text-xs">👑</span>
+              <span class="text-xs font-bold text-amber-800 dark:text-amber-200">Admin Mode</span>
+            </div>
+            <button id="btnExitAdminPersona" type="button" class="text-xs text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 font-semibold px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer whitespace-nowrap" title="Exit Admin Persona and return to your Google account">
+              Exit Admin
             </button>
           </div>
         </div>
@@ -543,6 +573,24 @@
                     Toggle Off
                   </button>
                 </div>
+              </div>
+            </div>
+
+            <!-- Saved Base Resume Paused Banner in Step 1 -->
+            <div id="savedBaseResumePausedBanner" class="hidden p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between transition-all">
+              <div class="flex items-center space-x-2.5 overflow-hidden">
+                <span class="text-lg">⏸️</span>
+                <div class="truncate">
+                  <p class="text-xs font-semibold text-amber-900 truncate">
+                    <span data-i18n="base_resume_paused_prefix">Base Resume paused:</span> <span id="savedBaseResumePausedName" class="font-bold">resume.pdf</span>
+                  </p>
+                  <p class="text-[10px] text-amber-700" data-i18n="base_resume_paused_sub">Upload a different file below, or click to use your Base Resume.</p>
+                </div>
+              </div>
+              <div class="flex items-center space-x-1.5 shrink-0">
+                <button type="button" id="btnStep1EnableBaseResume" class="text-[11px] px-2.5 py-1 rounded-lg border border-amber-300 font-semibold bg-white hover:bg-amber-100 text-amber-900 transition-colors cursor-pointer" data-i18n="btn_use_base_resume">
+                  Use Base Resume
+                </button>
               </div>
             </div>
 
@@ -1469,6 +1517,9 @@
         base_resume_dropzone_click: "Click to upload base resume",
         base_resume_active_status: "✅ Active: Used automatically in Step 1",
         base_resume_inactive_status: "⏸️ Inactive: Using manual file upload in Step 1",
+        base_resume_paused_prefix: "Base Resume paused:",
+        base_resume_paused_sub: "Upload a different file below, or click to use your Base Resume.",
+        btn_use_base_resume: "Use Base Resume",
         btn_toggle_off: "Toggle Off",
         btn_toggle_on: "Toggle On",
         btn_delete: "Delete",
@@ -1621,6 +1672,9 @@
         base_resume_dropzone_click: "לחץ להעלאת קורות חיים ראשיים",
         base_resume_active_status: "✅ פעיל: משמש אוטומטית בשלב 1",
         base_resume_inactive_status: "⏸️ מושהה: משתמש בהעלאת קובץ ידנית בשלב 1",
+        base_resume_paused_prefix: "קורות חיים ראשיים מושהים:",
+        base_resume_paused_sub: "העלה קובץ אחר למטה, או לחץ כדי להשתמש בקורות החיים הראשיים.",
+        btn_use_base_resume: "השתמש בקורות חיים ראשיים",
         btn_toggle_off: "השבת",
         btn_toggle_on: "הפעל",
         btn_delete: "מחק",
@@ -1772,6 +1826,9 @@
         base_resume_dropzone_click: "Haga clic para subir currículum base",
         base_resume_active_status: "✅ Activo: Se usa automáticamente en el Paso 1",
         base_resume_inactive_status: "⏸️ Inactivo: Usando subida manual de archivo en Paso 1",
+        base_resume_paused_prefix: "Currículum Base pausado:",
+        base_resume_paused_sub: "Suba un archivo diferente a continuación, o haga clic para usar su currículum base.",
+        btn_use_base_resume: "Usar Currículum Base",
         btn_toggle_off: "Desactivar",
         btn_toggle_on: "Activar",
         btn_delete: "Eliminar",
@@ -1924,6 +1981,9 @@
         base_resume_dropzone_click: "点击上传基准简历",
         base_resume_active_status: "✅ 已激活：将在步骤 1 中自动使用",
         base_resume_inactive_status: "⏸️ 已暂停：将在步骤 1 中使用手动文件上传",
+        base_resume_paused_prefix: "基准简历已暂停：",
+        base_resume_paused_sub: "在下方上传其他文件，或点击使用基准简历。",
+        btn_use_base_resume: "使用基准简历",
         btn_toggle_off: "停用",
         btn_toggle_on: "启用",
         btn_delete: "删除",
@@ -2076,6 +2136,9 @@
         base_resume_dropzone_click: "انقر لرفع السيرة الذاتية الأساسية",
         base_resume_active_status: "✅ نشط: يُستخدم تلقائيًا في الخطوة 1",
         base_resume_inactive_status: "⏸️ معطل: يتم استخدام الرفع اليدوي في الخطوة 1",
+        base_resume_paused_prefix: "السيرة الذاتية الأساسية معلقة:",
+        base_resume_paused_sub: "ارفع ملفاً مختلفاً أدناه، أو انقر لاستخدام سيرتك الذاتية الأساسية.",
+        btn_use_base_resume: "استخدام السيرة الأساسية",
         btn_toggle_off: "تعطيل",
         btn_toggle_on: "تفعيل",
         btn_delete: "حذف",
@@ -2228,6 +2291,9 @@
         base_resume_dropzone_click: "Cliquez pour téléverser votre CV de base",
         base_resume_active_status: "✅ Actif : Utilisé automatiquement à l'Étape 1",
         base_resume_inactive_status: "⏸️ Inactif : Utilisation du téléversement manuel à l'Étape 1",
+        base_resume_paused_prefix: "CV de Base suspendu :",
+        base_resume_paused_sub: "Téléversez un autre fichier ci-dessous, ou cliquez pour utiliser votre CV de base.",
+        btn_use_base_resume: "Utiliser le CV de Base",
         btn_toggle_off: "Désactiver",
         btn_toggle_on: "Activer",
         btn_delete: "Supprimer",
@@ -2380,6 +2446,9 @@
         base_resume_dropzone_click: "Klicken, um Basis-Lebenslauf hochzuladen",
         base_resume_active_status: "✅ Aktiv: Wird automatisch in Schritt 1 verwendet",
         base_resume_inactive_status: "⏸️ Inaktiv: Manueller Datei-Upload in Schritt 1 aktiv",
+        base_resume_paused_prefix: "Basis-Lebenslauf pausiert:",
+        base_resume_paused_sub: "Laden Sie unten eine andere Datei hoch oder klicken Sie, um Ihren Basis-Lebenslauf zu verwenden.",
+        btn_use_base_resume: "Basis-Lebenslauf verwenden",
         btn_toggle_off: "Deaktivieren",
         btn_toggle_on: "Aktivieren",
         btn_delete: "Löschen",
@@ -2758,6 +2827,9 @@
     const savedBaseResumeActiveCard = document.getElementById('savedBaseResumeActiveCard');
     const savedBaseResumeActiveName = document.getElementById('savedBaseResumeActiveName');
     const btnStep1ToggleBaseResume = document.getElementById('btnStep1ToggleBaseResume');
+    const savedBaseResumePausedBanner = document.getElementById('savedBaseResumePausedBanner');
+    const savedBaseResumePausedName = document.getElementById('savedBaseResumePausedName');
+    const btnStep1EnableBaseResume = document.getElementById('btnStep1EnableBaseResume');
 
     function renderNavGoogleButton() {
       if (!window.google?.accounts?.id || currentUser) return;
@@ -2901,25 +2973,50 @@
         }
       }
 
-      // 2. Step 1 Isolation: strictly hide manual upload when Base Resume is active
+      // 2. Step 1: Base Resume vs. Manual Upload Isolation
       if (savedBaseResume && isSavedBaseResumeActive) {
+        // Active Base Resume: Show ONLY Base Resume Card; Hide paused banner, dropzone, and fileStatusCard
         savedBaseResumeActiveCard?.classList.remove('hidden');
+        savedBaseResumePausedBanner?.classList.add('hidden');
         if (savedBaseResumeActiveName) savedBaseResumeActiveName.textContent = savedBaseResume.filename;
         if (btnStep1ToggleBaseResume) btnStep1ToggleBaseResume.textContent = window.t('btn_toggle_off', "Toggle Off");
 
-        // Strictly hide dropzone & manual card
         dropzone?.classList.add('hidden');
         fileStatusCard?.classList.add('hidden');
 
         btnSubmit.disabled = false;
         btnSubmit.classList.remove('opacity-70', 'cursor-not-allowed');
       } else {
+        // Base Resume Inactive (or user has no base resume)
         savedBaseResumeActiveCard?.classList.add('hidden');
-        if (selectedFile) {
+
+        if (savedBaseResume) {
+          savedBaseResumePausedBanner?.classList.remove('hidden');
+          if (savedBaseResumePausedName) savedBaseResumePausedName.textContent = savedBaseResume.filename;
+        } else {
+          savedBaseResumePausedBanner?.classList.add('hidden');
+        }
+
+        const activeSessionData = (typeof getUserSessionData === 'function') ? getUserSessionData() : null;
+        const sessionUsedBaseResume = activeSessionData ? (activeSessionData.used_base_resume ?? (savedBaseResume && activeSessionData.filename === savedBaseResume.filename)) : false;
+        const hasManualSessionFile = Boolean(activeSessionData && !sessionUsedBaseResume && activeSessionData.filename);
+        const hasManualResume = Boolean(selectedFile || hasManualSessionFile);
+
+        if (hasManualResume) {
           fileStatusCard?.classList.remove('hidden');
           dropzone?.classList.add('hidden');
           btnSubmit.disabled = false;
           btnSubmit.classList.remove('opacity-70', 'cursor-not-allowed');
+          if (fileName) {
+            fileName.textContent = selectedFile ? selectedFile.name : (activeSessionData?.filename || 'resume.pdf');
+          }
+          if (fileSize) {
+            if (selectedFile) {
+              fileSize.textContent = `${(selectedFile.size / 1024).toFixed(1)} KB`;
+            } else {
+              fileSize.textContent = 'Session File';
+            }
+          }
         } else {
           dropzone?.classList.remove('hidden');
           fileStatusCard?.classList.add('hidden');
@@ -2997,6 +3094,18 @@
       } catch (_) {}
     });
 
+    btnStep1EnableBaseResume?.addEventListener('click', async () => {
+      isSavedBaseResumeActive = true;
+      updateBaseResumeDisplay();
+      try {
+        await fetch('/api/user/base-resume/toggle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify({ is_active: true })
+        });
+      } catch (_) {}
+    });
+
     btnDeleteBaseResume?.addEventListener('click', async () => {
       if (!savedBaseResume) return;
       if (confirm(window.t('confirm_delete_base_resume', "Are you sure you want to delete your saved base resume?"))) {
@@ -3014,18 +3123,39 @@
       }
     });
 
+    const adminPersonaView = document.getElementById('adminPersonaView');
+    const btnExitAdminPersona = document.getElementById('btnExitAdminPersona');
+
+    btnExitAdminPersona?.addEventListener('click', async () => {
+      btnExitAdminPersona.disabled = true;
+      try {
+        const backupToken = localStorage.getItem('resume_tailor_user_session_backup');
+        if (backupToken) {
+          localStorage.setItem('resume_tailor_session', backupToken);
+          localStorage.removeItem('resume_tailor_user_session_backup');
+        } else {
+          localStorage.removeItem('resume_tailor_session');
+        }
+        await checkAuthStatus();
+      } finally {
+        btnExitAdminPersona.disabled = false;
+      }
+    });
+
     function applyAuthState(data) {
       if (data && data.is_authenticated) {
         currentUser = data.user;
         if (currentUser && currentUser.is_admin) {
-          // Admin Mode: Hide Google Sign-in, User pill, and Quota badge
+          // Admin Mode: Hide Google Sign-in, User pill, and Quota badge; show Admin Persona badge
           loggedOutView?.classList.add('hidden');
           loggedInView?.classList.add('hidden');
+          adminPersonaView?.classList.remove('hidden');
           rateLimitBadge?.classList.add('hidden');
           rateLimitBadge?.classList.remove('flex');
         } else {
           loggedOutView?.classList.add('hidden');
           loggedInView?.classList.remove('hidden');
+          adminPersonaView?.classList.add('hidden');
           if (userName) userName.textContent = currentUser.name || currentUser.email;
           if (userAvatar) {
             userAvatar.src = currentUser.picture || 'https://www.gravatar.com/avatar/?d=mp';
@@ -3057,19 +3187,24 @@
         if (data.has_base_resume && data.base_resume) {
           savedBaseResume = data.base_resume;
           isSavedBaseResumeActive = data.base_resume.is_active !== false;
-          updateBaseResumeDisplay();
         } else {
           savedBaseResume = null;
           isSavedBaseResumeActive = false;
-          updateBaseResumeDisplay();
         }
       } else {
         currentUser = null;
         loggedOutView?.classList.remove('hidden');
         loggedInView?.classList.add('hidden');
+        adminPersonaView?.classList.add('hidden');
         if (data && data.rate_limit) updateRateLimitBadge(data.rate_limit);
         savedBaseResume = null;
         isSavedBaseResumeActive = false;
+      }
+
+      // Synchronize session tailored resume and Step 1 display for current user
+      if (typeof restoreUserSession === 'function') {
+        restoreUserSession();
+      } else {
         updateBaseResumeDisplay();
       }
     }
@@ -3080,6 +3215,8 @@
         if (res.ok) {
           const data = await res.json();
           applyAuthState(data);
+        } else {
+          applyAuthState({ is_authenticated: false });
         }
       } catch (err) {
         console.warn("Auth check notice:", err);
@@ -3113,6 +3250,12 @@
       try {
         await fetch('/api/auth/logout', { method: 'POST', headers: authHeaders() });
       } catch (_) {}
+      if (typeof clearUserSessionData === 'function') {
+        clearUserSessionData(getActiveUserScopeKey());
+      }
+      if (typeof resetTailorUI === 'function') {
+        resetTailorUI();
+      }
       localStorage.removeItem('resume_tailor_session');
       currentUser = null;
       savedBaseResume = null;
@@ -3152,7 +3295,10 @@
     const btnSubmitAdminLogin = document.getElementById('btnSubmitAdminLogin');
 
     btnAdminPanelNav?.addEventListener('click', () => {
-      if (currentUser && currentUser.is_admin) {
+      const adminToken = localStorage.getItem('resume_tailor_admin_session');
+      const unlockedAt = parseInt(localStorage.getItem('admin_panel_unlocked_at') || '0', 10);
+      const isUnlocked = Boolean(adminToken && unlockedAt && (Date.now() - unlockedAt < 3600000));
+      if (isUnlocked) {
         window.location.href = '/admin';
       } else {
         modalAdminKeyInput.value = '';
@@ -3194,7 +3340,9 @@
           return;
         }
         const data = await res.json();
-        localStorage.setItem('resume_tailor_session', data.session_token);
+        // Save admin token and 1-hour unlock timestamp
+        localStorage.setItem('resume_tailor_admin_session', data.session_token);
+        localStorage.setItem('admin_panel_unlocked_at', Date.now().toString());
         adminLoginModal.classList.add('hidden');
         window.location.href = '/admin';
       } catch (err) {
@@ -3210,6 +3358,7 @@
     window.addEventListener('storage', (e) => {
       if (e.key === 'resume_tailor_session') {
         checkAuthStatus();
+        setTimeout(renderAllGoogleButtons, 120);
       }
     });
 
@@ -3562,16 +3711,22 @@
     btnRemoveFile.addEventListener('click', () => {
       selectedFile = null;
       resumeFileInput.value = '';
-      btnSubmit.disabled = false;
-      btnSubmit.classList.remove('opacity-70', 'cursor-not-allowed');
-      dropzone.classList.remove('hidden');
-      fileStatusCard.classList.add('hidden');
+      const activeSessionData = (typeof getUserSessionData === 'function') ? getUserSessionData() : null;
+      if (activeSessionData) {
+        activeSessionData.filename = null;
+        try {
+          const scopeKey = getActiveUserScopeKey();
+          const storageKey = getUserSessionStorageKey(scopeKey);
+          localStorage.setItem(storageKey, JSON.stringify(activeSessionData));
+        } catch (_) {}
+      }
       atsAdvisoryCard.classList.add('hidden');
       atsRiskList.innerHTML = '';
       atsRiskList.classList.add('hidden');
       atsStrategyChooser.classList.add('hidden');
       preserveDesignOption.classList.add('hidden');
       strategyAts.checked = true;
+      updateBaseResumeDisplay();
     });
 
     function escapeHtml(str) {
@@ -3997,7 +4152,10 @@
     });
 
     async function runTailoring(tournamentPasses = 2) {
-      if (!selectedFile && !(savedBaseResume && isSavedBaseResumeActive)) {
+      const hasBase = Boolean(savedBaseResume && isSavedBaseResumeActive);
+      const hasExistingJob = Boolean(lastTailoredData && lastTailoredData.job_id);
+
+      if (!selectedFile && !hasBase && !hasExistingJob) {
         alert(window.t('alert_no_resume_file', "Please select or upload your resume file in Step 1, or activate your Base Resume in the Master Profile tab."));
         dropzone.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
@@ -4022,8 +4180,12 @@
       }
 
       const formData = new FormData();
-      if (selectedFile) {
+      if (tournamentPasses === 5 && hasExistingJob) {
+        formData.append('existing_job_id', lastTailoredData.job_id);
+      } else if (selectedFile) {
         formData.append('resume_file', selectedFile);
+      } else if (hasExistingJob) {
+        formData.append('existing_job_id', lastTailoredData.job_id);
       } else if (savedBaseResume && isSavedBaseResumeActive) {
         formData.append('use_saved_base', 'true');
       }
@@ -4113,14 +4275,166 @@
     const btnViewPdf = document.getElementById('btnViewPdf');
     const btnReset = document.getElementById('btnReset');
 
+    // -----------------------------------------------------------------
+    // Session-Scoped Tailoring State with 10-Minute Inactivity Expiration
+    // -----------------------------------------------------------------
+    const INACTIVITY_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
+
+    function getActiveUserScopeKey() {
+      if (currentUser && currentUser.is_admin) {
+        return 'admin_master';
+      }
+      if (currentUser && currentUser.google_id) {
+        return `user_${currentUser.google_id}`;
+      }
+      return 'guest';
+    }
+
+    function getUserSessionStorageKey(scopeKey = null) {
+      const key = scopeKey || getActiveUserScopeKey();
+      return `resume_tailor_session_data_${key}`;
+    }
+
+    function saveCurrentSessionData(data) {
+      if (!data) return;
+      const scopeKey = getActiveUserScopeKey();
+      const storageKey = getUserSessionStorageKey(scopeKey);
+      const chosenStrategy = document.querySelector('input[name="format_strategy"]:checked')?.value || 'auto';
+      const isBase = Boolean(!selectedFile && savedBaseResume && isSavedBaseResumeActive);
+      const currentFilename = selectedFile?.name || (savedBaseResume && savedBaseResume.filename) || (fileName?.textContent) || (data.filename_base ? `${data.filename_base}.pdf` : null);
+      const savedViewMode = localStorage.getItem('resume_tailor_last_view_mode') || 'diff';
+
+      const sessionObj = {
+        result: data,
+        jd: (jdText ? jdText.value.trim() : ''),
+        strategy: chosenStrategy,
+        filename: currentFilename,
+        used_base_resume: isBase,
+        view_mode: savedViewMode,
+        last_activity: Date.now()
+      };
+
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(sessionObj));
+      } catch (e) {
+        console.warn("Could not save session data:", e);
+      }
+    }
+
+    function getUserSessionData(scopeKey = null) {
+      const storageKey = getUserSessionStorageKey(scopeKey);
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) return null;
+      try {
+        const session = JSON.parse(raw);
+        if (!session || !session.result) {
+          localStorage.removeItem(storageKey);
+          return null;
+        }
+        // Check 10-minute inactivity expiration
+        const lastAct = session.last_activity || 0;
+        if (Date.now() - lastAct >= INACTIVITY_TIMEOUT_MS) {
+          localStorage.removeItem(storageKey);
+          return null;
+        }
+        return session;
+      } catch (_) {
+        localStorage.removeItem(storageKey);
+        return null;
+      }
+    }
+
+    function clearUserSessionData(scopeKey = null) {
+      const storageKey = getUserSessionStorageKey(scopeKey);
+      try {
+        localStorage.removeItem(storageKey);
+      } catch (_) {}
+    }
+
+    let lastActivityTouchTime = 0;
+    function touchUserActivity() {
+      const now = Date.now();
+      if (now - lastActivityTouchTime < 3000) return;
+      lastActivityTouchTime = now;
+      const scopeKey = getActiveUserScopeKey();
+      const storageKey = getUserSessionStorageKey(scopeKey);
+      try {
+        const raw = localStorage.getItem(storageKey);
+        if (!raw) return;
+        const session = JSON.parse(raw);
+        if (session) {
+          session.last_activity = now;
+          localStorage.setItem(storageKey, JSON.stringify(session));
+        }
+      } catch (_) {}
+    }
+
+    ['mousedown', 'keydown', 'scroll', 'touchstart'].forEach(evt => {
+      window.addEventListener(evt, touchUserActivity, { passive: true });
+    });
+
+    function checkInactivityExpiration() {
+      const scopeKey = getActiveUserScopeKey();
+      const storageKey = getUserSessionStorageKey(scopeKey);
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) return;
+      try {
+        const session = JSON.parse(raw);
+        if (session && session.last_activity) {
+          if (Date.now() - session.last_activity >= INACTIVITY_TIMEOUT_MS) {
+            clearUserSessionData(scopeKey);
+            if (lastTailoredData) {
+              resetTailorUI();
+              console.info("Tailored resume session cleared due to 10 minutes of inactivity.");
+            }
+          }
+        }
+      } catch (_) {}
+    }
+
+    setInterval(checkInactivityExpiration, 15000);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) checkInactivityExpiration();
+    });
+    window.addEventListener('focus', checkInactivityExpiration);
+
+    function resetTailorUI() {
+      selectedFile = null;
+      if (resumeFileInput) resumeFileInput.value = '';
+      if (jdText) jdText.value = '';
+      lastTailoredData = null;
+
+      if (atsAdvisoryCard) atsAdvisoryCard.classList.add('hidden');
+      if (atsRiskList) {
+        atsRiskList.innerHTML = '';
+        atsRiskList.classList.add('hidden');
+      }
+      if (atsStrategyChooser) atsStrategyChooser.classList.add('hidden');
+      if (preserveDesignOption) preserveDesignOption.classList.add('hidden');
+      if (strategyAts) strategyAts.checked = true;
+      if (btnDownloadAtsPdf) btnDownloadAtsPdf.classList.add('hidden');
+      if (btnDownloadPptx) btnDownloadPptx.classList.add('hidden');
+      btnEditContent?.classList.remove('hidden');
+      btnRunTournament?.classList.remove('hidden');
+      resultsView?.classList.add('hidden');
+      placeholderView?.classList.remove('hidden');
+      progressCard?.classList.add('hidden');
+      if (progressBar) progressBar.style.width = '0%';
+      if (previewIframe) previewIframe.src = 'about:blank';
+      updateBaseResumeDisplay();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
     btnViewDiff.addEventListener('click', () => {
       btnViewDiff.classList.add('bg-white', 'text-emerald-700', 'shadow-sm');
       btnViewDiff.classList.remove('text-slate-600');
       btnViewPdf.classList.remove('bg-white', 'text-slate-900', 'shadow-sm');
       btnViewPdf.classList.add('text-slate-600');
+      try { localStorage.setItem('resume_tailor_last_view_mode', 'diff'); } catch (_) {}
       if (lastTailoredData?.diff_url) {
         previewIframe.src = `${lastTailoredData.diff_url}?t=${Date.now()}`;
       }
+      touchUserActivity();
     });
 
     btnViewPdf.addEventListener('click', () => {
@@ -4128,9 +4442,11 @@
       btnViewPdf.classList.remove('text-slate-600');
       btnViewDiff.classList.remove('bg-white', 'text-emerald-700', 'shadow-sm');
       btnViewDiff.classList.add('text-slate-600');
+      try { localStorage.setItem('resume_tailor_last_view_mode', 'pdf'); } catch (_) {}
       if (lastTailoredData?.preview_url) {
         previewIframe.src = `${lastTailoredData.preview_url}?t=${Date.now()}#toolbar=0&navpanes=0&view=FitH`;
       }
+      touchUserActivity();
     });
 
     previewIframe?.addEventListener('load', () => {
@@ -4142,39 +4458,25 @@
     });
 
     btnReset.addEventListener('click', () => {
-      selectedFile = null;
-      resumeFileInput.value = '';
-      jdText.value = '';
-      lastTailoredData = null;
-      btnSubmit.disabled = false;
-      btnSubmit.classList.remove('opacity-70', 'cursor-not-allowed');
-      dropzone.classList.remove('hidden');
-      fileStatusCard.classList.add('hidden');
-      atsAdvisoryCard.classList.add('hidden');
-      atsRiskList.innerHTML = '';
-      atsRiskList.classList.add('hidden');
-      atsStrategyChooser.classList.add('hidden');
-      preserveDesignOption.classList.add('hidden');
-      strategyAts.checked = true;
-      btnDownloadAtsPdf.classList.add('hidden');
-      btnDownloadPptx.classList.add('hidden');
-      btnEditContent?.classList.remove('hidden');
-      btnRunTournament?.classList.remove('hidden');
-      resultsView.classList.add('hidden');
-      placeholderView.classList.remove('hidden');
-      progressCard.classList.add('hidden');
-      progressBar.style.width = '0%';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      clearUserSessionData(getActiveUserScopeKey());
+      resetTailorUI();
     });
 
-    function displayResults(data, preferPdf = false) {
+    function displayResults(data, preferPdf = null, updateStorage = true) {
+      if (!data) return;
       lastTailoredData = data;
-      placeholderView.classList.add('hidden');
-      resultsView.classList.remove('hidden');
+      if (updateStorage) {
+        saveCurrentSessionData(data);
+      }
+
+      placeholderView?.classList.add('hidden');
+      resultsView?.classList.remove('hidden');
 
       const fit = data.fit_analysis || {};
       const overall = fit.match_score || 88;
-      matchScoreBadge.textContent = `${overall}% ${window.t('overall_match', 'Overall Match')}`;
+      if (matchScoreBadge) {
+        matchScoreBadge.textContent = `${overall}% ${window.t('overall_match', 'Overall Match')}`;
+      }
 
       // 1. Keyword & Skills Match
       const kwScore = fit.keyword_score != null ? fit.keyword_score : overall;
@@ -4216,67 +4518,122 @@
 
       if (pitchAngleText) pitchAngleText.textContent = fit.pitch_angle || "";
 
-      matchList.innerHTML = '';
-      (fit.match || []).forEach(item => {
-        const li = document.createElement('li');
-        li.textContent = `• ${item}`;
-        matchList.appendChild(li);
-      });
-
-      partialList.innerHTML = '';
-      (fit.partial || []).forEach(item => {
-        const li = document.createElement('li');
-        li.textContent = `• ${item}`;
-        partialList.appendChild(li);
-      });
-
-      gapList.innerHTML = '';
-      (fit.gap || []).forEach(item => {
-        const li = document.createElement('li');
-        li.textContent = `• ${item}`;
-        gapList.appendChild(li);
-      });
-
-      // Choose tab based on preference or availability
-      if (preferPdf || !data.diff_url) {
-        btnViewPdf.click();
-      } else {
-        btnViewDiff.click();
+      if (matchList) {
+        matchList.innerHTML = '';
+        (fit.match || []).forEach(item => {
+          const li = document.createElement('li');
+          li.textContent = `• ${item}`;
+          matchList.appendChild(li);
+        });
       }
-      btnDownloadPdf.href = data.download_url;
-      btnOpenNewTab.href = data.preview_url;
+
+      if (partialList) {
+        partialList.innerHTML = '';
+        (fit.partial || []).forEach(item => {
+          const li = document.createElement('li');
+          li.textContent = `• ${item}`;
+          partialList.appendChild(li);
+        });
+      }
+
+      if (gapList) {
+        gapList.innerHTML = '';
+        (fit.gap || []).forEach(item => {
+          const li = document.createElement('li');
+          li.textContent = `• ${item}`;
+          gapList.appendChild(li);
+        });
+      }
+
+      // Choose tab based on preference or stored preference
+      const savedViewMode = localStorage.getItem('resume_tailor_last_view_mode');
+      const shouldViewPdf = preferPdf === true || (preferPdf === null && savedViewMode === 'pdf') || !data.diff_url;
+      if (shouldViewPdf) {
+        btnViewPdf?.click();
+      } else {
+        btnViewDiff?.click();
+      }
+
+      if (btnDownloadPdf && data.download_url) btnDownloadPdf.href = data.download_url;
+      if (btnOpenNewTab && data.preview_url) btnOpenNewTab.href = data.preview_url;
 
       const isPreserveDesign = data.format_strategy === "preserve_design";
 
       if (isPreserveDesign) {
-        // PPTX Preserved Design Mode: hide ATS download, edit content, and 5-pass tournament
         btnEditContent?.classList.add('hidden');
         btnRunTournament?.classList.add('hidden');
-        btnDownloadAtsPdf.classList.add('hidden');
+        btnDownloadAtsPdf?.classList.add('hidden');
 
         if (data.download_pptx_url) {
-          btnDownloadPptx.href = data.download_pptx_url;
-          btnDownloadPptx.classList.remove('hidden');
+          if (btnDownloadPptx) {
+            btnDownloadPptx.href = data.download_pptx_url;
+            btnDownloadPptx.classList.remove('hidden');
+          }
         } else {
-          btnDownloadPptx.classList.add('hidden');
+          btnDownloadPptx?.classList.add('hidden');
         }
       } else {
-        // ATS Mode (PDF, DOCX, or user-selected ATS Clean): keep all ATS features active
         btnEditContent?.classList.remove('hidden');
         btnRunTournament?.classList.remove('hidden');
-        btnDownloadPptx.classList.add('hidden');
+        btnDownloadPptx?.classList.add('hidden');
 
         if (data.ats_download_url) {
-          btnDownloadAtsPdf.href = data.ats_download_url;
-          btnDownloadAtsPdf.classList.remove('hidden');
+          if (btnDownloadAtsPdf) {
+            btnDownloadAtsPdf.href = data.ats_download_url;
+            btnDownloadAtsPdf.classList.remove('hidden');
+          }
         } else {
-          btnDownloadAtsPdf.classList.add('hidden');
+          btnDownloadAtsPdf?.classList.add('hidden');
         }
       }
     }
 
+    function restoreUserSession() {
+      try {
+        const session = getUserSessionData();
+        if (!session || !session.result) {
+          // No active session for this user: show clean placeholder
+          if (lastTailoredData) {
+            resetTailorUI();
+          } else {
+            updateBaseResumeDisplay();
+          }
+          return;
+        }
+
+        const data = session.result;
+        if (session.jd && jdText) {
+          jdText.value = session.jd;
+        }
+        if (session.strategy) {
+          const stratRadio = document.querySelector(`input[name="format_strategy"][value="${session.strategy}"]`);
+          if (stratRadio) stratRadio.checked = true;
+        }
+        if (fileName) {
+          fileName.textContent = session.filename || (data.filename_base ? `${data.filename_base}.pdf` : 'resume.pdf');
+        }
+
+        // Delegate Step 1 card visibility strictly to updateBaseResumeDisplay
+        updateBaseResumeDisplay();
+
+        const preferPdf = session.view_mode === 'pdf';
+        displayResults(data, preferPdf, false);
+      } catch (e) {
+        console.warn("Could not restore user session:", e);
+      }
+    }
+
+    // Clean up legacy un-scoped session keys once
+    try {
+      localStorage.removeItem('resume_tailor_last_result');
+      localStorage.removeItem('resume_tailor_last_jd');
+      localStorage.removeItem('resume_tailor_last_strategy');
+      localStorage.removeItem('resume_tailor_last_filename');
+    } catch (_) {}
+
     // Initialize localization on load after all DOM elements and state variables are declared
     applyLanguage(currentLanguage);
+    restoreUserSession();
   </script>
 </body>
 </html>

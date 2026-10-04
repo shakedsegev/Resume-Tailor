@@ -13,15 +13,24 @@ from typing import Optional, Any
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
-DB_PATH = DATA_DIR / "resume_tailor.db"
+_DEFAULT_DB_PATH = DATA_DIR / "resume_tailor.db"
 USER_RESUMES_DIR = DATA_DIR / "user_resumes"
 
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 USER_RESUMES_DIR.mkdir(parents=True, exist_ok=True)
 
 
+def get_db_path() -> Path:
+    env_path = os.environ.get("RESUME_TAILOR_DB_PATH")
+    if env_path:
+        p = Path(env_path)
+        p.parent.mkdir(parents=True, exist_ok=True)
+        return p
+    return _DEFAULT_DB_PATH
+
+
 def get_db_connection(db_path: Optional[Path] = None) -> sqlite3.Connection:
-    path = db_path or DB_PATH
+    path = db_path or get_db_path()
     conn = sqlite3.connect(str(path), check_same_thread=False)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL;")
@@ -86,9 +95,38 @@ def init_db(db_path: Optional[Path] = None) -> None:
                 usage_date TEXT NOT NULL,
                 bonus_tailors INTEGER NOT NULL DEFAULT 0,
                 bonus_deep_boosts INTEGER NOT NULL DEFAULT 0,
+                tailors_reset_offset INTEGER NOT NULL DEFAULT 0,
+                deep_boost_reset_offset INTEGER NOT NULL DEFAULT 0,
                 PRIMARY KEY (identifier, usage_date)
             );
         """)
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS tailor_runs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                run_date TEXT NOT NULL,
+                run_time TEXT NOT NULL,
+                identifier TEXT NOT NULL,
+                google_id TEXT,
+                client_ip TEXT NOT NULL,
+                is_deep_boost INTEGER NOT NULL DEFAULT 0
+            );
+        """)
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS user_ips (
+                google_id TEXT NOT NULL,
+                ip_address TEXT NOT NULL,
+                last_seen TEXT NOT NULL,
+                PRIMARY KEY (google_id, ip_address),
+                FOREIGN KEY (google_id) REFERENCES users (google_id) ON DELETE CASCADE
+            );
+        """)
+        # Ensure migration columns exist on daily_bonuses
+        cursor = conn.execute("PRAGMA table_info(daily_bonuses);")
+        existing_cols = [row["name"] for row in cursor.fetchall()]
+        if "tailors_reset_offset" not in existing_cols:
+            conn.execute("ALTER TABLE daily_bonuses ADD COLUMN tailors_reset_offset INTEGER NOT NULL DEFAULT 0;")
+        if "deep_boost_reset_offset" not in existing_cols:
+            conn.execute("ALTER TABLE daily_bonuses ADD COLUMN deep_boost_reset_offset INTEGER NOT NULL DEFAULT 0;")
     conn.close()
 
 
@@ -288,6 +326,72 @@ def delete_user_base_resume(google_id: str) -> None:
     conn.close()
 
 
+# ---------------- USER IP & TELEMETRY METHODS ----------------
+
+def link_user_ip(google_id: str, ip_address: str) -> None:
+    """Links a client IP address to a registered user account."""
+    if not google_id or not ip_address or google_id == ADMIN_GOOGLE_ID:
+        return
+    ip = ip_address.replace("ip:", "").strip()
+    if not ip or ip == "unknown":
+        return
+    now = datetime.utcnow().isoformat()
+    conn = get_db_connection()
+    with conn:
+        conn.execute("""
+            INSERT INTO user_ips (google_id, ip_address, last_seen)
+            VALUES (?, ?, ?)
+            ON CONFLICT(google_id, ip_address) DO UPDATE SET last_seen = excluded.last_seen;
+        """, (google_id, ip, now))
+    conn.close()
+
+
+def get_linked_ips_for_user(google_id: str) -> list[str]:
+    """Returns all client IPs associated with a registered Google user."""
+    conn = get_db_connection()
+    rows = conn.execute(
+        "SELECT ip_address FROM user_ips WHERE google_id = ? ORDER BY last_seen DESC",
+        (google_id,)
+    ).fetchall()
+    conn.close()
+    return [r["ip_address"] for r in rows]
+
+
+def is_ip_linked_to_user(ip_address: str) -> bool:
+    """Checks if a client IP address belongs to any registered user."""
+    ip = ip_address.replace("ip:", "").strip()
+    conn = get_db_connection()
+    row = conn.execute(
+        "SELECT 1 FROM user_ips WHERE ip_address = ?", (ip,)
+    ).fetchone()
+    conn.close()
+    return row is not None
+
+
+def record_tailor_run(
+    identifier: str,
+    client_ip: str,
+    google_id: Optional[str] = None,
+    is_deep_boost: bool = False,
+    date_str: Optional[str] = None,
+) -> None:
+    """
+    Records an immutable telemetry run in tailor_runs.
+    This strictly cumulative data log is NEVER altered by admin resets or bonus adjustments.
+    """
+    now = datetime.utcnow()
+    d = date_str or now.strftime("%Y-%m-%d")
+    t = now.isoformat()
+    clean_ip = client_ip.replace("ip:", "").strip()
+    conn = get_db_connection()
+    with conn:
+        conn.execute("""
+            INSERT INTO tailor_runs (run_date, run_time, identifier, google_id, client_ip, is_deep_boost)
+            VALUES (?, ?, ?, ?, ?, ?);
+        """, (d, t, identifier, google_id, clean_ip, 1 if is_deep_boost else 0))
+    conn.close()
+
+
 # ---------------- DAILY USAGE & RATE LIMITING ----------------
 
 GUEST_DAILY_LIMIT = 2
@@ -330,15 +434,22 @@ def get_daily_bonuses(identifier: str, date_str: Optional[str] = None) -> dict[s
     d = date_str or datetime.utcnow().strftime("%Y-%m-%d")
     conn = get_db_connection()
     row = conn.execute(
-        "SELECT bonus_tailors, bonus_deep_boosts FROM daily_bonuses WHERE identifier = ? AND usage_date = ?",
+        "SELECT bonus_tailors, bonus_deep_boosts, tailors_reset_offset, deep_boost_reset_offset FROM daily_bonuses WHERE identifier = ? AND usage_date = ?",
         (identifier, d)
     ).fetchone()
     conn.close()
     if not row:
-        return {"bonus_tailors": 0, "bonus_deep_boosts": 0}
+        return {
+            "bonus_tailors": 0,
+            "bonus_deep_boosts": 0,
+            "tailors_reset_offset": 0,
+            "deep_boost_reset_offset": 0,
+        }
     return {
         "bonus_tailors": int(row["bonus_tailors"] or 0),
         "bonus_deep_boosts": int(row["bonus_deep_boosts"] or 0),
+        "tailors_reset_offset": int(row["tailors_reset_offset"] or 0),
+        "deep_boost_reset_offset": int(row["deep_boost_reset_offset"] or 0),
     }
 
 
@@ -348,8 +459,8 @@ def admin_adjust_tailors(identifier: str, delta: int, date_str: Optional[str] = 
     conn = get_db_connection()
     with conn:
         conn.execute("""
-            INSERT INTO daily_bonuses (identifier, usage_date, bonus_tailors, bonus_deep_boosts)
-            VALUES (?, ?, ?, 0)
+            INSERT INTO daily_bonuses (identifier, usage_date, bonus_tailors, bonus_deep_boosts, tailors_reset_offset, deep_boost_reset_offset)
+            VALUES (?, ?, ?, 0, 0, 0)
             ON CONFLICT(identifier, usage_date) DO UPDATE SET
                 bonus_tailors = daily_bonuses.bonus_tailors + excluded.bonus_tailors;
         """, (identifier, d, delta))
@@ -365,8 +476,8 @@ def admin_adjust_deep_boost(google_id: str, delta: int, date_str: Optional[str] 
     conn = get_db_connection()
     with conn:
         conn.execute("""
-            INSERT INTO daily_bonuses (identifier, usage_date, bonus_tailors, bonus_deep_boosts)
-            VALUES (?, ?, 0, ?)
+            INSERT INTO daily_bonuses (identifier, usage_date, bonus_tailors, bonus_deep_boosts, tailors_reset_offset, deep_boost_reset_offset)
+            VALUES (?, ?, 0, ?, 0, 0)
             ON CONFLICT(identifier, usage_date) DO UPDATE SET
                 bonus_deep_boosts = daily_bonuses.bonus_deep_boosts + excluded.bonus_deep_boosts;
         """, (identifier, d, delta))
@@ -381,13 +492,15 @@ def check_deep_boost_limit(google_id: str) -> dict[str, Any]:
     if google_id in ("test_user", "mock_google_id_shaked") or os.getenv("TESTING") == "1":
         return {"allowed": True, "used": 0, "limit": 9999, "remaining": 9999}
     identifier = f"user:{google_id}:deep_boost"
-    used = get_daily_usage(identifier)
+    actual_used = get_daily_usage(identifier)
     bonuses = get_daily_bonuses(f"user:{google_id}")
     effective_limit = max(0, USER_DEEP_BOOST_LIMIT + bonuses["bonus_deep_boosts"])
-    remaining = max(0, effective_limit - used)
+    effective_used = max(0, actual_used - bonuses["deep_boost_reset_offset"])
+    remaining = max(0, effective_limit - effective_used)
     return {
         "allowed": remaining > 0,
-        "used": used,
+        "used": actual_used,
+        "effective_used": effective_used,
         "limit": effective_limit,
         "remaining": remaining,
         "bonus": bonuses["bonus_deep_boosts"],
@@ -424,11 +537,19 @@ def check_rate_limit(
     bonuses = get_daily_bonuses(identifier)
     base_limit = USER_DAILY_LIMIT if is_authenticated else GUEST_DAILY_LIMIT
     effective_limit = max(0, base_limit + bonuses["bonus_tailors"])
-    used = get_daily_usage(identifier)
-    if is_authenticated and client_ip:
-        guest_used = get_daily_usage(f"ip:{client_ip}")
-        used = max(used, guest_used)
-    remaining = max(0, effective_limit - used)
+    actual_runs = get_daily_usage(identifier)
+    if is_authenticated and identifier.startswith("user:"):
+        gid = identifier.split("user:")[1]
+        linked_ips = get_linked_ips_for_user(gid)
+        if client_ip and client_ip not in linked_ips:
+            linked_ips.append(client_ip)
+        for ip in linked_ips:
+            guest_used = get_daily_usage(f"ip:{ip}")
+            actual_runs = max(actual_runs, guest_used)
+    elif not is_authenticated and client_ip:
+        actual_runs = max(actual_runs, get_daily_usage(f"ip:{client_ip}"))
+    effective_used = max(0, actual_runs - bonuses["tailors_reset_offset"])
+    remaining = max(0, effective_limit - effective_used)
 
     deep_boost = None
     if is_authenticated and identifier.startswith("user:"):
@@ -438,8 +559,9 @@ def check_rate_limit(
         deep_boost = {"allowed": False, "used": 0, "limit": 0, "remaining": 0}
 
     return {
-        "allowed": used < effective_limit,
-        "used": used,
+        "allowed": remaining > 0,
+        "used": actual_runs,
+        "effective_used": effective_used,
         "limit": effective_limit,
         "remaining": remaining,
         "bonus": bonuses["bonus_tailors"],
@@ -473,28 +595,26 @@ def create_admin_session() -> tuple[str, dict[str, Any]]:
 def list_all_users_with_daily_usage(date_str: Optional[str] = None) -> list[dict[str, Any]]:
     d = date_str or datetime.utcnow().strftime("%Y-%m-%d")
     conn = get_db_connection()
-    # Filter out dummy test accounts created by pytest / automated runs, but keep real users and admin_master
+    # List real registered users ONLY (strictly excluding admin_master and test accounts)
     rows = conn.execute("""
         SELECT u.google_id, u.email, u.name, u.picture, u.created_at, u.last_login
         FROM users u
-        WHERE (
-            u.email NOT LIKE '%@example.com'
-            AND u.google_id NOT LIKE 'test_%'
-            AND u.google_id NOT LIKE 'deep_user_%'
-            AND u.google_id NOT LIKE 'target_user_%'
-            AND u.google_id NOT LIKE 'mock_%'
-            AND u.google_id NOT LIKE 'unique_deep_boost_%'
-            AND u.google_id != 'google_123'
-        ) OR u.google_id = ?
-        ORDER BY (u.google_id = ?) DESC, u.last_login DESC
-    """, (ADMIN_GOOGLE_ID, ADMIN_GOOGLE_ID)).fetchall()
+        WHERE u.google_id != ?
+          AND u.email NOT LIKE '%@example.com'
+          AND u.google_id NOT LIKE 'test_%'
+          AND u.google_id NOT LIKE 'deep_user_%'
+          AND u.google_id NOT LIKE 'target_user_%'
+          AND u.google_id NOT LIKE 'mock_%'
+          AND u.google_id NOT LIKE 'unique_%'
+          AND u.google_id != 'google_123'
+        ORDER BY u.last_login DESC
+    """, (ADMIN_GOOGLE_ID,)).fetchall()
 
     users_list = []
     for r in rows:
         u = dict(r)
         gid = u["google_id"]
-        is_adm = (gid == ADMIN_GOOGLE_ID)
-        u["is_admin"] = is_adm
+        u["is_admin"] = False
 
         # Check assets
         has_prof = conn.execute("SELECT 1 FROM user_profiles WHERE google_id = ?", (gid,)).fetchone() is not None
@@ -502,29 +622,38 @@ def list_all_users_with_daily_usage(date_str: Optional[str] = None) -> list[dict
         u["has_profile"] = has_prof
         u["has_base_resume"] = has_base
 
-        if is_adm:
-            u["tailors_used"] = 0
-            u["tailors_limit"] = 999999
-            u["tailors_remaining"] = 999999
-            u["deep_boost_used"] = 0
-            u["deep_boost_limit"] = 999999
-            u["deep_boost_remaining"] = 999999
-            u["deep_boost_allowed"] = True
-        else:
-            tailors_used = get_daily_usage(f"user:{gid}", d)
-            deep_boost_used = get_daily_usage(f"user:{gid}:deep_boost", d)
-            bonuses = get_daily_bonuses(f"user:{gid}", d)
+        # Linked IP addresses
+        ip_rows = conn.execute(
+            "SELECT ip_address FROM user_ips WHERE google_id = ? ORDER BY last_seen DESC",
+            (gid,)
+        ).fetchall()
+        u["linked_ips"] = [row["ip_address"] for row in ip_rows]
 
-            eff_tailors_limit = max(0, USER_DAILY_LIMIT + bonuses["bonus_tailors"])
-            eff_deep_limit = max(0, USER_DEEP_BOOST_LIMIT + bonuses["bonus_deep_boosts"])
+        # Calculate unified usage across user account and linked IP addresses
+        user_runs = get_daily_usage(f"user:{gid}", d)
+        ip_runs = 0
+        for ip in u["linked_ips"]:
+            ip_runs = max(ip_runs, get_daily_usage(f"ip:{ip}", d))
+        actual_used = max(user_runs, ip_runs)
 
-            u["tailors_used"] = tailors_used
-            u["tailors_limit"] = eff_tailors_limit
-            u["tailors_remaining"] = max(0, eff_tailors_limit - tailors_used)
-            u["deep_boost_used"] = deep_boost_used
-            u["deep_boost_limit"] = eff_deep_limit
-            u["deep_boost_remaining"] = max(0, eff_deep_limit - deep_boost_used)
-            u["deep_boost_allowed"] = u["deep_boost_remaining"] > 0
+        deep_boost_used = get_daily_usage(f"user:{gid}:deep_boost", d)
+        bonuses = get_daily_bonuses(f"user:{gid}", d)
+
+        eff_tailors_limit = max(0, USER_DAILY_LIMIT + bonuses["bonus_tailors"])
+        eff_tailors_used = max(0, actual_used - bonuses["tailors_reset_offset"])
+        tailors_remaining = max(0, eff_tailors_limit - eff_tailors_used)
+
+        eff_deep_limit = max(0, USER_DEEP_BOOST_LIMIT + bonuses["bonus_deep_boosts"])
+        eff_deep_used = max(0, deep_boost_used - bonuses["deep_boost_reset_offset"])
+        deep_boost_remaining = max(0, eff_deep_limit - eff_deep_used)
+
+        u["tailors_used"] = actual_used
+        u["tailors_limit"] = eff_tailors_limit
+        u["tailors_remaining"] = tailors_remaining
+        u["deep_boost_used"] = deep_boost_used
+        u["deep_boost_limit"] = eff_deep_limit
+        u["deep_boost_remaining"] = deep_boost_remaining
+        u["deep_boost_allowed"] = deep_boost_remaining > 0
 
         users_list.append(u)
 
@@ -535,10 +664,14 @@ def list_all_users_with_daily_usage(date_str: Optional[str] = None) -> list[dict
 def list_active_guests_with_daily_usage(date_str: Optional[str] = None) -> list[dict[str, Any]]:
     d = date_str or datetime.utcnow().strftime("%Y-%m-%d")
     conn = get_db_connection()
+    # Filter out test identifiers AND any IP that is linked to a registered user!
     rows = conn.execute("""
         SELECT identifier, count
         FROM daily_usage
-        WHERE usage_date = ? AND identifier LIKE 'ip:%' AND identifier NOT LIKE '%test%'
+        WHERE usage_date = ? 
+          AND identifier LIKE 'ip:%' 
+          AND identifier NOT LIKE '%test%'
+          AND replace(identifier, 'ip:', '') NOT IN (SELECT ip_address FROM user_ips)
         ORDER BY count DESC
     """, (d,)).fetchall()
 
@@ -549,32 +682,34 @@ def list_active_guests_with_daily_usage(date_str: Optional[str] = None) -> list[
         cnt = int(r["count"])
         bonuses = get_daily_bonuses(ident, d)
         eff_limit = max(0, GUEST_DAILY_LIMIT + bonuses["bonus_tailors"])
+        eff_used = max(0, cnt - bonuses["tailors_reset_offset"])
         guests.append({
             "identifier": ident,
             "ip_address": ip,
             "tailors_used": cnt,
             "tailors_limit": eff_limit,
-            "tailors_remaining": max(0, eff_limit - cnt),
+            "tailors_remaining": max(0, eff_limit - eff_used),
         })
     conn.close()
     return guests
 
 
 def admin_reset_daily_usage(identifier: str, date_str: Optional[str] = None) -> None:
-    """Resets actual usage and bonus back to 0."""
+    """
+    Resets active quota so user/guest has full quota available again,
+    WITHOUT wiping out the actual historical runs count for the day.
+    """
     d = date_str or datetime.utcnow().strftime("%Y-%m-%d")
+    actual_used = get_daily_usage(identifier, d)
     conn = get_db_connection()
     with conn:
         conn.execute("""
-            INSERT INTO daily_usage (identifier, usage_date, count)
-            VALUES (?, ?, 0)
-            ON CONFLICT(identifier, usage_date) DO UPDATE SET count = 0;
-        """, (identifier, d))
-        conn.execute("""
-            INSERT INTO daily_bonuses (identifier, usage_date, bonus_tailors, bonus_deep_boosts)
-            VALUES (?, ?, 0, 0)
-            ON CONFLICT(identifier, usage_date) DO UPDATE SET bonus_tailors = 0;
-        """, (identifier, d))
+            INSERT INTO daily_bonuses (identifier, usage_date, bonus_tailors, bonus_deep_boosts, tailors_reset_offset, deep_boost_reset_offset)
+            VALUES (?, ?, 0, 0, ?, 0)
+            ON CONFLICT(identifier, usage_date) DO UPDATE SET
+                tailors_reset_offset = excluded.tailors_reset_offset,
+                bonus_tailors = 0;
+        """, (identifier, d, actual_used))
     conn.close()
 
 
@@ -584,62 +719,119 @@ def admin_add_daily_usage(identifier: str, delta: int, date_str: Optional[str] =
 
 
 def admin_reset_deep_boost(google_id: str, date_str: Optional[str] = None) -> None:
-    """Resets deep boost usage to 0 and bonus to 0, ensuring they have 1 full boost ready."""
+    """
+    Resets deep boost quota so user has 1 full boost ready,
+    WITHOUT wiping out the actual deep boost runs count for the day.
+    """
     d = date_str or datetime.utcnow().strftime("%Y-%m-%d")
+    identifier = f"user:{google_id}"
+    deep_ident = f"user:{google_id}:deep_boost"
+    actual_used = get_daily_usage(deep_ident, d)
     conn = get_db_connection()
     with conn:
         conn.execute("""
-            INSERT INTO daily_usage (identifier, usage_date, count)
-            VALUES (?, ?, 0)
-            ON CONFLICT(identifier, usage_date) DO UPDATE SET count = 0;
-        """, (f"user:{google_id}:deep_boost", d))
-        conn.execute("""
-            INSERT INTO daily_bonuses (identifier, usage_date, bonus_tailors, bonus_deep_boosts)
-            VALUES (?, ?, 0, 0)
-            ON CONFLICT(identifier, usage_date) DO UPDATE SET bonus_deep_boosts = 0;
-        """, (f"user:{google_id}", d))
+            INSERT INTO daily_bonuses (identifier, usage_date, bonus_tailors, bonus_deep_boosts, tailors_reset_offset, deep_boost_reset_offset)
+            VALUES (?, ?, 0, 0, 0, ?)
+            ON CONFLICT(identifier, usage_date) DO UPDATE SET
+                deep_boost_reset_offset = excluded.deep_boost_reset_offset,
+                bonus_deep_boosts = 0;
+        """, (identifier, d, actual_used))
     conn.close()
 
 
 def get_system_stats(date_str: Optional[str] = None) -> dict[str, Any]:
     d = date_str or datetime.utcnow().strftime("%Y-%m-%d")
     conn = get_db_connection()
+
+    # Total real registered users (strictly excluding admin_master)
     user_count_row = conn.execute("""
         SELECT COUNT(*) as cnt FROM users 
-        WHERE (
-            email NOT LIKE '%@example.com'
-            AND google_id NOT LIKE 'test_%'
-            AND google_id NOT LIKE 'deep_user_%'
-            AND google_id NOT LIKE 'target_user_%'
-            AND google_id NOT LIKE 'mock_%'
-            AND google_id NOT LIKE 'unique_deep_boost_%'
-            AND google_id != 'google_123'
-        ) OR google_id = ?
+        WHERE google_id != ?
+          AND email NOT LIKE '%@example.com'
+          AND google_id NOT LIKE 'test_%'
+          AND google_id NOT LIKE 'deep_user_%'
+          AND google_id NOT LIKE 'target_user_%'
+          AND google_id NOT LIKE 'mock_%'
+          AND google_id NOT LIKE 'unique_%'
+          AND google_id != 'google_123'
     """, (ADMIN_GOOGLE_ID,)).fetchone()
     total_users = int(user_count_row["cnt"]) if user_count_row else 0
 
-    tailors_row = conn.execute("""
-        SELECT SUM(count) as total FROM daily_usage 
-        WHERE usage_date = ? 
-          AND identifier NOT LIKE '%:deep_boost' 
-          AND identifier != ?
+    # 1. Total Tailors Run Today by regular users and guests (strictly excluding admin)
+    tailors_run_row = conn.execute("""
+        SELECT COUNT(*) as total FROM tailor_runs 
+        WHERE run_date = ? 
+          AND is_deep_boost = 0
+          AND (google_id IS NULL OR google_id != ?)
+          AND identifier NOT LIKE '%admin%'
           AND identifier NOT LIKE '%test%'
           AND identifier NOT LIKE '%mock%'
-    """, (d, f"user:{ADMIN_GOOGLE_ID}")).fetchone()
-    today_tailors = int(tailors_row["total"] or 0) if tailors_row else 0
+    """, (d, ADMIN_GOOGLE_ID)).fetchone()
+    today_tailors = int(tailors_run_row["total"] or 0) if tailors_run_row else 0
 
-    boosts_row = conn.execute("""
-        SELECT SUM(count) as total FROM daily_usage 
-        WHERE usage_date = ? 
-          AND identifier LIKE '%:deep_boost'
+    # Fallback to daily_usage if tailor_runs was empty
+    if today_tailors == 0:
+        tailors_row = conn.execute("""
+            SELECT SUM(count) as total FROM daily_usage 
+            WHERE usage_date = ? 
+              AND identifier NOT LIKE '%:deep_boost' 
+              AND identifier NOT LIKE '%admin%'
+              AND identifier NOT LIKE '%test%'
+              AND identifier NOT LIKE '%mock%'
+        """, (d,)).fetchone()
+        today_tailors = int(tailors_row["total"] or 0) if tailors_row else 0
+
+    # 2. Total Deep Boosts Run Today by regular users (strictly excluding admin)
+    boosts_run_row = conn.execute("""
+        SELECT COUNT(*) as total FROM tailor_runs 
+        WHERE run_date = ? 
+          AND is_deep_boost = 1
+          AND (google_id IS NULL OR google_id != ?)
+          AND identifier NOT LIKE '%admin%'
           AND identifier NOT LIKE '%test%'
           AND identifier NOT LIKE '%mock%'
-    """, (d,)).fetchone()
-    today_boosts = int(boosts_row["total"] or 0) if boosts_row else 0
+    """, (d, ADMIN_GOOGLE_ID)).fetchone()
+    today_boosts = int(boosts_run_row["total"] or 0) if boosts_run_row else 0
 
+    if today_boosts == 0:
+        boosts_row = conn.execute("""
+            SELECT SUM(count) as total FROM daily_usage 
+            WHERE usage_date = ? 
+              AND identifier LIKE '%:deep_boost'
+              AND identifier NOT LIKE '%admin%'
+              AND identifier NOT LIKE '%test%'
+              AND identifier NOT LIKE '%mock%'
+        """, (d,)).fetchone()
+        today_boosts = int(boosts_row["total"] or 0) if boosts_row else 0
+
+    # 3. Dedicated Admin Activity Today (separate from regular user metrics)
+    admin_tailors_row = conn.execute("""
+        SELECT COUNT(*) as total FROM tailor_runs 
+        WHERE run_date = ? 
+          AND is_deep_boost = 0
+          AND (identifier = ? OR google_id = ?)
+    """, (d, f"user:{ADMIN_GOOGLE_ID}", ADMIN_GOOGLE_ID)).fetchone()
+    admin_tailors = int(admin_tailors_row["total"] or 0) if admin_tailors_row else 0
+    if admin_tailors == 0:
+        admin_tailors = get_daily_usage(f"user:{ADMIN_GOOGLE_ID}", d)
+
+    admin_boosts_row = conn.execute("""
+        SELECT COUNT(*) as total FROM tailor_runs 
+        WHERE run_date = ? 
+          AND is_deep_boost = 1
+          AND (identifier = ? OR identifier = ? OR google_id = ?)
+    """, (d, f"user:{ADMIN_GOOGLE_ID}:deep_boost", f"user:{ADMIN_GOOGLE_ID}", ADMIN_GOOGLE_ID)).fetchone()
+    admin_boosts = int(admin_boosts_row["total"] or 0) if admin_boosts_row else 0
+    if admin_boosts == 0:
+        admin_boosts = get_daily_usage(f"user:{ADMIN_GOOGLE_ID}:deep_boost", d)
+
+    # 4. Active Guests Today: exclude any IP linked to a registered user!
     active_guests_row = conn.execute("""
         SELECT COUNT(DISTINCT identifier) as cnt FROM daily_usage
-        WHERE usage_date = ? AND identifier LIKE 'ip:%' AND identifier NOT LIKE '%test%'
+        WHERE usage_date = ? 
+          AND identifier LIKE 'ip:%' 
+          AND identifier NOT LIKE '%test%'
+          AND replace(identifier, 'ip:', '') NOT IN (SELECT ip_address FROM user_ips)
     """, (d,)).fetchone()
     today_guests = int(active_guests_row["cnt"] or 0) if active_guests_row else 0
 
@@ -649,6 +841,8 @@ def get_system_stats(date_str: Optional[str] = None) -> dict[str, Any]:
         "total_users": total_users,
         "today_tailors": today_tailors,
         "today_deep_boosts": today_boosts,
+        "admin_tailors_today": admin_tailors,
+        "admin_deep_boosts_today": admin_boosts,
         "total_active_guests_today": today_guests,
         "date": d,
     }

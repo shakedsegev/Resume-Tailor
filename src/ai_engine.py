@@ -34,6 +34,7 @@ HARD RULES:
 """
 
 
+# pyrefly: ignore [missing-import]
 from src.universal_models import FitAnalysis
 
 

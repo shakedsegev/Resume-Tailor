@@ -346,4 +346,95 @@ def test_tailor_endpoint_client_ip_and_validation():
     assert "Please upload your resume file" in res_no_file.json()["detail"]
 
 
+def test_user_ip_linking_and_guest_exclusion():
+    from src.database import (
+        upsert_user,
+        link_user_ip,
+        get_linked_ips_for_user,
+        list_active_guests_with_daily_usage,
+        increment_daily_usage,
+        get_system_stats,
+    )
+    gid = "unique_registered_user_ip_test"
+    ip = "192.168.1.105"
+    upsert_user(gid, f"{gid}@example.com", "IP Tester")
+
+    # Record usage under guest IP first
+    increment_daily_usage(f"ip:{ip}")
+
+    # Now link IP to registered user
+    link_user_ip(gid, ip)
+    linked = get_linked_ips_for_user(gid)
+    assert ip in linked
+
+    # Guest table should exclude this IP because it is linked to a registered user
+    guests = list_active_guests_with_daily_usage()
+    guest_ips = [g["ip_address"] for g in guests]
+    assert ip not in guest_ips
+
+    # System stats should not count this registered user's IP as an active guest
+    stats = get_system_stats()
+    assert all(g["ip_address"] != ip for g in guests)
+
+
+def test_cumulative_telemetry_preserved_after_admin_resets():
+    import uuid
+    from src.database import (
+        record_tailor_run,
+        get_system_stats,
+        admin_reset_daily_usage,
+        admin_adjust_tailors,
+        admin_reset_deep_boost,
+        check_rate_limit,
+        check_deep_boost_limit,
+        increment_daily_usage,
+        increment_deep_boost_usage,
+    )
+    test_id = f"user_{uuid.uuid4().hex[:8]}"
+    date_str = "2026-10-03"
+
+    # Simulate 4 runs today for this user
+    for _ in range(4):
+        increment_daily_usage(f"user:{test_id}", date_str=date_str)
+        record_tailor_run(
+            identifier=f"user:{test_id}",
+            client_ip="10.0.0.99",
+            google_id=test_id,
+            is_deep_boost=False,
+            date_str=date_str,
+        )
+
+    # Simulate 1 deep boost run today
+    increment_deep_boost_usage(test_id)
+    record_tailor_run(
+        identifier=f"user:{test_id}:deep_boost",
+        client_ip="10.0.0.99",
+        google_id=test_id,
+        is_deep_boost=True,
+        date_str=date_str,
+    )
+
+    stats_before = get_system_stats(date_str)
+    assert stats_before["today_tailors"] >= 4
+    assert stats_before["today_deep_boosts"] >= 1
+
+    # Admin gives +2 tailors
+    admin_adjust_tailors(f"user:{test_id}", delta=2, date_str=date_str)
+    stats_after_add = get_system_stats(date_str)
+    # Telemetry is unchanged!
+    assert stats_after_add["today_tailors"] == stats_before["today_tailors"]
+
+    # Admin resets daily usage
+    admin_reset_daily_usage(f"user:{test_id}", date_str=date_str)
+    stats_after_reset = get_system_stats(date_str)
+    # Telemetry MUST NOT decrease or be wiped out!
+    assert stats_after_reset["today_tailors"] == stats_before["today_tailors"]
+
+    # Admin resets deep boost
+    admin_reset_deep_boost(test_id, date_str=date_str)
+    stats_after_deep_reset = get_system_stats(date_str)
+    assert stats_after_deep_reset["today_deep_boosts"] == stats_before["today_deep_boosts"]
+
+
+
 

@@ -145,6 +145,16 @@
 
           <button 
             type="button" 
+            id="btnToggleAdminPersona" 
+            class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs border bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700"
+            title="Log in as Admin in the main app to tailor without limits"
+          >
+            <span id="adminPersonaIcon">⚡</span>
+            <span id="adminPersonaText">Log In as Admin in Main App</span>
+          </button>
+
+          <button 
+            type="button" 
             id="btnRefreshData" 
             class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition flex items-center gap-1.5 cursor-pointer"
             title="Reload latest users and stats"
@@ -155,12 +165,12 @@
 
           <button 
             type="button" 
-            id="btnAdminLogout" 
-            class="px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900 transition flex items-center gap-1.5 cursor-pointer"
-            title="Sign out of Admin Portal"
+            id="btnLockAdminPanel" 
+            class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition flex items-center gap-1.5 cursor-pointer"
+            title="Lock Admin Panel (Requires secret key to access again)"
           >
-            <span>🚪</span>
-            <span>Sign Out</span>
+            <span>🔒</span>
+            <span>Lock Panel</span>
           </button>
         </div>
       </div>
@@ -170,7 +180,7 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 space-y-6">
 
       <!-- Top KPI Stats Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <!-- Total Registered Users -->
         <div class="glass-card border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
           <div class="flex items-center justify-between mb-2">
@@ -178,23 +188,23 @@
             <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">👥</div>
           </div>
           <div id="statTotalUsers" class="text-2xl font-black text-slate-900 dark:text-white">0</div>
-          <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-1">Google accounts with profiles</p>
+          <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-1">Real Google accounts</p>
         </div>
 
         <!-- Total Tailors Today -->
         <div class="glass-card border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tailors Run Today</span>
+            <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">User Tailors Today</span>
             <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">⚡</div>
           </div>
           <div id="statTotalTailorsToday" class="text-2xl font-black text-slate-900 dark:text-white">0</div>
-          <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-1">Across all users & guests</p>
+          <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-1">Regular users & guests</p>
         </div>
 
         <!-- Total Deep Boosts Today -->
         <div class="glass-card border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Deep Boosts Today</span>
+            <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">User Deep Boosts</span>
             <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold">🚀</div>
           </div>
           <div id="statTotalDeepBoostsToday" class="text-2xl font-black text-slate-900 dark:text-white">0</div>
@@ -208,7 +218,23 @@
             <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">🌐</div>
           </div>
           <div id="statTotalActiveGuests" class="text-2xl font-black text-slate-900 dark:text-white">0</div>
-          <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-1">Unique IP addresses tailored</p>
+          <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-1">Unregistered client IPs</p>
+        </div>
+
+        <!-- Dedicated Admin Activity Today -->
+        <div class="glass-card border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Admin Activity Today</span>
+            <div class="w-8 h-8 rounded-lg bg-slate-500/10 text-slate-700 dark:text-slate-300 flex items-center justify-center font-bold">🛡️</div>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span id="statAdminTailorsToday" class="text-2xl font-black text-slate-900 dark:text-white">0</span>
+            <span class="text-xs text-slate-500 dark:text-slate-400 font-semibold">tailors</span>
+            <span class="text-slate-300 dark:text-slate-700">•</span>
+            <span id="statAdminDeepBoostsToday" class="text-2xl font-black text-slate-900 dark:text-white">0</span>
+            <span class="text-xs text-slate-500 dark:text-slate-400 font-semibold">boosts</span>
+          </div>
+          <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-1">Dedicated admin runs</p>
         </div>
       </div>
 
@@ -238,14 +264,6 @@
                 title="Add 1 tailor"
               >
                 +1
-              </button>
-              <button 
-                type="button" 
-                id="btnManualAdd3Tailors" 
-                class="px-2 py-1 rounded-lg text-xs font-bold bg-emerald-700 hover:bg-emerald-800 text-white cursor-pointer transition shadow-2xs"
-                title="Add 3 tailors"
-              >
-                +3
               </button>
               <button 
                 type="button" 
@@ -394,7 +412,7 @@
     const btnTogglePassword = document.getElementById('btnTogglePassword');
     const loginErrorMsg = document.getElementById('loginErrorMsg');
     const btnLoginSubmit = document.getElementById('btnLoginSubmit');
-    const btnAdminLogout = document.getElementById('btnAdminLogout');
+    const btnLockAdminPanel = document.getElementById('btnLockAdminPanel');
     const btnRefreshData = document.getElementById('btnRefreshData');
     const refreshSpinner = document.getElementById('refreshSpinner');
     const userSearchInput = document.getElementById('userSearchInput');
@@ -430,12 +448,34 @@
       }, 3200);
     }
 
-    function getSessionToken() {
-      return localStorage.getItem('resume_tailor_session');
+    const ONE_HOUR_MS = 60 * 60 * 1000;
+
+    function getAdminSessionToken() {
+      return localStorage.getItem('resume_tailor_admin_session');
+    }
+
+    function isPanelLocked() {
+      const token = getAdminSessionToken();
+      const unlockedAt = parseInt(localStorage.getItem('admin_panel_unlocked_at') || '0', 10);
+      if (!token || !unlockedAt || (Date.now() - unlockedAt > ONE_HOUR_MS)) {
+        return true;
+      }
+      return false;
+    }
+
+    function lockAdminPanel() {
+      localStorage.removeItem('resume_tailor_admin_session');
+      localStorage.removeItem('admin_panel_unlocked_at');
+      showLoginScreen();
+    }
+
+    function recordAdminUnlock(token) {
+      localStorage.setItem('resume_tailor_admin_session', token);
+      localStorage.setItem('admin_panel_unlocked_at', Date.now().toString());
     }
 
     function adminHeaders() {
-      const token = getSessionToken();
+      const token = getAdminSessionToken();
       return {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
@@ -447,6 +487,116 @@
       const isPassword = secretKeyInput.type === 'password';
       secretKeyInput.type = isPassword ? 'text' : 'password';
       btnTogglePassword.textContent = isPassword ? '🔒' : '👁️';
+    });
+
+    // Helper: Checks if the main app session belongs to an admin
+    async function checkIsAppAdmin() {
+      const currentMain = localStorage.getItem('resume_tailor_session');
+      if (!currentMain) return false;
+      const adminToken = getAdminSessionToken();
+      if (adminToken && currentMain === adminToken) return true;
+      try {
+        const res = await fetch('/api/auth/me', {
+          headers: { 'Authorization': `Bearer ${currentMain}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.is_authenticated && data.user) {
+            return Boolean(data.user.is_admin || data.user.google_id === 'admin_master');
+          }
+        }
+      } catch (_) {}
+      return false;
+    }
+
+    // Helper: Gets authenticated user info from token
+    async function getSessionUser(token) {
+      if (!token) return null;
+      try {
+        const res = await fetch('/api/auth/me', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.is_authenticated && data.user) {
+            return data.user;
+          }
+        }
+      } catch (_) {}
+      return null;
+    }
+
+    // Button to activate / deactivate Administrator persona in the main app
+    const btnToggleAdminPersona = document.getElementById('btnToggleAdminPersona');
+    const adminPersonaIcon = document.getElementById('adminPersonaIcon');
+    const adminPersonaText = document.getElementById('adminPersonaText');
+
+    async function updateAdminPersonaButton() {
+      if (!btnToggleAdminPersona) return;
+      const isAppAdmin = await checkIsAppAdmin();
+
+      if (isAppAdmin) {
+        btnToggleAdminPersona.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-white border border-amber-600 transition flex items-center gap-1.5 cursor-pointer shadow-xs";
+        if (adminPersonaIcon) adminPersonaIcon.textContent = "✅";
+        if (adminPersonaText) adminPersonaText.textContent = "Admin Active in App (Click to Exit)";
+      } else {
+        btnToggleAdminPersona.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition flex items-center gap-1.5 cursor-pointer shadow-xs";
+        if (adminPersonaIcon) adminPersonaIcon.textContent = "⚡";
+        if (adminPersonaText) adminPersonaText.textContent = "Log In as Admin in Main App";
+      }
+    }
+
+    btnToggleAdminPersona?.addEventListener('click', async () => {
+      btnToggleAdminPersona.disabled = true;
+      try {
+        const isAppAdmin = await checkIsAppAdmin();
+
+        if (isAppAdmin) {
+          // EXITTING ADMIN PERSONA IN MAIN APP:
+          const backupToken = localStorage.getItem('resume_tailor_user_session_backup');
+          let restored = false;
+
+          if (backupToken) {
+            const backupUser = await getSessionUser(backupToken);
+            if (backupUser && !backupUser.is_admin && backupUser.google_id !== 'admin_master') {
+              localStorage.setItem('resume_tailor_session', backupToken);
+              restored = true;
+            }
+          }
+
+          if (!restored) {
+            localStorage.removeItem('resume_tailor_session');
+          }
+
+          localStorage.removeItem('resume_tailor_user_session_backup');
+          await updateAdminPersonaButton();
+          showToast(restored ? "Restored your Google account in main app." : "Signed out of Admin persona in main app.");
+        } else {
+          // ACTIVATING ADMIN PERSONA IN MAIN APP:
+          let adminToken = getAdminSessionToken();
+          if (!adminToken) {
+            showToast("Admin session missing. Please unlock panel first.", false);
+            return;
+          }
+
+          const currentMain = localStorage.getItem('resume_tailor_session');
+          if (currentMain) {
+            const currentUser = await getSessionUser(currentMain);
+            if (currentUser && !currentUser.is_admin && currentUser.google_id !== 'admin_master') {
+              localStorage.setItem('resume_tailor_user_session_backup', currentMain);
+            }
+          }
+
+          localStorage.setItem('resume_tailor_session', adminToken);
+          await updateAdminPersonaButton();
+          showToast("Admin persona activated in main app!");
+        }
+      } catch (err) {
+        console.error("Toggle persona error:", err);
+        showToast("Error updating persona.", false);
+      } finally {
+        btnToggleAdminPersona.disabled = false;
+      }
     });
 
     // Handle Secret Key Login
@@ -474,11 +624,13 @@
         }
 
         const data = await res.json();
-        localStorage.setItem('resume_tailor_session', data.session_token);
+        // Save to dedicated admin session and 1-hour unlock timestamp
+        recordAdminUnlock(data.session_token);
         secretKeyInput.value = '';
         showDashboard();
         await loadAdminData();
-        showToast("Welcome to Master Admin Portal!");
+        await updateAdminPersonaButton();
+        showToast("Admin Panel unlocked for 1 hour!");
       } catch (err) {
         loginErrorMsg.classList.remove('hidden');
         loginErrorMsg.textContent = err.message || "Failed to authenticate.";
@@ -488,19 +640,16 @@
       }
     });
 
-    // Handle Admin Logout
-    btnAdminLogout?.addEventListener('click', async () => {
-      try {
-        await fetch('/api/auth/logout', { method: 'POST', headers: adminHeaders() });
-      } catch (_) {}
-      localStorage.removeItem('resume_tailor_session');
-      showLoginScreen();
-      showToast("Signed out of Admin Portal.");
+    // Handle Lock Panel (locks panel without touching user's main app session)
+    btnLockAdminPanel?.addEventListener('click', () => {
+      lockAdminPanel();
+      showToast("Admin panel locked.");
     });
 
     function showDashboard() {
       loginScreen.classList.add('hidden');
       dashboardScreen.classList.remove('hidden');
+      updateAdminPersonaButton();
     }
 
     function showLoginScreen() {
@@ -510,7 +659,7 @@
 
     // Load Admin Data from Server
     async function loadAdminData() {
-      const token = getSessionToken();
+      const token = getAdminSessionToken();
       if (!token) {
         showLoginScreen();
         return;
@@ -534,6 +683,7 @@
         renderUsersTable();
         renderGuestsTable();
         showDashboard();
+        updateAdminPersonaButton();
       } catch (err) {
         console.error("Admin data fetch error:", err);
         showToast(err.message, false);
@@ -550,9 +700,15 @@
     // Render Stats
     function renderStats() {
       statTotalUsers.textContent = cachedStats.total_users || cachedUsers.length || 0;
-      statTotalTailorsToday.textContent = cachedStats.today_tailors || cachedStats.total_tailors_today || 0;
-      statTotalDeepBoostsToday.textContent = cachedStats.today_deep_boosts || cachedStats.total_deep_boosts_today || 0;
-      statTotalActiveGuests.textContent = cachedGuests.length || 0;
+      statTotalTailorsToday.textContent = cachedStats.today_tailors || 0;
+      statTotalDeepBoostsToday.textContent = cachedStats.today_deep_boosts || 0;
+      statTotalActiveGuests.textContent = cachedStats.total_active_guests_today !== undefined ? cachedStats.total_active_guests_today : (cachedGuests.length || 0);
+
+      const adminTailorsEl = document.getElementById('statAdminTailorsToday');
+      const adminBoostsEl = document.getElementById('statAdminDeepBoostsToday');
+      if (adminTailorsEl) adminTailorsEl.textContent = cachedStats.admin_tailors_today || 0;
+      if (adminBoostsEl) adminBoostsEl.textContent = cachedStats.admin_deep_boosts_today || 0;
+
       registeredUsersCountBadge.textContent = cachedUsers.length;
       activeGuestsCountBadge.textContent = cachedGuests.length;
     }
@@ -603,6 +759,7 @@
                     <span>${escapeHtml(u.name || (isAdmin ? 'Administrator' : 'Anonymous User'))}</span>
                   </div>
                   <div class="text-[11px] text-slate-500 dark:text-slate-400">${escapeHtml(u.email || 'No email')}</div>
+                  ${u.linked_ips && u.linked_ips.length ? `<div class="text-[10px] text-slate-400 font-mono mt-0.5 flex items-center gap-1"><span>🌐</span><span>IP: ${escapeHtml(u.linked_ips[0])}</span></div>` : ''}
                 </div>
               </div>
             </td>
@@ -650,7 +807,7 @@
                       ? 'bg-rose-100 text-rose-700 dark:bg-rose-950/70 dark:text-rose-300 border border-rose-200 dark:border-rose-800' 
                       : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
                   }">
-                    ${tailorsUsed} / ${tailorsLimit} used (${tailorsRemaining} left)
+                    ${tailorsUsed} runs today (${tailorsRemaining} left)
                   </span>`
               }
             </td>
@@ -684,12 +841,6 @@
                         class="px-1.5 py-0.5 rounded text-[11px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-2xs"
                         title="Add 1 tailor"
                       >+1</button>
-                      <button 
-                        type="button" 
-                        onclick="adminAddTailors('user:${escapeHtml(u.google_id)}', 3)" 
-                        class="px-1.5 py-0.5 rounded text-[11px] font-bold bg-emerald-700 hover:bg-emerald-800 text-white cursor-pointer shadow-2xs ml-0.5"
-                        title="Add 3 tailors"
-                      >+3</button>
                       <button 
                         type="button" 
                         onclick="adminAddTailors('user:${escapeHtml(u.google_id)}', -1)" 
@@ -782,12 +933,6 @@
                   class="px-1.5 py-0.5 rounded text-[11px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-2xs"
                   title="Add 1 tailor"
                 >+1</button>
-                <button 
-                  type="button" 
-                  onclick="adminAddTailors('${escapeHtml(g.identifier)}', 3)" 
-                  class="px-1.5 py-0.5 rounded text-[11px] font-bold bg-emerald-700 hover:bg-emerald-800 text-white cursor-pointer shadow-2xs ml-0.5"
-                  title="Add 3 tailors"
-                >+3</button>
                 <button 
                   type="button" 
                   onclick="adminAddTailors('${escapeHtml(g.identifier)}', -1)" 
@@ -900,15 +1045,6 @@
       await adminAddTailors(id, 1);
     });
 
-    btnManualAdd3Tailors?.addEventListener('click', async () => {
-      const id = parseManualIdentifier(manualIdentifierInput.value);
-      if (!id) {
-        alert("Please enter a Google ID or IP address.");
-        return;
-      }
-      await adminAddTailors(id, 3);
-    });
-
     btnManualSub1Tailor?.addEventListener('click', async () => {
       const id = parseManualIdentifier(manualIdentifierInput.value);
       if (!id) {
@@ -969,24 +1105,36 @@
       document.documentElement.classList.add('dark');
     }
 
-    // Cross-tab session synchronization: if user logs out or logs in elsewhere, sync immediately
+    // Cross-tab synchronization: if admin session changes or is locked in another tab
     window.addEventListener('storage', (e) => {
-      if (e.key === 'resume_tailor_session') {
+      if (e.key === 'resume_tailor_admin_session') {
         if (!e.newValue) {
           showLoginScreen();
         } else {
           loadAdminData();
         }
+      } else if (e.key === 'resume_tailor_session') {
+        updateAdminPersonaButton();
       }
     });
 
-    // Auto-init: Check if already authenticated as admin
+    // Periodic auto-lock check every 30 seconds (1 hour auto-lock)
+    setInterval(() => {
+      if (!dashboardScreen.classList.contains('hidden')) {
+        if (isPanelLocked()) {
+          lockAdminPanel();
+          showToast("Admin panel session expired (1 hour limit). Please unlock again.", false);
+        }
+      }
+    }, 30000);
+
+    // Auto-init: Check if admin panel is unlocked within 1 hour
     (async function init() {
-      const token = getSessionToken();
-      if (token) {
+      if (!isPanelLocked()) {
+        showDashboard();
         await loadAdminData();
       } else {
-        showLoginScreen();
+        lockAdminPanel();
       }
     })();
   </script>
