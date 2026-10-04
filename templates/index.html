@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en" dir="ltr" class="overflow-x-hidden">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -373,13 +373,14 @@
     }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col transition-colors duration-200">
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col transition-colors duration-200 overflow-x-hidden">
 
   <!-- Navigation Bar -->
   <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 shadow-xs">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
-      <div class="flex items-center space-x-3 shrink-0">
-        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center text-white text-base shadow-md shadow-sky-500/20">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 md:py-0 md:h-14 flex flex-wrap md:flex-nowrap items-center justify-between gap-y-2">
+      <!-- Row 1 Left: Brand Logo & Name -->
+      <div class="order-1 flex items-center space-x-2 sm:space-x-3 shrink-0">
+        <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center text-white text-sm sm:text-base shadow-md shadow-sky-500/20">
           🎯
         </div>
         <div class="flex items-center">
@@ -392,23 +393,8 @@
         </div>
       </div>
 
-      <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
-        <!-- Navigation Tabs -->
-        <nav class="flex items-center space-x-1 sm:space-x-1.5 bg-slate-200/80 dark:bg-slate-800 p-1 rounded-xl">
-          <button id="navTabTailor" class="px-3 sm:px-4 py-1 rounded-lg text-xs font-bold transition-all bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs cursor-pointer whitespace-nowrap" data-i18n="nav_tailor">
-            ⚡ Tailor Resume
-          </button>
-          <button id="navTabProfile" class="px-3 sm:px-4 py-1 rounded-lg text-xs font-semibold transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer whitespace-nowrap" data-i18n="nav_profile">
-            🧠 Master Profile
-          </button>
-        </nav>
-
-        <!-- Daily AI Tailoring Quota Badge -->
-        <div id="rateLimitBadge" class="hidden items-center space-x-1 px-2.5 py-1 rounded-xl text-xs font-semibold bg-sky-50 dark:bg-sky-950/50 border border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300 shadow-xs whitespace-nowrap" title="Daily AI tailoring quota" data-i18n-title="quota_title">
-          <span class="text-[11px]">⚡</span>
-          <span id="rateLimitText">--</span>
-        </div>
-
+      <!-- Row 1 Right (Mobile) / Far Right (Desktop): Auth, Lang, Dark Mode, Admin Button -->
+      <div class="order-2 md:order-3 flex items-center space-x-1 sm:space-x-2 shrink-0">
         <!-- Google Auth Section -->
         <div id="authContainer" class="flex items-center">
           <!-- Logged out: Google Sign In Button Container -->
@@ -417,23 +403,23 @@
           </div>
 
           <!-- Logged in: User Profile Badge & Sign Out -->
-          <div id="loggedInView" class="hidden flex items-center space-x-2">
-            <div class="flex items-center space-x-1.5 bg-slate-100 dark:bg-slate-800 py-1 px-2 rounded-xl border border-slate-200 dark:border-slate-700">
-              <img id="userAvatar" src="" alt="Avatar" class="w-5 h-5 rounded-full border border-slate-300 dark:border-slate-600 object-cover">
-              <span id="userName" class="text-xs font-semibold text-slate-800 dark:text-slate-200 max-w-[110px] truncate">User</span>
+          <div id="loggedInView" class="hidden flex items-center space-x-1 sm:space-x-2">
+            <div class="flex items-center space-x-1 sm:space-x-1.5 bg-slate-100 dark:bg-slate-800 py-1 px-1.5 sm:px-2 rounded-xl border border-slate-200 dark:border-slate-700">
+              <img id="userAvatar" src="" alt="Avatar" class="w-5 h-5 rounded-full border border-slate-300 dark:border-slate-600 object-cover shrink-0">
+              <span id="userName" class="text-xs font-semibold text-slate-800 dark:text-slate-200 max-w-[65px] sm:max-w-[110px] truncate">User</span>
             </div>
-            <button id="btnSignOut" type="button" class="text-xs text-slate-500 hover:text-rose-600 font-semibold px-1.5 py-1 rounded-lg transition-colors cursor-pointer whitespace-nowrap" title="Sign Out" data-i18n="btn_sign_out" data-i18n-title="btn_sign_out">
+            <button id="btnSignOut" type="button" class="text-[11px] sm:text-xs text-slate-500 hover:text-rose-600 font-semibold px-1 sm:px-1.5 py-1 rounded-lg transition-colors cursor-pointer whitespace-nowrap" title="Sign Out" data-i18n="btn_sign_out" data-i18n-title="btn_sign_out">
               Sign Out
             </button>
           </div>
 
           <!-- Admin Persona Active View -->
-          <div id="adminPersonaView" class="hidden flex items-center space-x-2">
-            <div class="flex items-center space-x-1.5 bg-amber-50 dark:bg-amber-950/60 py-1 px-2.5 rounded-xl border border-amber-300 dark:border-amber-700 shadow-2xs">
+          <div id="adminPersonaView" class="hidden flex items-center space-x-1 sm:space-x-2">
+            <div class="flex items-center space-x-1 sm:space-x-1.5 bg-amber-50 dark:bg-amber-950/60 py-1 px-1.5 sm:px-2.5 rounded-xl border border-amber-300 dark:border-amber-700 shadow-2xs">
               <span class="text-xs">👑</span>
-              <span class="text-xs font-bold text-amber-800 dark:text-amber-200">Admin Mode</span>
+              <span class="text-[11px] sm:text-xs font-bold text-amber-800 dark:text-amber-200 whitespace-nowrap">Admin</span>
             </div>
-            <button id="btnExitAdminPersona" type="button" class="text-xs text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 font-semibold px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer whitespace-nowrap" title="Exit Admin Persona and return to your Google account">
+            <button id="btnExitAdminPersona" type="button" class="text-[11px] sm:text-xs text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 font-semibold px-1.5 sm:px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer whitespace-nowrap" title="Exit Admin Persona and return to your Google account">
               Exit Admin
             </button>
           </div>
@@ -444,7 +430,7 @@
           <button 
             type="button" 
             id="btnLangDropdown" 
-            class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors px-2 py-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 cursor-pointer shadow-2xs shrink-0"
+            class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors px-1.5 sm:px-2 py-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 cursor-pointer shadow-2xs shrink-0"
             aria-expanded="false"
             aria-haspopup="true"
             title="Switch Language"
@@ -502,14 +488,33 @@
         </div>
 
         <!-- Dark Mode Toggle Button -->
-        <button id="themeToggleBtn" type="button" class="flex items-center justify-center w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-700 text-sm cursor-pointer shadow-xs shrink-0" title="Toggle Dark/Light Mode">
+        <button id="themeToggleBtn" type="button" class="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-700 text-xs sm:text-sm cursor-pointer shadow-xs shrink-0" title="Toggle Dark/Light Mode">
           <span id="themeToggleIcon">🌙</span>
         </button>
 
-        <!-- Unnoticeable Mini Admin Button (No crown, tiny font, subtle) -->
-        <button id="btnAdminPanelNav" type="button" class="text-[9px] font-normal px-1.5 py-0.5 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 opacity-50 hover:opacity-100 transition-opacity cursor-pointer whitespace-nowrap shrink-0" title="Admin Panel">
+        <!-- Mini Admin Button: Hidden completely on mobile, visible on desktop md+ -->
+        <button id="btnAdminPanelNav" type="button" class="hidden md:inline-block text-[9px] font-normal px-1.5 py-0.5 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 opacity-50 hover:opacity-100 transition-opacity cursor-pointer whitespace-nowrap shrink-0" title="Admin Panel">
           admin panel
         </button>
+      </div>
+
+      <!-- Row 2 (Mobile) / Center (Desktop): Nav Tabs & Quota Badge -->
+      <div class="order-3 md:order-2 w-full md:w-auto flex items-center justify-between md:justify-start gap-2 pt-1.5 md:pt-0 border-t border-slate-100 dark:border-slate-800/80 md:border-t-0 shrink-0">
+        <!-- Navigation Tabs -->
+        <nav class="flex items-center space-x-1 sm:space-x-1.5 bg-slate-200/80 dark:bg-slate-800 p-1 rounded-xl shrink-0">
+          <button id="navTabTailor" class="px-2.5 sm:px-4 py-1 rounded-lg text-xs font-bold transition-all bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs cursor-pointer whitespace-nowrap" data-i18n="nav_tailor">
+            ⚡ Tailor Resume
+          </button>
+          <button id="navTabProfile" class="px-2.5 sm:px-4 py-1 rounded-lg text-xs font-semibold transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer whitespace-nowrap" data-i18n="nav_profile">
+            🧠 Master Profile
+          </button>
+        </nav>
+
+        <!-- Daily AI Tailoring Quota Badge -->
+        <div id="rateLimitBadge" class="hidden items-center space-x-1 px-2.5 sm:px-2.5 py-1 rounded-xl text-xs font-semibold bg-sky-50 dark:bg-sky-950/50 border border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300 shadow-xs whitespace-nowrap shrink-0" title="Daily AI tailoring quota" data-i18n-title="quota_title">
+          <span class="text-[11px]">⚡</span>
+          <span id="rateLimitText">--</span>
+        </div>
       </div>
     </div>
   </header>
@@ -1207,11 +1212,11 @@
         <p class="font-medium text-slate-700" data-i18n="tournament_guest_desc2">
           Sign in with Google to unlock <strong>1 free Deep Boost every day</strong> (independent of standard tailor quotas).
         </p>
-        <div class="flex items-center justify-end space-x-3 pt-2">
+        <div class="flex flex-wrap items-center justify-end gap-2 pt-2">
           <button type="button" id="btnCancelTournamentGuest" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer" data-i18n="btn_cancel">
             Cancel
           </button>
-          <div id="tournamentGoogleBtn" class="shrink-0 flex items-center justify-center min-h-[40px] min-w-[250px]"></div>
+          <div id="tournamentGoogleBtn" class="shrink-0 flex items-center justify-center min-h-[40px]"></div>
         </div>
       </div>
 
@@ -2700,6 +2705,9 @@
       const isDark = document.documentElement.classList.toggle('dark');
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
       if (themeToggleIcon) themeToggleIcon.textContent = isDark ? '☀️' : '🌙';
+      if (typeof renderAllGoogleButtons === 'function') {
+        renderAllGoogleButtons();
+      }
     });
     initTheme();
 
@@ -2837,15 +2845,24 @@
       if (navBtn) {
         navBtn.innerHTML = '';
         const isDark = document.documentElement.classList.contains('dark');
+        const isMobile = window.innerWidth < 640;
         google.accounts.id.renderButton(navBtn, {
           theme: isDark ? 'filled_black' : 'outline',
-          size: 'medium',
+          size: isMobile ? 'small' : 'medium',
           shape: 'rectangular',
-          text: 'signin_with',
-          width: 220
+          text: isMobile ? 'signin' : 'signin_with',
+          width: isMobile ? 120 : 200
         });
       }
     }
+
+    let navResizeTimeout = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(navResizeTimeout);
+      navResizeTimeout = setTimeout(() => {
+        renderAllGoogleButtons();
+      }, 200);
+    });
 
     function renderBaseResumeGoogleButton() {
       if (!window.google?.accounts?.id || currentUser) return;
@@ -2853,12 +2870,13 @@
       if (baseBtn) {
         baseBtn.innerHTML = '';
         const isDark = document.documentElement.classList.contains('dark');
+        const isMobile = window.innerWidth < 640;
         google.accounts.id.renderButton(baseBtn, {
           theme: isDark ? 'filled_black' : 'outline',
-          size: 'medium',
+          size: isMobile ? 'small' : 'medium',
           shape: 'rectangular',
-          text: 'signin_with',
-          width: 240
+          text: isMobile ? 'signin' : 'signin_with',
+          width: isMobile ? 180 : 240
         });
       }
     }
@@ -2869,12 +2887,13 @@
       if (modalBtn) {
         modalBtn.innerHTML = '';
         const isDark = document.documentElement.classList.contains('dark');
+        const isMobile = window.innerWidth < 640;
         google.accounts.id.renderButton(modalBtn, {
           theme: isDark ? 'filled_black' : 'outline',
-          size: 'large',
+          size: isMobile ? 'medium' : 'large',
           shape: 'rectangular',
-          text: 'signin_with',
-          width: 250
+          text: isMobile ? 'signin' : 'signin_with',
+          width: isMobile ? 180 : 250
         });
       }
     }
