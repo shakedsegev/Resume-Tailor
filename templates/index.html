@@ -2807,37 +2807,47 @@
     }
 
     btnToggleProfileActive?.addEventListener('click', async () => {
-      if (!activeProfile) {
-        alert(window.t('alert_no_profile', "Please upload or generate a master profile first."));
-        return;
-      }
-      isProfileActive = !isProfileActive;
-      updateProfileDisplay();
-      if (currentUser?.google_id) {
-        try {
-          const cached = localStorage.getItem('rt_backup_profile_' + currentUser.google_id);
-          if (cached) {
-            const parsed = JSON.parse(cached);
-            parsed.is_active = isProfileActive;
-            localStorage.setItem('rt_backup_profile_' + currentUser.google_id, JSON.stringify(parsed));
+      if (!activeProfile || btnToggleProfileActive.disabled) return;
+      const nextState = !isProfileActive;
+      btnToggleProfileActive.disabled = true;
+      btnToggleProfileActive.classList.add('opacity-60');
+      try {
+        const res = await fetch('/api/user/profile/toggle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body: JSON.stringify({ is_active: nextState })
+        });
+        if (res.ok) {
+          isProfileActive = nextState;
+          updateProfileDisplay();
+          if (currentUser?.google_id) {
+            try {
+              const cached = localStorage.getItem('rt_backup_profile_' + currentUser.google_id);
+              if (cached) {
+                const parsed = JSON.parse(cached);
+                parsed.is_active = isProfileActive;
+                localStorage.setItem('rt_backup_profile_' + currentUser.google_id, JSON.stringify(parsed));
+              }
+            } catch (_) {}
           }
-        } catch (_) {}
-      }
-      const token = localStorage.getItem('resume_tailor_session');
-      if (token) {
-        try {
-          await fetch('/api/user/profile/toggle', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', ...authHeaders() },
-            body: JSON.stringify({ is_active: isProfileActive })
-          });
-        } catch (_) {}
+        } else if (res.status === 401) {
+          localStorage.removeItem('resume_tailor_session');
+          applyAuthState({ is_authenticated: false });
+          alert(window.t('alert_session_expired', "Your session has expired. Please sign in with Google again."));
+        }
+      } catch (err) {
+        console.warn("Toggle profile error:", err);
+      } finally {
+        btnToggleProfileActive.disabled = false;
+        btnToggleProfileActive.classList.remove('opacity-60');
       }
     });
 
     btnDeleteProfile?.addEventListener('click', async () => {
-      if (!activeProfile) return;
+      if (!activeProfile || btnDeleteProfile.disabled) return;
       if (confirm(window.t('confirm_delete_profile', "Are you sure you want to delete this master profile and create one from scratch?"))) {
+        btnDeleteProfile.disabled = true;
+        btnDeleteProfile.classList.add('opacity-60');
         if (currentUser?.google_id) {
           try {
             localStorage.removeItem('rt_backup_profile_' + currentUser.google_id);
@@ -2853,12 +2863,18 @@
         const token = localStorage.getItem('resume_tailor_session');
         if (token) {
           try {
-            await fetch('/api/user/profile', {
+            const res = await fetch('/api/user/profile', {
               method: 'DELETE',
               headers: authHeaders()
             });
+            if (res.status === 401) {
+              localStorage.removeItem('resume_tailor_session');
+              applyAuthState({ is_authenticated: false });
+            }
           } catch (_) {}
         }
+        btnDeleteProfile.disabled = false;
+        btnDeleteProfile.classList.remove('opacity-60');
       }
     });
 
@@ -3140,6 +3156,11 @@
       }
       const formData = new FormData();
       formData.append('base_file', file);
+      const origHtml = baseResumeDropzone ? baseResumeDropzone.innerHTML : null;
+      if (baseResumeDropzone) {
+        baseResumeDropzone.innerHTML = `<div class="flex items-center justify-center space-x-2 text-xs font-semibold text-emerald-600 animate-pulse"><span class="animate-spin text-sm">⏳</span> <span>Saving to cloud...</span></div>`;
+        baseResumeDropzone.classList.add('pointer-events-none');
+      }
       try {
         const res = await fetch('/api/user/base-resume', {
           method: 'POST',
@@ -3172,97 +3193,159 @@
           };
           reader.readAsDataURL(file);
         }
-        await checkAuthStatus();
+        await checkAuthStatus(false);
       } catch (err) {
         alert(`Error: ${err.message}`);
+      } finally {
+        if (baseResumeDropzone && origHtml) {
+          baseResumeDropzone.innerHTML = origHtml;
+          baseResumeDropzone.classList.remove('pointer-events-none');
+        }
       }
     }
 
     btnToggleBaseResumeActive?.addEventListener('click', async () => {
-      if (!savedBaseResume) return;
-      isSavedBaseResumeActive = !isSavedBaseResumeActive;
-      updateBaseResumeDisplay();
-      if (currentUser?.google_id) {
-        try {
-          const cached = localStorage.getItem('rt_backup_base_resume_' + currentUser.google_id);
-          if (cached) {
-            const parsed = JSON.parse(cached);
-            parsed.is_active = isSavedBaseResumeActive;
-            localStorage.setItem('rt_backup_base_resume_' + currentUser.google_id, JSON.stringify(parsed));
-          }
-        } catch (_) {}
-      }
+      if (!savedBaseResume || btnToggleBaseResumeActive.disabled) return;
+      const nextState = !isSavedBaseResumeActive;
+      btnToggleBaseResumeActive.disabled = true;
+      btnToggleBaseResumeActive.classList.add('opacity-60');
       try {
-        await fetch('/api/user/base-resume/toggle', {
+        const res = await fetch('/api/user/base-resume/toggle', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...authHeaders() },
-          body: JSON.stringify({ is_active: isSavedBaseResumeActive })
+          body: JSON.stringify({ is_active: nextState })
         });
-      } catch (_) {}
+        if (res.ok) {
+          isSavedBaseResumeActive = nextState;
+          updateBaseResumeDisplay();
+          if (currentUser?.google_id) {
+            try {
+              const cached = localStorage.getItem('rt_backup_base_resume_' + currentUser.google_id);
+              if (cached) {
+                const parsed = JSON.parse(cached);
+                parsed.is_active = isSavedBaseResumeActive;
+                localStorage.setItem('rt_backup_base_resume_' + currentUser.google_id, JSON.stringify(parsed));
+              }
+            } catch (_) {}
+          }
+        } else if (res.status === 401) {
+          localStorage.removeItem('resume_tailor_session');
+          applyAuthState({ is_authenticated: false });
+          alert(window.t('alert_session_expired', "Your session has expired. Please sign in with Google again."));
+        }
+      } catch (err) {
+        console.warn("Toggle base resume error:", err);
+      } finally {
+        btnToggleBaseResumeActive.disabled = false;
+        btnToggleBaseResumeActive.classList.remove('opacity-60');
+      }
     });
 
     btnStep1ToggleBaseResume?.addEventListener('click', async () => {
-      isSavedBaseResumeActive = !isSavedBaseResumeActive;
-      updateBaseResumeDisplay();
-      if (currentUser?.google_id) {
-        try {
-          const cached = localStorage.getItem('rt_backup_base_resume_' + currentUser.google_id);
-          if (cached) {
-            const parsed = JSON.parse(cached);
-            parsed.is_active = isSavedBaseResumeActive;
-            localStorage.setItem('rt_backup_base_resume_' + currentUser.google_id, JSON.stringify(parsed));
-          }
-        } catch (_) {}
-      }
+      if (btnStep1ToggleBaseResume.disabled) return;
+      const nextState = !isSavedBaseResumeActive;
+      btnStep1ToggleBaseResume.disabled = true;
+      btnStep1ToggleBaseResume.classList.add('opacity-60');
       try {
-        await fetch('/api/user/base-resume/toggle', {
+        const res = await fetch('/api/user/base-resume/toggle', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...authHeaders() },
-          body: JSON.stringify({ is_active: isSavedBaseResumeActive })
+          body: JSON.stringify({ is_active: nextState })
         });
-      } catch (_) {}
+        if (res.ok) {
+          isSavedBaseResumeActive = nextState;
+          updateBaseResumeDisplay();
+          if (currentUser?.google_id) {
+            try {
+              const cached = localStorage.getItem('rt_backup_base_resume_' + currentUser.google_id);
+              if (cached) {
+                const parsed = JSON.parse(cached);
+                parsed.is_active = isSavedBaseResumeActive;
+                localStorage.setItem('rt_backup_base_resume_' + currentUser.google_id, JSON.stringify(parsed));
+              }
+            } catch (_) {}
+          }
+        } else if (res.status === 401) {
+          localStorage.removeItem('resume_tailor_session');
+          applyAuthState({ is_authenticated: false });
+          alert(window.t('alert_session_expired', "Your session has expired. Please sign in with Google again."));
+        }
+      } catch (err) {
+        console.warn("Step 1 toggle error:", err);
+      } finally {
+        btnStep1ToggleBaseResume.disabled = false;
+        btnStep1ToggleBaseResume.classList.remove('opacity-60');
+      }
     });
 
     btnStep1EnableBaseResume?.addEventListener('click', async () => {
-      isSavedBaseResumeActive = true;
-      updateBaseResumeDisplay();
-      if (currentUser?.google_id) {
-        try {
-          const cached = localStorage.getItem('rt_backup_base_resume_' + currentUser.google_id);
-          if (cached) {
-            const parsed = JSON.parse(cached);
-            parsed.is_active = true;
-            localStorage.setItem('rt_backup_base_resume_' + currentUser.google_id, JSON.stringify(parsed));
-          }
-        } catch (_) {}
-      }
+      if (btnStep1EnableBaseResume.disabled) return;
+      btnStep1EnableBaseResume.disabled = true;
+      btnStep1EnableBaseResume.classList.add('opacity-60');
       try {
-        await fetch('/api/user/base-resume/toggle', {
+        const res = await fetch('/api/user/base-resume/toggle', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...authHeaders() },
           body: JSON.stringify({ is_active: true })
         });
-      } catch (_) {}
+        if (res.ok) {
+          isSavedBaseResumeActive = true;
+          updateBaseResumeDisplay();
+          if (currentUser?.google_id) {
+            try {
+              const cached = localStorage.getItem('rt_backup_base_resume_' + currentUser.google_id);
+              if (cached) {
+                const parsed = JSON.parse(cached);
+                parsed.is_active = true;
+                localStorage.setItem('rt_backup_base_resume_' + currentUser.google_id, JSON.stringify(parsed));
+              }
+            } catch (_) {}
+          }
+        } else if (res.status === 401) {
+          localStorage.removeItem('resume_tailor_session');
+          applyAuthState({ is_authenticated: false });
+          alert(window.t('alert_session_expired', "Your session has expired. Please sign in with Google again."));
+        }
+      } catch (err) {
+        console.warn("Step 1 enable error:", err);
+      } finally {
+        btnStep1EnableBaseResume.disabled = false;
+        btnStep1EnableBaseResume.classList.remove('opacity-60');
+      }
     });
 
     btnDeleteBaseResume?.addEventListener('click', async () => {
-      if (!savedBaseResume) return;
+      if (!savedBaseResume || btnDeleteBaseResume.disabled) return;
       if (confirm(window.t('confirm_delete_base_resume', "Are you sure you want to delete your saved base resume?"))) {
+        btnDeleteBaseResume.disabled = true;
+        btnDeleteBaseResume.classList.add('opacity-60');
         if (currentUser?.google_id) {
           try {
             localStorage.removeItem('rt_backup_base_resume_' + currentUser.google_id);
           } catch (_) {}
         }
         try {
-          await fetch('/api/user/base-resume', {
+          const res = await fetch('/api/user/base-resume', {
             method: 'DELETE',
             headers: authHeaders()
           });
-          savedBaseResume = null;
-          isSavedBaseResumeActive = false;
-          updateBaseResumeDisplay();
+          if (res.ok) {
+            savedBaseResume = null;
+            isSavedBaseResumeActive = false;
+            updateBaseResumeDisplay();
+          } else if (res.status === 401) {
+            localStorage.removeItem('resume_tailor_session');
+            applyAuthState({ is_authenticated: false });
+            alert(window.t('alert_session_expired', "Your session has expired. Please sign in with Google again."));
+          } else {
+            const err = await res.json();
+            throw new Error(err.detail || "Failed to delete base resume");
+          }
         } catch (err) {
           alert(`Error: ${err.message}`);
+        } finally {
+          btnDeleteBaseResume.disabled = false;
+          btnDeleteBaseResume.classList.remove('opacity-60');
         }
       }
     });
@@ -3316,7 +3399,7 @@
         }
         if (profileNotesText) profileNotesText.value = '';
 
-        // If saved profile exists, load it
+        // 1. Master Profile sync from server (Single Source of Truth)
         if (data.has_profile && data.profile) {
           activeProfile = data.profile;
           isProfileActive = data.profile_is_active !== false;
@@ -3329,97 +3412,38 @@
               }));
             } catch (_) {}
           }
-        } else if (currentUser?.google_id) {
-          // If server reports no profile, check if client has a cached profile backup
-          try {
-            const cachedStr = localStorage.getItem('rt_backup_profile_' + currentUser.google_id);
-            if (cachedStr) {
-              const cached = JSON.parse(cachedStr);
-              if (cached && cached.profile) {
-                activeProfile = cached.profile;
-                isProfileActive = cached.is_active !== false;
-                updateProfileDisplay();
-                // Silently auto-restore to backend so server DB gets it back
-                fetch('/api/user/profile', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json', ...authHeaders() },
-                  body: JSON.stringify({
-                    profile: cached.profile,
-                    is_active: isProfileActive
-                  })
-                }).catch(err => console.warn("Auto-restore profile error:", err));
-              } else {
-                activeProfile = null;
-                isProfileActive = false;
-                updateProfileDisplay();
-              }
-            } else {
-              activeProfile = null;
-              isProfileActive = false;
-              updateProfileDisplay();
-            }
-          } catch (_) {
-            activeProfile = null;
-            isProfileActive = false;
-            updateProfileDisplay();
-          }
         } else {
           activeProfile = null;
           isProfileActive = false;
+          if (currentUser?.google_id) {
+            try {
+              localStorage.removeItem('rt_backup_profile_' + currentUser.google_id);
+            } catch (_) {}
+          }
           updateProfileDisplay();
         }
 
-        // If saved base resume exists
+        // 2. Base Resume sync from server (Single Source of Truth)
         if (data.has_base_resume && data.base_resume) {
           savedBaseResume = data.base_resume;
           isSavedBaseResumeActive = data.base_resume.is_active !== false;
-        } else if (currentUser?.google_id) {
-          // Check if client has a cached base resume backup to auto-restore
-          try {
-            const cachedResumeStr = localStorage.getItem('rt_backup_base_resume_' + currentUser.google_id);
-            if (cachedResumeStr) {
-              const cachedResume = JSON.parse(cachedResumeStr);
-              if (cachedResume && cachedResume.dataUrl && cachedResume.filename) {
-                fetch(cachedResume.dataUrl)
-                  .then(r => r.blob())
-                  .then(blob => {
-                    const restoredFile = new File([blob], cachedResume.filename, { type: cachedResume.fileType || blob.type || 'application/pdf' });
-                    const formData = new FormData();
-                    formData.append('base_file', restoredFile);
-                    return fetch('/api/user/base-resume', {
-                      method: 'POST',
-                      headers: authHeaders(),
-                      body: formData
-                    });
-                  })
-                  .then(r => r.json())
-                  .then(res => {
-                    if (res && res.status === 'success') {
-                      savedBaseResume = {
-                        filename: res.filename,
-                        file_ext: res.file_ext,
-                        is_active: res.is_active
-                      };
-                      isSavedBaseResumeActive = res.is_active !== false;
-                      updateBaseResumeDisplay();
-                    }
-                  })
-                  .catch(err => console.warn("Auto-restore base resume error:", err));
-              } else {
-                savedBaseResume = null;
-                isSavedBaseResumeActive = false;
-              }
-            } else {
-              savedBaseResume = null;
-              isSavedBaseResumeActive = false;
-            }
-          } catch (_) {
-            savedBaseResume = null;
-            isSavedBaseResumeActive = false;
+          if (currentUser?.google_id) {
+            try {
+              localStorage.setItem('rt_backup_base_resume_' + currentUser.google_id, JSON.stringify({
+                filename: data.base_resume.filename,
+                file_ext: data.base_resume.file_ext,
+                is_active: isSavedBaseResumeActive
+              }));
+            } catch (_) {}
           }
         } else {
           savedBaseResume = null;
           isSavedBaseResumeActive = false;
+          if (currentUser?.google_id) {
+            try {
+              localStorage.removeItem('rt_backup_base_resume_' + currentUser.google_id);
+            } catch (_) {}
+          }
         }
       } else {
         currentUser = null;
@@ -3432,27 +3456,32 @@
       }
 
       // Synchronize session tailored resume and Step 1 display for current user
-      if (typeof restoreUserSession === 'function') {
+      if (isInitialOrLogin && typeof restoreUserSession === 'function') {
         restoreUserSession();
       } else {
         updateBaseResumeDisplay();
       }
     }
 
-    async function checkAuthStatus() {
+    let isCheckingAuth = false;
+    async function checkAuthStatus(isInitialOrLogin = false) {
+      if (isCheckingAuth) return;
+      isCheckingAuth = true;
       try {
         const res = await fetch('/api/auth/me', { headers: authHeaders() });
         if (res.ok) {
           const data = await res.json();
-          applyAuthState(data);
+          applyAuthState(data, isInitialOrLogin);
         } else {
           if (res.status === 401) {
             localStorage.removeItem('resume_tailor_session');
           }
-          applyAuthState({ is_authenticated: false });
+          applyAuthState({ is_authenticated: false }, isInitialOrLogin);
         }
       } catch (err) {
         console.warn("Auth check notice:", err);
+      } finally {
+        isCheckingAuth = false;
       }
     }
 
@@ -3471,7 +3500,7 @@
         const data = await res.json();
         localStorage.setItem('resume_tailor_session', data.session_token);
         tournamentModal?.classList.add('hidden');
-        await checkAuthStatus();
+        await checkAuthStatus(true);
       } catch (err) {
         alert("Google Sign-In Error: " + err.message);
       }
@@ -3622,7 +3651,28 @@
     }
 
     initGoogleAuth();
-    checkAuthStatus();
+    checkAuthStatus(true);
+
+    // Cross-Device Instant Synchronization Listeners
+    // 1. When switching tabs, returning from another app, or unlocking phone/screen
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && currentUser) {
+        checkAuthStatus(false);
+      }
+    });
+
+    window.addEventListener('focus', () => {
+      if (currentUser) {
+        checkAuthStatus(false);
+      }
+    });
+
+    // 2. Active background sync polling every 5 seconds when tab is active on screen
+    setInterval(() => {
+      if (document.visibilityState === 'visible' && currentUser) {
+        checkAuthStatus(false);
+      }
+    }, 5000);
 
     // Master Profile Upload (Option A) - Custom Dropzone (Supports Multiple Files)
     const profileDropzone = document.getElementById('profileDropzone');
