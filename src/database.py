@@ -762,7 +762,11 @@ def check_rate_limit(
             "is_admin": True,
             "deep_boost": {"allowed": True, "used": 0, "limit": 999999, "remaining": 999999, "is_admin": True},
         }
-    if identifier in ("ip:testclient", "user:test_user") or os.getenv("TESTING") == "1":
+    if (
+        identifier in ("ip:testclient", "dev:testclient", "dev:ip_testclient", "user:test_user")
+        or identifier.startswith("dev:test_mock")
+        or os.getenv("TESTING") == "1"
+    ):
         return {
             "allowed": True,
             "used": 0,
@@ -775,16 +779,6 @@ def check_rate_limit(
     base_limit = USER_DAILY_LIMIT if is_authenticated else GUEST_DAILY_LIMIT
     effective_limit = max(0, base_limit + bonuses["bonus_tailors"])
     actual_runs = get_daily_usage(identifier)
-    if is_authenticated and identifier.startswith("user:"):
-        gid = identifier.split("user:")[1]
-        linked_ips = get_linked_ips_for_user(gid)
-        if client_ip and client_ip not in linked_ips:
-            linked_ips.append(client_ip)
-        for ip in linked_ips:
-            guest_used = get_daily_usage(f"ip:{ip}")
-            actual_runs = max(actual_runs, guest_used)
-    elif not is_authenticated and client_ip:
-        actual_runs = max(actual_runs, get_daily_usage(f"ip:{client_ip}"))
     effective_used = max(0, actual_runs - bonuses["tailors_reset_offset"])
     remaining = max(0, effective_limit - effective_used)
 
@@ -866,12 +860,9 @@ def list_all_users_with_daily_usage(date_str: Optional[str] = None) -> list[dict
         ).fetchall()
         u["linked_ips"] = [row["ip_address"] for row in ip_rows]
 
-        # Calculate unified usage across user account and linked IP addresses
+        # Calculate usage for user account
         user_runs = get_daily_usage(f"user:{gid}", d)
-        ip_runs = 0
-        for ip in u["linked_ips"]:
-            ip_runs = max(ip_runs, get_daily_usage(f"ip:{ip}", d))
-        actual_used = max(user_runs, ip_runs)
+        actual_used = user_runs
 
         deep_boost_used = get_daily_usage(f"user:{gid}:deep_boost", d)
         bonuses = get_daily_bonuses(f"user:{gid}", d)
@@ -901,28 +892,35 @@ def list_all_users_with_daily_usage(date_str: Optional[str] = None) -> list[dict
 def list_active_guests_with_daily_usage(date_str: Optional[str] = None) -> list[dict[str, Any]]:
     d = date_str or datetime.utcnow().strftime("%Y-%m-%d")
     conn = get_db_connection()
-    # Filter out test identifiers AND any IP that is linked to a registered user!
+    # Filter out test identifiers and legacy guest IPs that belong to registered users
     rows = conn.execute("""
         SELECT identifier, count
         FROM daily_usage
         WHERE usage_date = ? 
-          AND identifier LIKE 'ip:%' 
+          AND (identifier LIKE 'dev:%' OR identifier LIKE 'ip:%')
           AND identifier NOT LIKE '%test%'
-          AND replace(identifier, 'ip:', '') NOT IN (SELECT ip_address FROM user_ips)
+          AND (identifier NOT LIKE 'ip:%' OR replace(identifier, 'ip:', '') NOT IN (SELECT ip_address FROM user_ips))
         ORDER BY count DESC
     """, (d,)).fetchall()
 
     guests = []
     for r in rows:
         ident = r["identifier"]
-        ip = ident.replace("ip:", "")
         cnt = int(r["count"])
         bonuses = get_daily_bonuses(ident, d)
         eff_limit = max(0, GUEST_DAILY_LIMIT + bonuses["bonus_tailors"])
         eff_used = max(0, cnt - bonuses["tailors_reset_offset"])
+
+        # Look up last seen IP for this device from tailor_runs if available
+        last_ip_row = conn.execute(
+            "SELECT client_ip FROM tailor_runs WHERE identifier = ? ORDER BY id DESC LIMIT 1",
+            (ident,)
+        ).fetchone()
+        last_ip = last_ip_row["client_ip"] if last_ip_row else ident.replace("dev:", "").replace("ip:", "")
+
         guests.append({
             "identifier": ident,
-            "ip_address": ip,
+            "ip_address": last_ip,
             "tailors_used": cnt,
             "tailors_limit": eff_limit,
             "tailors_remaining": max(0, eff_limit - eff_used),
@@ -1070,13 +1068,13 @@ def get_system_stats(date_str: Optional[str] = None) -> dict[str, Any]:
     if admin_boosts == 0:
         admin_boosts = get_daily_usage(f"user:{ADMIN_GOOGLE_ID}:deep_boost", d)
 
-    # 4. Active Guests Today: exclude any IP linked to a registered user!
+    # 4. Active Guests Today
     active_guests_row = conn.execute("""
         SELECT COUNT(DISTINCT identifier) as cnt FROM daily_usage
         WHERE usage_date = ? 
-          AND identifier LIKE 'ip:%' 
+          AND (identifier LIKE 'dev:%' OR identifier LIKE 'ip:%')
           AND identifier NOT LIKE '%test%'
-          AND replace(identifier, 'ip:', '') NOT IN (SELECT ip_address FROM user_ips)
+          AND (identifier NOT LIKE 'ip:%' OR replace(identifier, 'ip:', '') NOT IN (SELECT ip_address FROM user_ips))
     """, (d,)).fetchone()
     today_guests = int(active_guests_row["cnt"] or 0) if active_guests_row else 0
 

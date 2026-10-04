@@ -920,7 +920,9 @@
       }
 
       guestsTableBody.innerHTML = cachedGuests.map(g => {
-        const ip = g.ip_address || g.ip || (g.identifier ? g.identifier.replace(/^ip:/, '') : 'Unknown');
+        const isDevice = g.identifier && g.identifier.startsWith('dev:');
+        const deviceShort = isDevice ? g.identifier.replace(/^dev:/, '') : '';
+        const ip = g.ip_address || g.ip || (g.identifier ? g.identifier.replace(/^(ip|dev):/, '') : 'Unknown');
         const used = (g.tailors_used !== undefined ? g.tailors_used : g.count) || 0;
         const limit = g.tailors_limit || 2;
         const remaining = g.tailors_remaining !== undefined ? g.tailors_remaining : Math.max(0, limit - used);
@@ -929,7 +931,7 @@
         return `
           <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition">
             <td class="py-3 px-4 font-mono font-bold text-slate-800 dark:text-slate-200">
-              ${escapeHtml(ip)}
+              ${isDevice ? `<div class="text-xs">📱 Device (${escapeHtml(deviceShort.substring(0, 16))})</div><div class="text-[11px] font-normal text-slate-400">IP: ${escapeHtml(ip)}</div>` : escapeHtml(ip)}
             </td>
             <td class="py-3 px-4">
               <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold ${

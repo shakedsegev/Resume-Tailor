@@ -468,5 +468,44 @@ def test_cumulative_telemetry_preserved_after_admin_resets():
     assert stats_after_deep_reset["today_deep_boosts"] == stats_before["today_deep_boosts"]
 
 
+def test_guest_device_rate_limit_isolation():
+    """
+    Verifies that two guest devices sharing the exact same IP address
+    have independent daily rate limit quotas tracked by device ID.
+    """
+    import uuid
+    from src.database import increment_daily_usage
+
+    unique_suffix = uuid.uuid4().hex[:6]
+    dev_alpha = f"dev_alpha_{unique_suffix}"
+    dev_beta = f"dev_beta_{unique_suffix}"
+
+    # Both devices check in from the same client IP
+    res_a_init = client.get("/api/auth/me", headers={"X-Device-Id": dev_alpha})
+    assert res_a_init.status_code == 200
+    assert res_a_init.json()["rate_limit"]["remaining"] == 2
+    assert res_a_init.json()["rate_limit"]["limit"] == 2
+
+    res_b_init = client.get("/api/auth/me", headers={"X-Device-Id": dev_beta})
+    assert res_b_init.status_code == 200
+    assert res_b_init.json()["rate_limit"]["remaining"] == 2
+    assert res_b_init.json()["rate_limit"]["limit"] == 2
+
+    # Device Alpha uses 1 run
+    increment_daily_usage(f"dev:{dev_alpha}")
+
+    # Device Alpha now has 1 remaining
+    res_a_after = client.get("/api/auth/me", headers={"X-Device-Id": dev_alpha})
+    assert res_a_after.status_code == 200
+    assert res_a_after.json()["rate_limit"]["used"] == 1
+    assert res_a_after.json()["rate_limit"]["remaining"] == 1
+
+    # Device Beta on the same IP must still have 2/2 remaining!
+    res_b_after = client.get("/api/auth/me", headers={"X-Device-Id": dev_beta})
+    assert res_b_after.status_code == 200
+    assert res_b_after.json()["rate_limit"]["used"] == 0
+    assert res_b_after.json()["rate_limit"]["remaining"] == 2
+
+
 
 

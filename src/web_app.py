@@ -17,6 +17,7 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Body, Reques
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
+import requests
 
 import sys
 project_root = Path(__file__).parent.parent.resolve()
@@ -83,6 +84,9 @@ GOOGLE_CLIENT_ID = os.getenv(
     "1057142254812-2pfj4d8dk8nsmfpm0k8pkg5043bpade1.apps.googleusercontent.com",
 )
 
+_google_auth_session = requests.Session()
+_google_auth_request = google_requests.Request(session=_google_auth_session)
+
 
 def get_session_token_from_request(request: Request) -> Optional[str]:
     auth = request.headers.get("authorization")
@@ -106,6 +110,20 @@ def get_client_ip(request: Request) -> str:
     if forwarded:
         return forwarded.split(",")[0].strip()
     return request.client.host if request.client else "127.0.0.1"
+
+
+def get_client_device_id(request: Request) -> str:
+    """
+    Retrieves the unique device ID from 'X-Device-Id' header or 'rt_device_id' cookie.
+    Falls back to sanitized client IP if not available.
+    """
+    dev_id = request.headers.get("x-device-id") or request.cookies.get("rt_device_id")
+    if dev_id:
+        clean = re.sub(r"[^a-zA-Z0-9_\-]", "", str(dev_id).strip())
+        if 4 <= len(clean) <= 64:
+            return clean
+    client_ip = get_client_ip(request)
+    return f"ip_{client_ip.replace('.', '_').replace(':', '_')}"
 
 app = FastAPI(
     title="Resume-Tailor 🎯",
@@ -289,7 +307,7 @@ async def auth_google(payload: GoogleAuthPayload, request: Request):
     try:
         id_info = id_token.verify_oauth2_token(
             payload.credential,
-            google_requests.Request(),
+            _google_auth_request,
             GOOGLE_CLIENT_ID,
             clock_skew_in_seconds=10,
         )
@@ -307,10 +325,11 @@ async def auth_google(payload: GoogleAuthPayload, request: Request):
         saved_profile = get_user_profile(google_id)
         saved_base = get_user_base_resume(google_id)
         client_ip = get_client_ip(request)
+        device_id = get_client_device_id(request)
         link_user_ip(google_id, client_ip)
         limit_info = check_rate_limit(f"user:{google_id}", is_authenticated=True, client_ip=client_ip)
 
-        return JSONResponse(
+        resp = JSONResponse(
             content={
                 "status": "success",
                 "session_token": session_token,
@@ -327,6 +346,9 @@ async def auth_google(payload: GoogleAuthPayload, request: Request):
                 } if saved_base else None,
             }
         )
+        if "rt_device_id" not in request.cookies and device_id and not device_id.startswith("ip_"):
+            resp.set_cookie("rt_device_id", device_id, max_age=31536000, httponly=False, samesite="lax")
+        return resp
     except ValueError as e:
         raise HTTPException(status_code=401, detail=f"Google authentication failed: {e}")
     except Exception as e:
@@ -340,6 +362,7 @@ async def get_current_user_info(request: Request):
     """
     user = get_current_user_optional(request)
     client_ip = get_client_ip(request)
+    device_id = get_client_device_id(request)
     if user:
         if not user.get("is_admin"):
             link_user_ip(user["google_id"], client_ip)
@@ -347,7 +370,7 @@ async def get_current_user_info(request: Request):
         limit_info = check_rate_limit(identifier, is_authenticated=True, client_ip=client_ip)
         saved_profile = get_user_profile(user["google_id"])
         saved_base = get_user_base_resume(user["google_id"])
-        return JSONResponse(
+        resp = JSONResponse(
             content={
                 "is_authenticated": True,
                 "user": user,
@@ -364,16 +387,22 @@ async def get_current_user_info(request: Request):
             }
         )
     else:
-        identifier = f"ip:{client_ip}"
+        identifier = f"dev:{device_id}"
         limit_info = check_rate_limit(identifier, is_authenticated=False)
-        return JSONResponse(
+        resp = JSONResponse(
             content={
                 "is_authenticated": False,
                 "rate_limit": limit_info,
                 "has_profile": False,
+                "profile": None,
+                "profile_is_active": False,
                 "has_base_resume": False,
+                "base_resume": None,
             }
         )
+    if "rt_device_id" not in request.cookies and device_id and not device_id.startswith("ip_"):
+        resp.set_cookie("rt_device_id", device_id, max_age=31536000, httponly=False, samesite="lax")
+    return resp
 
 
 @app.post("/api/auth/logout")
@@ -648,11 +677,12 @@ async def tailor_resume_endpoint(
     user = get_current_user_optional(request)
     is_admin = bool(user and user.get("is_admin"))
     client_ip = get_client_ip(request)
+    device_id = get_client_device_id(request)
     if user:
         identifier = f"user:{user['google_id']}"
         is_auth = True
     else:
-        identifier = f"ip:{client_ip}"
+        identifier = f"dev:{device_id}"
         is_auth = False
 
     # Enforce quota based on mode:
@@ -882,7 +912,7 @@ async def tailor_resume_endpoint(
                     is_deep_boost=(tournament_passes == 5),
                 )
             limit_status = check_rate_limit(identifier, is_authenticated=is_auth, client_ip=client_ip)
-            return JSONResponse(
+            resp = JSONResponse(
                 content={
                     "status": "success",
                     "job_id": job_id,
@@ -898,6 +928,9 @@ async def tailor_resume_endpoint(
                     "rate_limit": limit_status,
                 }
             )
+            if "rt_device_id" not in request.cookies and device_id and not device_id.startswith("ip_"):
+                resp.set_cookie("rt_device_id", device_id, max_age=31536000, httponly=False, samesite="lax")
+            return resp
         except Exception as err:
             # If template-specific layout parsing encounters an unexpected layout,
             # log and proceed to universal fallback
@@ -976,7 +1009,7 @@ async def tailor_resume_endpoint(
             is_deep_boost=(tournament_passes == 5),
         )
     limit_status = check_rate_limit(identifier, is_authenticated=is_auth, client_ip=client_ip)
-    return JSONResponse(
+    resp = JSONResponse(
         content={
             "status": "success",
             "job_id": job_id,
@@ -991,6 +1024,9 @@ async def tailor_resume_endpoint(
             "rate_limit": limit_status,
         }
     )
+    if "rt_device_id" not in request.cookies and device_id and not device_id.startswith("ip_"):
+        resp.set_cookie("rt_device_id", device_id, max_age=31536000, httponly=False, samesite="lax")
+    return resp
 
 
 class RecompileRequest(BaseModel):

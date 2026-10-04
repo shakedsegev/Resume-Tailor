@@ -2917,9 +2917,44 @@
     let isSavedBaseResumeActive = false;
     let latestRateLimit = null;
 
+    function getOrCreateDeviceId() {
+      let deviceId = '';
+      try {
+        deviceId = localStorage.getItem('rt_device_id') || '';
+      } catch (_) {}
+      if (!deviceId || typeof deviceId !== 'string' || deviceId.length < 8) {
+        try {
+          const match = document.cookie.match(/(?:^|;\s*)rt_device_id=([^;]+)/);
+          if (match && match[1]) {
+            deviceId = decodeURIComponent(match[1]);
+          }
+        } catch (_) {}
+      }
+      if (!deviceId || deviceId.length < 8) {
+        if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+          deviceId = 'dev_' + crypto.randomUUID().replace(/-/g, '');
+        } else {
+          deviceId = 'dev_' + Math.random().toString(36).substring(2, 12) + Date.now().toString(36);
+        }
+        try {
+          localStorage.setItem('rt_device_id', deviceId);
+        } catch (_) {}
+      }
+      try {
+        document.cookie = `rt_device_id=${encodeURIComponent(deviceId)}; path=/; max-age=31536000; SameSite=Lax`;
+      } catch (_) {}
+      return deviceId;
+    }
+
     function authHeaders() {
+      const headers = {
+        'X-Device-Id': getOrCreateDeviceId()
+      };
       const token = localStorage.getItem('resume_tailor_session');
-      return token ? { 'Authorization': `Bearer ${token}` } : {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      return headers;
     }
 
     const loggedOutView = document.getElementById('loggedOutView');
@@ -3071,6 +3106,9 @@
         return;
       }
       latestRateLimit = rateLimit;
+      try {
+        localStorage.setItem('rt_last_rate_limit', JSON.stringify(rateLimit));
+      } catch (_) {}
       rateLimitBadge?.classList.remove('hidden');
       rateLimitBadge?.classList.add('flex');
       if (rateLimitText) {
@@ -3078,6 +3116,21 @@
         rateLimitBadge.title = `Daily AI tailoring quota: ${rateLimit.used} used of ${rateLimit.limit} daily limit (${rateLimit.remaining} remaining). Resets at midnight UTC.`;
       }
     }
+
+    function initRateLimitBadge() {
+      try {
+        const cached = localStorage.getItem('rt_last_rate_limit');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed && typeof parsed.limit === 'number') {
+            updateRateLimitBadge(parsed);
+            return;
+          }
+        }
+      } catch (_) {}
+      updateRateLimitBadge({ remaining: 2, limit: 2, used: 0, is_authenticated: false });
+    }
+    initRateLimitBadge();
 
     function updateBaseResumeDisplay() {
       // 1. Master Profile Tab: Base Resume Card State
@@ -3499,7 +3552,13 @@
         loggedOutView?.classList.remove('hidden');
         loggedInView?.classList.add('hidden');
         adminPersonaView?.classList.add('hidden');
-        if (data && data.rate_limit) updateRateLimitBadge(data.rate_limit);
+        if (data && data.rate_limit) {
+          updateRateLimitBadge(data.rate_limit);
+        } else if (latestRateLimit && !latestRateLimit.is_admin) {
+          updateRateLimitBadge(latestRateLimit);
+        } else {
+          updateRateLimitBadge({ remaining: 2, limit: 2, used: 0, is_authenticated: false });
+        }
 
         // Restore guest Master Profile from local storage
         try {
@@ -3576,7 +3635,7 @@
       try {
         const res = await fetch('/api/auth/google', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
           body: JSON.stringify({ credential: response.credential })
         });
         if (!res.ok) {
@@ -3586,7 +3645,8 @@
         const data = await res.json();
         localStorage.setItem('resume_tailor_session', data.session_token);
         tournamentModal?.classList.add('hidden');
-        await checkAuthStatus(true);
+        data.is_authenticated = true;
+        applyAuthState(data, true);
       } catch (err) {
         alert("Google Sign-In Error: " + err.message);
       }
@@ -3624,6 +3684,21 @@
       localStorage.removeItem('rt_local_base_resume');
       updateProfileDisplay();
       updateBaseResumeDisplay();
+      try {
+        const cached = localStorage.getItem('rt_last_rate_limit');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed && !parsed.is_authenticated && typeof parsed.remaining === 'number') {
+            updateRateLimitBadge(parsed);
+          } else {
+            updateRateLimitBadge({ remaining: 2, limit: 2, used: 0, is_authenticated: false });
+          }
+        } else {
+          updateRateLimitBadge({ remaining: 2, limit: 2, used: 0, is_authenticated: false });
+        }
+      } catch (_) {
+        updateRateLimitBadge({ remaining: 2, limit: 2, used: 0, is_authenticated: false });
+      }
       if (window.google?.accounts?.id) {
         google.accounts.id.disableAutoSelect();
       }
@@ -3748,20 +3823,18 @@
     // Cross-Device Instant Synchronization Listeners
     // 1. When switching tabs, returning from another app, or unlocking phone/screen
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible' && currentUser) {
+      if (document.visibilityState === 'visible') {
         checkAuthStatus(false);
       }
     });
 
     window.addEventListener('focus', () => {
-      if (currentUser) {
-        checkAuthStatus(false);
-      }
+      checkAuthStatus(false);
     });
 
     // 2. Active background sync polling every 5 seconds when tab is active on screen
     setInterval(() => {
-      if (document.visibilityState === 'visible' && currentUser) {
+      if (document.visibilityState === 'visible') {
         checkAuthStatus(false);
       }
     }, 5000);
