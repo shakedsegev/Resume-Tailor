@@ -1003,6 +1003,8 @@ def get_system_stats(date_str: Optional[str] = None) -> dict[str, Any]:
           AND identifier NOT LIKE '%admin%'
           AND identifier NOT LIKE '%test%'
           AND identifier NOT LIKE '%mock%'
+          AND identifier NOT LIKE '%deep_user%'
+          AND identifier NOT LIKE '%target_user%'
     """, (d, ADMIN_GOOGLE_ID)).fetchone()
     today_tailors = int(tailors_run_row["total"] or 0) if tailors_run_row else 0
 
@@ -1015,6 +1017,8 @@ def get_system_stats(date_str: Optional[str] = None) -> dict[str, Any]:
               AND identifier NOT LIKE '%admin%'
               AND identifier NOT LIKE '%test%'
               AND identifier NOT LIKE '%mock%'
+              AND identifier NOT LIKE '%deep_user%'
+              AND identifier NOT LIKE '%target_user%'
         """, (d,)).fetchone()
         today_tailors = int(tailors_row["total"] or 0) if tailors_row else 0
 
@@ -1027,6 +1031,8 @@ def get_system_stats(date_str: Optional[str] = None) -> dict[str, Any]:
           AND identifier NOT LIKE '%admin%'
           AND identifier NOT LIKE '%test%'
           AND identifier NOT LIKE '%mock%'
+          AND identifier NOT LIKE '%deep_user%'
+          AND identifier NOT LIKE '%target_user%'
     """, (d, ADMIN_GOOGLE_ID)).fetchone()
     today_boosts = int(boosts_run_row["total"] or 0) if boosts_run_row else 0
 
@@ -1038,6 +1044,8 @@ def get_system_stats(date_str: Optional[str] = None) -> dict[str, Any]:
               AND identifier NOT LIKE '%admin%'
               AND identifier NOT LIKE '%test%'
               AND identifier NOT LIKE '%mock%'
+              AND identifier NOT LIKE '%deep_user%'
+              AND identifier NOT LIKE '%target_user%'
         """, (d,)).fetchone()
         today_boosts = int(boosts_row["total"] or 0) if boosts_row else 0
 

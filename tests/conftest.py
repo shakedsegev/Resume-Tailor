@@ -13,9 +13,12 @@ from src.database import init_db
 def setup_test_db(tmp_path_factory):
     test_dir = tmp_path_factory.mktemp("test_db")
     test_db = test_dir / "test_resume_tailor.db"
+    old_db_url = os.environ.pop("DATABASE_URL", None)
     os.environ["RESUME_TAILOR_DB_PATH"] = str(test_db)
     init_db(test_db)
     yield
+    if old_db_url:
+        os.environ["DATABASE_URL"] = old_db_url
     if test_db.exists():
         try:
             test_db.unlink()

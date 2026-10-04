@@ -3389,7 +3389,7 @@
       }
     });
 
-    function applyAuthState(data) {
+    function applyAuthState(data, isInitialOrLogin = false) {
       if (data && data.is_authenticated) {
         currentUser = data.user;
         if (currentUser && currentUser.is_admin) {
