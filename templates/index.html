@@ -2914,6 +2914,26 @@
     const savedBaseResumePausedName = document.getElementById('savedBaseResumePausedName');
     const btnStep1EnableBaseResume = document.getElementById('btnStep1EnableBaseResume');
 
+    // Tailoring Form & Step 1 Inputs (Declared at top so all functions can safely access them)
+    const tailorForm = document.getElementById('tailorForm');
+    const dropzone = document.getElementById('dropzone');
+    const resumeFileInput = document.getElementById('resumeFileInput');
+    const fileStatusCard = document.getElementById('fileStatusCard');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const btnRemoveFile = document.getElementById('btnRemoveFile');
+    const jdText = document.getElementById('jdText');
+    const btnSubmit = document.getElementById('btnSubmit');
+    let selectedFile = null;
+
+    // Master Profile Upload (Option A) Elements (Declared at top so all functions can safely access them)
+    const profileDropzone = document.getElementById('profileDropzone');
+    const profileFileInput = document.getElementById('profileFileInput');
+    const profileFilesList = document.getElementById('profileFilesList');
+    const profileNotesText = document.getElementById('profileNotesText');
+    const btnUploadProfile = document.getElementById('btnUploadProfile');
+    let selectedProfileFiles = [];
+
     const gsiLangMap = {
       en: 'en',
       he: 'he',
@@ -3390,15 +3410,6 @@
           updateRateLimitBadge(data.rate_limit);
         }
 
-        // Clear Option A upload inputs/chips so returning users see ONLY their profile.json & base resume
-        selectedProfileFiles = [];
-        if (profileFileInput) profileFileInput.value = '';
-        if (profileFilesList) {
-          profileFilesList.innerHTML = '';
-          profileFilesList.classList.add('hidden');
-        }
-        if (profileNotesText) profileNotesText.value = '';
-
         // 1. Master Profile sync from server (Single Source of Truth)
         if (data.has_profile && data.profile) {
           activeProfile = data.profile;
@@ -3674,14 +3685,7 @@
       }
     }, 5000);
 
-    // Master Profile Upload (Option A) - Custom Dropzone (Supports Multiple Files)
-    const profileDropzone = document.getElementById('profileDropzone');
-    const profileFileInput = document.getElementById('profileFileInput');
-    const profileFilesList = document.getElementById('profileFilesList');
-    const profileNotesText = document.getElementById('profileNotesText');
-    const btnUploadProfile = document.getElementById('btnUploadProfile');
-
-    let selectedProfileFiles = [];
+    // Master Profile Upload (Option A) Event Listeners
 
     profileDropzone.addEventListener('click', () => profileFileInput.click());
     profileDropzone.addEventListener('dragover', (e) => {
@@ -3905,16 +3909,7 @@
       reader.readAsText(file);
     });
 
-    // Tailoring Form
-    const tailorForm = document.getElementById('tailorForm');
-    const dropzone = document.getElementById('dropzone');
-    const resumeFileInput = document.getElementById('resumeFileInput');
-    const fileStatusCard = document.getElementById('fileStatusCard');
-    const fileName = document.getElementById('fileName');
-    const fileSize = document.getElementById('fileSize');
-    const btnRemoveFile = document.getElementById('btnRemoveFile');
-    const jdText = document.getElementById('jdText');
-    const btnSubmit = document.getElementById('btnSubmit');
+    // Tailoring Form Event Listeners
 
     const progressCard = document.getElementById('progressCard');
     const progressBar = document.getElementById('progressBar');
@@ -3932,7 +3927,6 @@
     const btnDownloadPdf = document.getElementById('btnDownloadPdf');
     const btnOpenNewTab = document.getElementById('btnOpenNewTab');
 
-    let selectedFile = null;
 
     dropzone.addEventListener('click', () => resumeFileInput.click());
     dropzone.addEventListener('dragover', (e) => {
