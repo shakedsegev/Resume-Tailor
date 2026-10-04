@@ -8,7 +8,8 @@
   <script>
     (function() {
       var savedLang = localStorage.getItem('resume_tailor_lang') || 'en';
-      var hl = (savedLang === 'he') ? 'he' : 'en';
+      var langMap = { en: 'en', he: 'he', es: 'es', zh: 'zh-CN', ar: 'ar', fr: 'fr', de: 'de' };
+      var hl = langMap[savedLang] || 'en';
       var s = document.createElement('script');
       s.id = 'gsiScript';
       s.src = 'https://accounts.google.com/gsi/client?hl=' + hl;
@@ -1108,6 +1109,12 @@
             <button id="btnDownloadProfileJson" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors flex items-center gap-1.5 cursor-pointer">
               <span>⬇️</span> <span data-i18n="btn_download_json">Download profile.json</span>
             </button>
+
+            <!-- Import JSON Button -->
+            <label for="importProfileJsonInput" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors flex items-center gap-1.5 cursor-pointer" title="Import profile.json backup">
+              <span>⬆️</span> <span data-i18n="btn_import_json">Import profile.json</span>
+              <input type="file" id="importProfileJsonInput" accept=".json" class="hidden">
+            </label>
           </div>
         </div>
 
@@ -1475,6 +1482,7 @@
         active_gt_label: "Profile is Active",
         master_profile_title: "Your Profile in JSON Form",
         btn_download_json: "Download profile.json",
+        btn_import_json: "Import profile.json",
         wiz_modal_title: "Guided Profile Questionnaire",
         wiz_q1: "1. Full Name & Target Roles",
         wiz_q2: "2. Core Technical Skills",
@@ -1560,6 +1568,7 @@
         confirm_delete_base_resume: "Are you sure you want to delete your saved base resume?",
         alert_select_profile_input: "Please select at least one profile file or paste background notes.",
         alert_profile_generated: "Master Profile successfully generated!",
+        alert_profile_imported: "Master Profile successfully imported!",
         alert_profile_created_wiz: "Master Profile created from questionnaire!",
         alert_tailor_first: "Please tailor a resume first before editing.",
         alert_no_resume_file: "Please select or upload your resume file in Step 1, or activate your Base Resume in the Master Profile tab.",
@@ -1630,6 +1639,7 @@
         active_gt_label: "הפרופיל פעיל",
         master_profile_title: "הפרופיל שלך במבנה JSON",
         btn_download_json: "הורד profile.json",
+        btn_import_json: "ייבא profile.json",
         wiz_modal_title: "שאלון מונחה לבניית פרופיל",
         wiz_q1: "1. שם מלא ותפקידי יעד",
         wiz_q2: "2. כישורים טכנולוגיים מרכזיים",
@@ -1715,6 +1725,7 @@
         confirm_delete_base_resume: "האם אתה בטוח שברצונך למחוק את קורות החיים הראשיים השמורים?",
         alert_select_profile_input: "נא לבחור לפחות קובץ פרופיל אחד או להדביק הערות רקע.",
         alert_profile_generated: "פרופיל ראשי נוצר בהצלחה!",
+        alert_profile_imported: "פרופיל המאסטר יובא בהצלחה!",
         alert_profile_created_wiz: "פרופיל ראשי נוצר מהשאלון בהצלחה!",
         alert_tailor_first: "נא להתאים קורות חיים לפני עריכה.",
         alert_no_resume_file: "נא לבחור או להעלות קובץ קורות חיים בשלב 1, או להפעיל את קורות החיים הראשיים בלשונית הפרופיל הראשי.",
@@ -1785,6 +1796,7 @@
         active_gt_label: "Fuente de Verdad Activa",
         master_profile_title: "Perfil Maestro del Candidato",
         btn_download_json: "Descargar profile.json",
+        btn_import_json: "Importar profile.json",
         wiz_modal_title: "Cuestionario Guiado de Perfil",
         wiz_q1: "1. Nombre Completo y Roles Objetivo",
         wiz_q2: "2. Habilidades Técnicas Clave",
@@ -1869,6 +1881,7 @@
         confirm_delete_base_resume: "¿Está seguro de que desea eliminar su currículum base guardado?",
         alert_select_profile_input: "Por favor, seleccione al menos un archivo de perfil o pegue notas de antecedentes.",
         alert_profile_generated: "¡Perfil Maestro generado con éxito!",
+        alert_profile_imported: "¡Perfil maestro importado con éxito!",
         alert_profile_created_wiz: "¡Perfil Maestro creado a partir del cuestionario!",
         alert_tailor_first: "Por favor, adapte un currículum antes de editarlo.",
         alert_no_resume_file: "Por favor, seleccione o suba su currículum en el Paso 1, o active su Currículum Base en la pestaña Perfil Maestro.",
@@ -1940,6 +1953,7 @@
         active_gt_label: "已加载的事实依据",
         master_profile_title: "候选人核心背景档案",
         btn_download_json: "下载 profile.json",
+        btn_import_json: "导入 profile.json",
         wiz_modal_title: "核心背景档案问卷",
         wiz_q1: "1. 全名与求职意向岗位",
         wiz_q2: "2. 核心技术栈与技能",
@@ -2024,6 +2038,7 @@
         confirm_delete_base_resume: "确定要删除已保存的基准简历吗？",
         alert_select_profile_input: "请选择至少一个档案文件或粘贴背景笔记。",
         alert_profile_generated: "核心背景档案生成成功！",
+        alert_profile_imported: "主档案导入成功！",
         alert_profile_created_wiz: "通过问卷成功创建核心档案！",
         alert_tailor_first: "请先完成一次简历定制再进行编辑。",
         alert_no_resume_file: "请在步骤 1 中选择或上传简历文件，或在核心档案选项卡中激活您的基准简历。",
@@ -2095,6 +2110,7 @@
         active_gt_label: "مصدر الحقيقة النشط",
         master_profile_title: "الملف الشخصي المرجعي",
         btn_download_json: "تحميل profile.json",
+        btn_import_json: "استيراد profile.json",
         wiz_modal_title: "معالج الأسئلة التفاعلي للملف المرجعي",
         wiz_q1: "1. الاسم الكامل والوظائف المستهدفة",
         wiz_q2: "2. المهارات التقنية الأساسية",
@@ -2179,6 +2195,7 @@
         confirm_delete_base_resume: "هل أنت متأكد من رغبتك في حذف السيرة الذاتية الأساسية المحفوظة؟",
         alert_select_profile_input: "يرجى اختيار ملف مرجعي واحد على الأقل أو لصق ملاحظاتك.",
         alert_profile_generated: "تم إنشاء الملف المرجعي بنجاح!",
+        alert_profile_imported: "تم استيراد الملف المرجعي بنجاح!",
         alert_profile_created_wiz: "تم إنشاء الملف المرجعي من الاستبيان بنجاح!",
         alert_tailor_first: "يرجى تخصيص السيرة الذاتية أولاً قبل التعديل.",
         alert_no_resume_file: "يرجى تحديد أو رفع ملف السيرة الذاتية في الخطوة 1، أو تفعيل سيرتك الأساسية في تبويب الملف المرجعي.",
@@ -2250,6 +2267,7 @@
         active_gt_label: "Source de Vérité Active",
         master_profile_title: "Profil Maître du Candidat",
         btn_download_json: "Télécharger profile.json",
+        btn_import_json: "Importer profile.json",
         wiz_modal_title: "Questionnaire Guidé de Profil",
         wiz_q1: "1. Nom Complet et Postes Visés",
         wiz_q2: "2. Compétences Techniques Clés",
@@ -2334,6 +2352,7 @@
         confirm_delete_base_resume: "Êtes-vous sûr de vouloir supprimer votre CV de base enregistré ?",
         alert_select_profile_input: "Veuillez sélectionner au moins un fichier ou coller vos notes d'expérience.",
         alert_profile_generated: "Profil Maître généré avec succès !",
+        alert_profile_imported: "Profil principal importé avec succès !",
         alert_profile_created_wiz: "Profil Maître créé à partir du questionnaire !",
         alert_tailor_first: "Veuillez d'abord adapter un CV avant de le modifier.",
         alert_no_resume_file: "Veuillez sélectionner ou téléverser votre CV à l'Étape 1, ou activer votre CV de Base dans l'onglet Profil Maître.",
@@ -2405,6 +2424,7 @@
         active_gt_label: "Aktive Faktenbasis",
         master_profile_title: "Kandidaten Master-Profil",
         btn_download_json: "profile.json herunterladen",
+        btn_import_json: "profile.json importieren",
         wiz_modal_title: "Geführter Profil-Fragebogen",
         wiz_q1: "1. Vollständiger Name & Zielpositionen",
         wiz_q2: "2. Wichtigste technische Fähigkeiten",
@@ -2489,6 +2509,7 @@
         confirm_delete_base_resume: "Sind Sie sicher, dass Sie Ihren gespeicherten Basis-Lebenslauf löschen möchten?",
         alert_select_profile_input: "Bitte wählen Sie mindestens eine Datei aus oder fügen Sie Hintergrundnotizen ein.",
         alert_profile_generated: "Master-Profil erfolgreich erstellt!",
+        alert_profile_imported: "Master-Profil erfolgreich importiert!",
         alert_profile_created_wiz: "Master-Profil aus Fragebogen erfolgreich erstellt!",
         alert_tailor_first: "Bitte passen Sie zuerst einen Lebenslauf an, bevor Sie ihn bearbeiten.",
         alert_no_resume_file: "Bitte wählen Sie in Schritt 1 eine Lebenslauf-Datei aus oder aktivieren Sie Ihren Basis-Lebenslauf im Master-Profil-Tab.",
@@ -2785,6 +2806,16 @@
       }
       isProfileActive = !isProfileActive;
       updateProfileDisplay();
+      if (currentUser?.google_id) {
+        try {
+          const cached = localStorage.getItem('rt_backup_profile_' + currentUser.google_id);
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            parsed.is_active = isProfileActive;
+            localStorage.setItem('rt_backup_profile_' + currentUser.google_id, JSON.stringify(parsed));
+          }
+        } catch (_) {}
+      }
       const token = localStorage.getItem('resume_tailor_session');
       if (token) {
         try {
@@ -2800,6 +2831,11 @@
     btnDeleteProfile?.addEventListener('click', async () => {
       if (!activeProfile) return;
       if (confirm(window.t('confirm_delete_profile', "Are you sure you want to delete this master profile and create one from scratch?"))) {
+        if (currentUser?.google_id) {
+          try {
+            localStorage.removeItem('rt_backup_profile_' + currentUser.google_id);
+          } catch (_) {}
+        }
         activeProfile = null;
         isProfileActive = true;
         selectedProfileFiles = [];
@@ -2855,6 +2891,16 @@
     const savedBaseResumePausedName = document.getElementById('savedBaseResumePausedName');
     const btnStep1EnableBaseResume = document.getElementById('btnStep1EnableBaseResume');
 
+    const gsiLangMap = {
+      en: 'en',
+      he: 'he',
+      es: 'es',
+      zh: 'zh-CN',
+      ar: 'ar',
+      fr: 'fr',
+      de: 'de'
+    };
+
     function renderNavGoogleButton() {
       if (!window.google?.accounts?.id || currentUser) return;
       const navBtn = document.getElementById('googleSignInButton');
@@ -2862,12 +2908,14 @@
         navBtn.innerHTML = '';
         const isDark = document.documentElement.classList.contains('dark');
         const isMobile = window.innerWidth < 640;
+        const targetLocale = gsiLangMap[currentLanguage] || 'en';
         google.accounts.id.renderButton(navBtn, {
           theme: isDark ? 'filled_black' : 'outline',
           size: isMobile ? 'small' : 'medium',
           shape: 'rectangular',
           text: isMobile ? 'signin' : 'signin_with',
-          width: isMobile ? 120 : 200
+          width: isMobile ? 120 : 200,
+          locale: targetLocale
         });
       }
     }
@@ -2887,12 +2935,14 @@
         baseBtn.innerHTML = '';
         const isDark = document.documentElement.classList.contains('dark');
         const isMobile = window.innerWidth < 640;
+        const targetLocale = gsiLangMap[currentLanguage] || 'en';
         google.accounts.id.renderButton(baseBtn, {
           theme: isDark ? 'filled_black' : 'outline',
           size: isMobile ? 'small' : 'medium',
           shape: 'rectangular',
           text: isMobile ? 'signin' : 'signin_with',
-          width: isMobile ? 180 : 240
+          width: isMobile ? 180 : 240,
+          locale: targetLocale
         });
       }
     }
@@ -2904,12 +2954,14 @@
         modalBtn.innerHTML = '';
         const isDark = document.documentElement.classList.contains('dark');
         const isMobile = window.innerWidth < 640;
+        const targetLocale = gsiLangMap[currentLanguage] || 'en';
         google.accounts.id.renderButton(modalBtn, {
           theme: isDark ? 'filled_black' : 'outline',
           size: isMobile ? 'medium' : 'large',
           shape: 'rectangular',
           text: isMobile ? 'signin' : 'signin_with',
-          width: isMobile ? 180 : 250
+          width: isMobile ? 180 : 250,
+          locale: targetLocale
         });
       }
     }
@@ -2920,21 +2972,14 @@
       renderTournamentGoogleButton();
     }
 
-    const gsiLangMap = {
-      en: 'en',
-      he: 'he',
-      es: 'es',
-      zh: 'zh-CN',
-      ar: 'ar',
-      fr: 'fr',
-      de: 'de'
-    };
     let currentGsiHl = gsiLangMap[localStorage.getItem('resume_tailor_lang') || 'en'] || 'en';
 
     function reloadGoogleAuthWithLang(lang) {
       const targetHl = gsiLangMap[lang] || 'en';
-      if (targetHl === currentGsiHl && window.google?.accounts?.id) {
+      if (window.google?.accounts?.id) {
         renderAllGoogleButtons();
+      }
+      if (targetHl === currentGsiHl) {
         return;
       }
       currentGsiHl = targetHl;
@@ -3098,6 +3143,22 @@
           const err = await res.json();
           throw new Error(err.detail || "Failed to save base resume");
         }
+        if (currentUser?.google_id) {
+          const reader = new FileReader();
+          reader.onload = () => {
+            try {
+              localStorage.setItem('rt_backup_base_resume_' + currentUser.google_id, JSON.stringify({
+                filename: file.name,
+                fileType: file.type || 'application/pdf',
+                dataUrl: reader.result,
+                is_active: true
+              }));
+            } catch (storageErr) {
+              console.warn("Base resume exceeds localStorage limit:", storageErr);
+            }
+          };
+          reader.readAsDataURL(file);
+        }
         await checkAuthStatus();
       } catch (err) {
         alert(`Error: ${err.message}`);
@@ -3108,6 +3169,16 @@
       if (!savedBaseResume) return;
       isSavedBaseResumeActive = !isSavedBaseResumeActive;
       updateBaseResumeDisplay();
+      if (currentUser?.google_id) {
+        try {
+          const cached = localStorage.getItem('rt_backup_base_resume_' + currentUser.google_id);
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            parsed.is_active = isSavedBaseResumeActive;
+            localStorage.setItem('rt_backup_base_resume_' + currentUser.google_id, JSON.stringify(parsed));
+          }
+        } catch (_) {}
+      }
       try {
         await fetch('/api/user/base-resume/toggle', {
           method: 'POST',
@@ -3120,6 +3191,16 @@
     btnStep1ToggleBaseResume?.addEventListener('click', async () => {
       isSavedBaseResumeActive = !isSavedBaseResumeActive;
       updateBaseResumeDisplay();
+      if (currentUser?.google_id) {
+        try {
+          const cached = localStorage.getItem('rt_backup_base_resume_' + currentUser.google_id);
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            parsed.is_active = isSavedBaseResumeActive;
+            localStorage.setItem('rt_backup_base_resume_' + currentUser.google_id, JSON.stringify(parsed));
+          }
+        } catch (_) {}
+      }
       try {
         await fetch('/api/user/base-resume/toggle', {
           method: 'POST',
@@ -3132,6 +3213,16 @@
     btnStep1EnableBaseResume?.addEventListener('click', async () => {
       isSavedBaseResumeActive = true;
       updateBaseResumeDisplay();
+      if (currentUser?.google_id) {
+        try {
+          const cached = localStorage.getItem('rt_backup_base_resume_' + currentUser.google_id);
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            parsed.is_active = true;
+            localStorage.setItem('rt_backup_base_resume_' + currentUser.google_id, JSON.stringify(parsed));
+          }
+        } catch (_) {}
+      }
       try {
         await fetch('/api/user/base-resume/toggle', {
           method: 'POST',
@@ -3144,6 +3235,11 @@
     btnDeleteBaseResume?.addEventListener('click', async () => {
       if (!savedBaseResume) return;
       if (confirm(window.t('confirm_delete_base_resume', "Are you sure you want to delete your saved base resume?"))) {
+        if (currentUser?.google_id) {
+          try {
+            localStorage.removeItem('rt_backup_base_resume_' + currentUser.google_id);
+          } catch (_) {}
+        }
         try {
           await fetch('/api/user/base-resume', {
             method: 'DELETE',
@@ -3212,6 +3308,48 @@
           activeProfile = data.profile;
           isProfileActive = data.profile_is_active !== false;
           updateProfileDisplay();
+          if (currentUser?.google_id) {
+            try {
+              localStorage.setItem('rt_backup_profile_' + currentUser.google_id, JSON.stringify({
+                profile: data.profile,
+                is_active: isProfileActive
+              }));
+            } catch (_) {}
+          }
+        } else if (currentUser?.google_id) {
+          // If server reports no profile, check if client has a cached profile backup
+          try {
+            const cachedStr = localStorage.getItem('rt_backup_profile_' + currentUser.google_id);
+            if (cachedStr) {
+              const cached = JSON.parse(cachedStr);
+              if (cached && cached.profile) {
+                activeProfile = cached.profile;
+                isProfileActive = cached.is_active !== false;
+                updateProfileDisplay();
+                // Silently auto-restore to backend so server DB gets it back
+                fetch('/api/user/profile', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', ...authHeaders() },
+                  body: JSON.stringify({
+                    profile: cached.profile,
+                    is_active: isProfileActive
+                  })
+                }).catch(err => console.warn("Auto-restore profile error:", err));
+              } else {
+                activeProfile = null;
+                isProfileActive = false;
+                updateProfileDisplay();
+              }
+            } else {
+              activeProfile = null;
+              isProfileActive = false;
+              updateProfileDisplay();
+            }
+          } catch (_) {
+            activeProfile = null;
+            isProfileActive = false;
+            updateProfileDisplay();
+          }
         } else {
           activeProfile = null;
           isProfileActive = false;
@@ -3222,6 +3360,50 @@
         if (data.has_base_resume && data.base_resume) {
           savedBaseResume = data.base_resume;
           isSavedBaseResumeActive = data.base_resume.is_active !== false;
+        } else if (currentUser?.google_id) {
+          // Check if client has a cached base resume backup to auto-restore
+          try {
+            const cachedResumeStr = localStorage.getItem('rt_backup_base_resume_' + currentUser.google_id);
+            if (cachedResumeStr) {
+              const cachedResume = JSON.parse(cachedResumeStr);
+              if (cachedResume && cachedResume.dataUrl && cachedResume.filename) {
+                fetch(cachedResume.dataUrl)
+                  .then(r => r.blob())
+                  .then(blob => {
+                    const restoredFile = new File([blob], cachedResume.filename, { type: cachedResume.fileType || blob.type || 'application/pdf' });
+                    const formData = new FormData();
+                    formData.append('base_file', restoredFile);
+                    return fetch('/api/user/base-resume', {
+                      method: 'POST',
+                      headers: authHeaders(),
+                      body: formData
+                    });
+                  })
+                  .then(r => r.json())
+                  .then(res => {
+                    if (res && res.status === 'success') {
+                      savedBaseResume = {
+                        filename: res.filename,
+                        file_ext: res.file_ext,
+                        is_active: res.is_active
+                      };
+                      isSavedBaseResumeActive = res.is_active !== false;
+                      updateBaseResumeDisplay();
+                    }
+                  })
+                  .catch(err => console.warn("Auto-restore base resume error:", err));
+              } else {
+                savedBaseResume = null;
+                isSavedBaseResumeActive = false;
+              }
+            } else {
+              savedBaseResume = null;
+              isSavedBaseResumeActive = false;
+            }
+          } catch (_) {
+            savedBaseResume = null;
+            isSavedBaseResumeActive = false;
+          }
         } else {
           savedBaseResume = null;
           isSavedBaseResumeActive = false;
@@ -3251,6 +3433,9 @@
           const data = await res.json();
           applyAuthState(data);
         } else {
+          if (res.status === 401) {
+            localStorage.removeItem('resume_tailor_session');
+          }
           applyAuthState({ is_authenticated: false });
         }
       } catch (err) {
@@ -3531,6 +3716,14 @@
         }
         activeProfile = await res.json();
         updateProfileDisplay();
+        if (currentUser?.google_id) {
+          try {
+            localStorage.setItem('rt_backup_profile_' + currentUser.google_id, JSON.stringify({
+              profile: activeProfile,
+              is_active: isProfileActive
+            }));
+          } catch (_) {}
+        }
         await checkAuthStatus();
         alert(window.t('alert_profile_generated', "Master Profile successfully generated!"));
       } catch (err) {
@@ -3572,6 +3765,14 @@
         if (!res.ok) throw new Error("Questionnaire parsing failed");
         activeProfile = await res.json();
         updateProfileDisplay();
+        if (currentUser?.google_id) {
+          try {
+            localStorage.setItem('rt_backup_profile_' + currentUser.google_id, JSON.stringify({
+              profile: activeProfile,
+              is_active: isProfileActive
+            }));
+          } catch (_) {}
+        }
         await checkAuthStatus();
         alert(window.t('alert_profile_created_wiz', "Master Profile created from questionnaire!"));
       } catch (err) {
@@ -3588,6 +3789,49 @@
       a.href = url;
       a.download = "master_candidate_profile.json";
       a.click();
+    });
+
+    // Import Profile JSON Backup
+    const importProfileJsonInput = document.getElementById('importProfileJsonInput');
+    importProfileJsonInput?.addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        try {
+          const parsed = JSON.parse(ev.target.result);
+          const profileData = parsed.profile || parsed;
+          if (!profileData || typeof profileData !== 'object') throw new Error("Invalid profile format");
+
+          if (currentUser) {
+            const res = await fetch('/api/user/profile', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', ...authHeaders() },
+              body: JSON.stringify({ profile: profileData, is_active: true })
+            });
+            if (!res.ok) throw new Error("Failed to save profile to server");
+          }
+
+          activeProfile = profileData;
+          isProfileActive = true;
+          updateProfileDisplay();
+
+          if (currentUser?.google_id) {
+            try {
+              localStorage.setItem('rt_backup_profile_' + currentUser.google_id, JSON.stringify({
+                profile: activeProfile,
+                is_active: true
+              }));
+            } catch (_) {}
+          }
+          alert(window.t('alert_profile_imported', "Master Profile successfully imported!"));
+        } catch (err) {
+          alert("Invalid profile JSON file: " + err.message);
+        } finally {
+          importProfileJsonInput.value = '';
+        }
+      };
+      reader.readAsText(file);
     });
 
     // Tailoring Form
