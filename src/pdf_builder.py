@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 from pathlib import Path
 from typing import Optional, Any
@@ -12,8 +13,8 @@ from pptx.util import Pt
 
 def convert_pptx_to_pdf(pptx_path: Path, pdf_path: Path) -> Path:
     """
-    Converts a .pptx presentation to a high-resolution .pdf on macOS.
-    Uses Apple Keynote via AppleScript, with fallback to Microsoft PowerPoint.
+    Converts a .pptx presentation to a high-resolution .pdf.
+    Uses LibreOffice on Linux/container, or Apple Keynote/PowerPoint on macOS.
     """
     pptx_path = pptx_path.resolve()
     pdf_path = pdf_path.resolve()
@@ -23,19 +24,34 @@ def convert_pptx_to_pdf(pptx_path: Path, pdf_path: Path) -> Path:
 
     pdf_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # 1. Try Microsoft PowerPoint in true headless mode (open without window - zero GUI popups)
-    powerpoint_script = f'''
-    tell application "Microsoft PowerPoint"
-        set thePath to POSIX file "{pptx_path}"
-        open thePath without window
-        save active presentation in POSIX file "{pdf_path}" as save as PDF
-        close active presentation saving no
-    end tell
-    '''
-    res_ppt = subprocess.run(["osascript", "-e", powerpoint_script], capture_output=True, text=True)
+    # 1. Try LibreOffice/soffice if installed (cross-platform, standard on Linux Docker/containers)
+    libreoffice_bin = shutil.which("libreoffice") or shutil.which("soffice")
+    if libreoffice_bin:
+        res_lo = subprocess.run(
+            [libreoffice_bin, "--headless", "--convert-to", "pdf", "--outdir", str(pdf_path.parent), str(pptx_path)],
+            capture_output=True,
+            text=True,
+        )
+        converted_lo = pdf_path.parent / f"{pptx_path.stem}.pdf"
+        if converted_lo.exists() and converted_lo != pdf_path:
+            converted_lo.replace(pdf_path)
+        if pdf_path.exists() and pdf_path.stat().st_size > 0:
+            return pdf_path
 
-    if res_ppt.returncode == 0 and pdf_path.exists() and pdf_path.stat().st_size > 0:
-        return pdf_path
+    # 2. Try macOS AppleScript with Microsoft PowerPoint (true headless mode)
+    res_ppt = subprocess.CompletedProcess(args=[], returncode=1, stderr="osascript not available")
+    if shutil.which("osascript"):
+        powerpoint_script = f'''
+        tell application "Microsoft PowerPoint"
+            set thePath to POSIX file "{pptx_path}"
+            open thePath without window
+            save active presentation in POSIX file "{pdf_path}" as save as PDF
+            close active presentation saving no
+        end tell
+        '''
+        res_ppt = subprocess.run(["osascript", "-e", powerpoint_script], capture_output=True, text=True)
+        if res_ppt.returncode == 0 and pdf_path.exists() and pdf_path.stat().st_size > 0:
+            return pdf_path
 
     # 2. Fallback to Apple Keynote with process visibility hidden
     keynote_script = f'''

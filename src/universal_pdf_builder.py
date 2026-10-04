@@ -4,7 +4,9 @@ Renders structured UniversalResume data into modern, ATS-optimized, designer-qua
 HTML and compiles it to vector PDF via headless Google Chrome.
 """
 
+import os
 from pathlib import Path
+import shutil
 import subprocess
 from typing import Optional
 from jinja2 import Template
@@ -16,7 +18,30 @@ from src.universal_models import (
 )
 
 
-CHROME_PATH = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+def get_chrome_executable() -> str:
+    """Finds Google Chrome / Chromium executable cross-platform (macOS and Linux containers)."""
+    env_path = os.getenv("CHROME_PATH") or os.getenv("CHROME_BIN")
+    if env_path and Path(env_path).exists():
+        return env_path
+
+    candidates = [
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        shutil.which("google-chrome"),
+        shutil.which("google-chrome-stable"),
+        shutil.which("chromium"),
+        shutil.which("chromium-browser"),
+        "/usr/bin/chromium",
+        "/usr/bin/chromium-browser",
+        "/usr/bin/google-chrome",
+        "/usr/bin/google-chrome-stable",
+    ]
+    for c in candidates:
+        if c and Path(c).exists():
+            return str(c)
+    return "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+
+
+CHROME_PATH = get_chrome_executable()
 
 MODERN_TECH_TEMPLATE = """<!DOCTYPE html>
 <html lang="en">
@@ -371,18 +396,21 @@ def render_resume_to_html(
 
 
 def render_html_to_pdf(html_path: Path, output_pdf_path: Path) -> Path:
-    """Compiles an HTML resume into a vector PDF using headless Google Chrome."""
+    """Compiles an HTML resume into a vector PDF using headless Google Chrome or Chromium."""
     html_path = html_path.resolve()
     output_pdf_path = output_pdf_path.resolve()
     output_pdf_path.parent.mkdir(parents=True, exist_ok=True)
 
-    if not Path(CHROME_PATH).exists():
-        raise RuntimeError(f"Google Chrome executable not found at {CHROME_PATH}")
+    chrome_bin = get_chrome_executable()
+    if not Path(chrome_bin).exists():
+        raise RuntimeError(f"Google Chrome or Chromium executable not found (checked {chrome_bin})")
 
     cmd = [
-        CHROME_PATH,
+        chrome_bin,
         "--headless=new",
         "--disable-gpu",
+        "--no-sandbox",
+        "--disable-dev-shm-usage",
         "--no-pdf-header-footer",
         f"--print-to-pdf={output_pdf_path}",
         str(html_path),
