@@ -3031,7 +3031,15 @@
           shape: 'rectangular',
           text: isMobile ? 'signin' : 'signin_with',
           width: isMobile ? 120 : 200,
-          locale: targetLocale
+          locale: targetLocale,
+          click_listener: () => {
+            isSigningInWithGoogle = true;
+            clearTimeout(googleSignInTimeout);
+            googleSignInTimeout = setTimeout(() => {
+              isSigningInWithGoogle = false;
+              if (!currentUser) renderAllGoogleButtons();
+            }, 45000);
+          }
         });
       }
     }
@@ -3058,7 +3066,15 @@
           shape: 'rectangular',
           text: isMobile ? 'signin' : 'signin_with',
           width: isMobile ? 180 : 250,
-          locale: targetLocale
+          locale: targetLocale,
+          click_listener: () => {
+            isSigningInWithGoogle = true;
+            clearTimeout(googleSignInTimeout);
+            googleSignInTimeout = setTimeout(() => {
+              isSigningInWithGoogle = false;
+              if (!currentUser) renderAllGoogleButtons();
+            }, 45000);
+          }
         });
       }
     }
@@ -3082,7 +3098,15 @@
           shape: 'rectangular',
           text: isMobile ? 'signin' : 'signin_with',
           width: isMobile ? 180 : 250,
-          locale: targetLocale
+          locale: targetLocale,
+          click_listener: () => {
+            isSigningInWithGoogle = true;
+            clearTimeout(googleSignInTimeout);
+            googleSignInTimeout = setTimeout(() => {
+              isSigningInWithGoogle = false;
+              if (!currentUser) renderAllGoogleButtons();
+            }, 45000);
+          }
         });
       }
     }
@@ -3600,10 +3624,22 @@
     }
 
     let currentAuthPromise = null;
+    let isSigningInWithGoogle = false;
+    let lastAuthCheckTime = 0;
+    let googleSignInTimeout = null;
+
     async function checkAuthStatus(isInitialOrLogin = false) {
+      if (isSigningInWithGoogle && !isInitialOrLogin) {
+        return Promise.resolve();
+      }
+      const now = Date.now();
+      if (!isInitialOrLogin && (now - lastAuthCheckTime < 4000)) {
+        return currentAuthPromise || Promise.resolve();
+      }
       if (currentAuthPromise && !isInitialOrLogin) {
         return currentAuthPromise;
       }
+      lastAuthCheckTime = now;
       const doCheck = async () => {
         try {
           const res = await fetch('/api/auth/me', { headers: authHeaders() });
@@ -3630,8 +3666,51 @@
       return result;
     }
 
+    function showGoogleSignInProgress() {
+      const navGoogleBtn = document.getElementById('googleSignInButton');
+      if (navGoogleBtn) {
+        navGoogleBtn.innerHTML = `
+          <div class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border border-sky-300 dark:border-sky-700 bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 text-xs font-semibold animate-pulse shadow-xs">
+            <svg class="animate-spin h-3.5 w-3.5 text-sky-600 dark:text-sky-400" viewBox="0 0 24 24" fill="none">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <span>Signing in...</span>
+          </div>
+        `;
+      }
+      const modalBtn = document.getElementById('tournamentGoogleBtn');
+      if (modalBtn) {
+        modalBtn.innerHTML = `
+          <div class="flex items-center justify-center space-x-2 py-2 text-sm text-sky-600 dark:text-sky-400 font-semibold animate-pulse">
+            <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <span>Signing in to Google...</span>
+          </div>
+        `;
+      }
+      const baseBtn = document.getElementById('baseResumeGoogleBtn');
+      if (baseBtn) {
+        baseBtn.innerHTML = `
+          <div class="flex items-center justify-center space-x-2 py-1.5 text-xs text-sky-600 dark:text-sky-400 font-semibold animate-pulse">
+            <svg class="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <span>Signing in...</span>
+          </div>
+        `;
+      }
+    }
+
     window.handleGoogleCredentialResponse = async function(response) {
       if (!response || !response.credential) return;
+      isSigningInWithGoogle = true;
+      clearTimeout(googleSignInTimeout);
+      showGoogleSignInProgress();
+
       try {
         const res = await fetch('/api/auth/google', {
           method: 'POST',
@@ -3649,6 +3728,9 @@
         applyAuthState(data, true);
       } catch (err) {
         alert("Google Sign-In Error: " + err.message);
+        renderAllGoogleButtons();
+      } finally {
+        isSigningInWithGoogle = false;
       }
     };
 
@@ -3806,6 +3888,8 @@
                 callback: window.handleGoogleCredentialResponse,
                 auto_select: false,
                 cancel_on_tap_outside: true,
+                itp_support: true,
+                use_fedcm_for_prompt: true,
               });
             }
             renderAllGoogleButtons();
@@ -3826,10 +3910,6 @@
       if (document.visibilityState === 'visible') {
         checkAuthStatus(false);
       }
-    });
-
-    window.addEventListener('focus', () => {
-      checkAuthStatus(false);
     });
 
     // 2. Active background sync polling every 5 seconds when tab is active on screen

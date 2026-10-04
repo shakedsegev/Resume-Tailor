@@ -18,6 +18,7 @@ from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 import requests
+import asyncio
 
 import sys
 project_root = Path(__file__).parent.parent.resolve()
@@ -130,6 +131,18 @@ app = FastAPI(
     description="Universal AI-Powered Design-Preserving Resume Customizer",
     version="2.0.0",
 )
+
+
+def _prewarm_google_certs():
+    try:
+        _google_auth_session.get("https://www.googleapis.com/oauth2/v3/certs", timeout=4)
+    except Exception:
+        pass
+
+
+@app.on_event("startup")
+async def on_app_startup():
+    asyncio.create_task(asyncio.to_thread(_prewarm_google_certs))
 
 OUTPUTS_DIR = project_root / "outputs"
 UPLOADS_DIR = OUTPUTS_DIR / "uploads"
@@ -305,7 +318,8 @@ async def auth_google(payload: GoogleAuthPayload, request: Request):
     Verifies Google ID token from Google Identity Services and creates a persistent user session.
     """
     try:
-        id_info = id_token.verify_oauth2_token(
+        id_info = await asyncio.to_thread(
+            id_token.verify_oauth2_token,
             payload.credential,
             _google_auth_request,
             GOOGLE_CLIENT_ID,
