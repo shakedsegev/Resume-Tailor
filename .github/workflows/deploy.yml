@@ -1,0 +1,24 @@
+name: Deploy to Render
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Trigger Render Deployment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render Deploy Hook
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK" ]; then
+            echo "Error: RENDER_DEPLOY_HOOK_URL secret is not set in repository secrets!"
+            exit 1
+          fi
+          echo "Dispatching deploy trigger to Render..."
+          response=$(curl -sS -X POST "$RENDER_DEPLOY_HOOK")
+          echo "Render response: $response"
+          echo "Deployment successfully triggered!"
