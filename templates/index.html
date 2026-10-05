@@ -402,7 +402,7 @@
           <div id="authContainer" class="flex items-center">
             <!-- Logged out: Google Sign In Button Container -->
             <div id="loggedOutView" class="flex items-center">
-              <div id="googleSignInButton"></div>
+              <div id="googleSignInButton" class="flex items-center min-h-[36px]"></div>
             </div>
 
             <!-- Logged in: User Profile Badge & Sign Out -->
@@ -3013,69 +3013,85 @@
       de: 'de'
     };
 
-    function renderNavGoogleButton() {
+    let lastNavBtnState = null;
+    let lastTournamentBtnState = null;
+    let lastBaseResumeBtnState = null;
+
+    function renderNavGoogleButton(force = false) {
       if (!window.google?.accounts?.id || currentUser) return;
       const navBtn = document.getElementById('googleSignInButton');
-      if (navBtn) {
-        navBtn.innerHTML = '';
-        const isDark = document.documentElement.classList.contains('dark');
-        const isMobile = window.innerWidth < 640;
-        const targetLocale = gsiLangMap[currentLanguage] || 'en';
-        google.accounts.id.renderButton(navBtn, {
-          theme: isDark ? 'filled_black' : 'outline',
-          size: isMobile ? 'small' : 'medium',
-          shape: 'rectangular',
-          text: isMobile ? 'signin' : 'signin_with',
-          width: isMobile ? 120 : 200,
-          locale: targetLocale,
-          click_listener: () => {
-            isSigningInWithGoogle = true;
-            clearTimeout(googleSignInTimeout);
-            googleSignInTimeout = setTimeout(() => {
-              isSigningInWithGoogle = false;
-              if (!currentUser) renderAllGoogleButtons();
-            }, 45000);
-          }
-        });
+      if (!navBtn) return;
+
+      const isDark = document.documentElement.classList.contains('dark');
+      const isMobile = window.innerWidth < 640;
+      const lang = currentLanguage || 'en';
+      const stateKey = `${isDark ? 'dark' : 'light'}_${isMobile ? 'm' : 'd'}_${lang}`;
+
+      // Prevent duplicate re-renders if state hasn't changed
+      if (!force && lastNavBtnState === stateKey && navBtn.children.length > 0) {
+        return;
       }
+      lastNavBtnState = stateKey;
+
+      navBtn.innerHTML = '';
+      google.accounts.id.renderButton(navBtn, {
+        theme: isDark ? 'filled_black' : 'outline',
+        size: isMobile ? 'small' : 'medium',
+        shape: 'rectangular',
+        text: isMobile ? 'signin' : 'signin_with',
+        click_listener: () => {
+          isSigningInWithGoogle = true;
+          clearTimeout(googleSignInTimeout);
+          googleSignInTimeout = setTimeout(() => {
+            isSigningInWithGoogle = false;
+            if (!currentUser) renderAllGoogleButtons(true);
+          }, 45000);
+        }
+      });
     }
 
     let navResizeTimeout = null;
     window.addEventListener('resize', () => {
       clearTimeout(navResizeTimeout);
       navResizeTimeout = setTimeout(() => {
-        renderAllGoogleButtons();
-      }, 200);
+        renderAllGoogleButtons(false);
+      }, 250);
     });
 
-    function renderTournamentGoogleButton() {
+    function renderTournamentGoogleButton(force = false) {
       if (!window.google?.accounts?.id || currentUser) return;
       const modalBtn = document.getElementById('tournamentGoogleBtn');
-      if (modalBtn) {
-        modalBtn.innerHTML = '';
-        const isDark = document.documentElement.classList.contains('dark');
-        const isMobile = window.innerWidth < 640;
-        const targetLocale = gsiLangMap[currentLanguage] || 'en';
-        google.accounts.id.renderButton(modalBtn, {
-          theme: isDark ? 'filled_black' : 'outline',
-          size: isMobile ? 'medium' : 'large',
-          shape: 'rectangular',
-          text: isMobile ? 'signin' : 'signin_with',
-          width: isMobile ? 180 : 250,
-          locale: targetLocale,
-          click_listener: () => {
-            isSigningInWithGoogle = true;
-            clearTimeout(googleSignInTimeout);
-            googleSignInTimeout = setTimeout(() => {
-              isSigningInWithGoogle = false;
-              if (!currentUser) renderAllGoogleButtons();
-            }, 45000);
-          }
-        });
+      if (!modalBtn) return;
+
+      const isDark = document.documentElement.classList.contains('dark');
+      const isMobile = window.innerWidth < 640;
+      const lang = currentLanguage || 'en';
+      const stateKey = `${isDark ? 'dark' : 'light'}_${isMobile ? 'm' : 'd'}_${lang}`;
+
+      if (!force && lastTournamentBtnState === stateKey && modalBtn.children.length > 0) {
+        return;
       }
+      lastTournamentBtnState = stateKey;
+
+      modalBtn.innerHTML = '';
+      google.accounts.id.renderButton(modalBtn, {
+        theme: isDark ? 'filled_black' : 'outline',
+        size: isMobile ? 'medium' : 'large',
+        shape: 'rectangular',
+        text: isMobile ? 'signin' : 'signin_with',
+        width: isMobile ? 180 : 250,
+        click_listener: () => {
+          isSigningInWithGoogle = true;
+          clearTimeout(googleSignInTimeout);
+          googleSignInTimeout = setTimeout(() => {
+            isSigningInWithGoogle = false;
+            if (!currentUser) renderAllGoogleButtons(true);
+          }, 45000);
+        }
+      });
     }
 
-    function renderBaseResumeGoogleButton() {
+    function renderBaseResumeGoogleButton(force = false) {
       if (!window.google?.accounts?.id || currentUser) return;
       const tabProfile = document.getElementById('tabContentProfile');
       if (tabProfile && tabProfile.classList.contains('hidden')) {
@@ -3083,40 +3099,68 @@
         return;
       }
       const baseBtn = document.getElementById('baseResumeGoogleBtn');
-      if (baseBtn) {
-        baseBtn.innerHTML = '';
-        const isDark = document.documentElement.classList.contains('dark');
-        const isMobile = window.innerWidth < 640;
-        const targetLocale = gsiLangMap[currentLanguage] || 'en';
-        google.accounts.id.renderButton(baseBtn, {
-          theme: isDark ? 'filled_black' : 'outline',
-          size: isMobile ? 'small' : 'medium',
-          shape: 'rectangular',
-          text: isMobile ? 'signin' : 'signin_with',
-          width: isMobile ? 180 : 250,
-          locale: targetLocale,
-          click_listener: () => {
-            isSigningInWithGoogle = true;
-            clearTimeout(googleSignInTimeout);
-            googleSignInTimeout = setTimeout(() => {
-              isSigningInWithGoogle = false;
-              if (!currentUser) renderAllGoogleButtons();
-            }, 45000);
-          }
-        });
+      if (!baseBtn) return;
+
+      const isDark = document.documentElement.classList.contains('dark');
+      const isMobile = window.innerWidth < 640;
+      const lang = currentLanguage || 'en';
+      const stateKey = `${isDark ? 'dark' : 'light'}_${isMobile ? 'm' : 'd'}_${lang}`;
+
+      if (!force && lastBaseResumeBtnState === stateKey && baseBtn.children.length > 0) {
+        return;
       }
+      lastBaseResumeBtnState = stateKey;
+
+      baseBtn.innerHTML = '';
+      google.accounts.id.renderButton(baseBtn, {
+        theme: isDark ? 'filled_black' : 'outline',
+        size: isMobile ? 'small' : 'medium',
+        shape: 'rectangular',
+        text: isMobile ? 'signin' : 'signin_with',
+        width: isMobile ? 180 : 250,
+        click_listener: () => {
+          isSigningInWithGoogle = true;
+          clearTimeout(googleSignInTimeout);
+          googleSignInTimeout = setTimeout(() => {
+            isSigningInWithGoogle = false;
+            if (!currentUser) renderAllGoogleButtons(true);
+          }, 45000);
+        }
+      });
     }
 
-    function renderAllGoogleButtons() {
-      renderNavGoogleButton();
-      renderTournamentGoogleButton();
-      renderBaseResumeGoogleButton();
+    function renderAllGoogleButtons(force = false) {
+      renderNavGoogleButton(force);
+      renderTournamentGoogleButton(force);
+      renderBaseResumeGoogleButton(force);
     }
 
     function reloadGoogleAuthWithLang(lang) {
-      if (window.google?.accounts?.id) {
-        renderAllGoogleButtons();
+      const targetHl = gsiLangMap[lang] || 'en';
+      const oldScript = document.getElementById('gsiScript');
+      if (oldScript) {
+        const currentSrc = oldScript.src || '';
+        if (currentSrc.includes('hl=' + targetHl)) {
+          // Same language, preserve rendered button
+          renderAllGoogleButtons(false);
+          return;
+        }
+        oldScript.remove();
       }
+      lastNavBtnState = null;
+      lastTournamentBtnState = null;
+      lastBaseResumeBtnState = null;
+      isGoogleAuthInitialized = false;
+
+      const s = document.createElement('script');
+      s.id = 'gsiScript';
+      s.src = 'https://accounts.google.com/gsi/client?hl=' + targetHl;
+      s.async = true;
+      s.defer = true;
+      s.onload = () => {
+        initGoogleAuth();
+      };
+      document.head.appendChild(s);
     }
 
     function updateRateLimitBadge(rateLimit) {
@@ -3780,9 +3824,12 @@
       }
 
       // 6. Update components and render buttons immediately
+      lastNavBtnState = null;
+      lastTournamentBtnState = null;
+      lastBaseResumeBtnState = null;
       updateProfileDisplay();
       updateBaseResumeDisplay();
-      renderAllGoogleButtons();
+      renderAllGoogleButtons(true);
 
       // 7. Notify other tabs on this device immediately
       rtSyncChannel?.postMessage({ type: 'AUTH_LOGOUT' });
@@ -3897,8 +3944,6 @@
                 callback: window.handleGoogleCredentialResponse,
                 auto_select: false,
                 cancel_on_tap_outside: true,
-                itp_support: true,
-                use_fedcm_for_prompt: true,
               });
             }
             renderAllGoogleButtons();
