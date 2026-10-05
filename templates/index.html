@@ -5,19 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Resume-Tailor 🎯 | Design-Preserving AI Resume Tailor</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    (function() {
-      var savedLang = localStorage.getItem('resume_tailor_lang') || 'en';
-      var langMap = { en: 'en', he: 'he', es: 'es', zh: 'zh-CN', ar: 'ar', fr: 'fr', de: 'de' };
-      var hl = langMap[savedLang] || 'en';
-      var s = document.createElement('script');
-      s.id = 'gsiScript';
-      s.src = 'https://accounts.google.com/gsi/client?hl=' + hl;
-      s.async = true;
-      s.defer = true;
-      document.head.appendChild(s);
-    })();
-  </script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
     tailwind.config = {
       darkMode: 'class'
@@ -2645,12 +2633,6 @@
         }
       } catch (_) {}
 
-      // Synchronize Google Identity Services locale
-      try {
-        if (typeof reloadGoogleAuthWithLang === 'function') {
-          reloadGoogleAuthWithLang(lang);
-        }
-      } catch (_) {}
 
       // Synchronize preview iframe (e.g. diff banner and tooltip translations)
       try {
@@ -3003,16 +2985,6 @@
     const btnUploadProfile = document.getElementById('btnUploadProfile');
     let selectedProfileFiles = [];
 
-    const gsiLangMap = {
-      en: 'en',
-      he: 'he',
-      es: 'es',
-      zh: 'zh-CN',
-      ar: 'ar',
-      fr: 'fr',
-      de: 'de'
-    };
-
     let lastNavBtnState = null;
     let lastTournamentBtnState = null;
     let lastBaseResumeBtnState = null;
@@ -3024,8 +2996,7 @@
 
       const isDark = document.documentElement.classList.contains('dark');
       const isMobile = window.innerWidth < 640;
-      const lang = currentLanguage || 'en';
-      const stateKey = `${isDark ? 'dark' : 'light'}_${isMobile ? 'm' : 'd'}_${lang}`;
+      const stateKey = `${isDark ? 'dark' : 'light'}_${isMobile ? 'm' : 'd'}`;
 
       // Prevent duplicate re-renders if state hasn't changed
       if (!force && lastNavBtnState === stateKey && navBtn.children.length > 0) {
@@ -3065,8 +3036,7 @@
 
       const isDark = document.documentElement.classList.contains('dark');
       const isMobile = window.innerWidth < 640;
-      const lang = currentLanguage || 'en';
-      const stateKey = `${isDark ? 'dark' : 'light'}_${isMobile ? 'm' : 'd'}_${lang}`;
+      const stateKey = `${isDark ? 'dark' : 'light'}_${isMobile ? 'm' : 'd'}`;
 
       if (!force && lastTournamentBtnState === stateKey && modalBtn.children.length > 0) {
         return;
@@ -3103,8 +3073,7 @@
 
       const isDark = document.documentElement.classList.contains('dark');
       const isMobile = window.innerWidth < 640;
-      const lang = currentLanguage || 'en';
-      const stateKey = `${isDark ? 'dark' : 'light'}_${isMobile ? 'm' : 'd'}_${lang}`;
+      const stateKey = `${isDark ? 'dark' : 'light'}_${isMobile ? 'm' : 'd'}`;
 
       if (!force && lastBaseResumeBtnState === stateKey && baseBtn.children.length > 0) {
         return;
@@ -3133,34 +3102,6 @@
       renderNavGoogleButton(force);
       renderTournamentGoogleButton(force);
       renderBaseResumeGoogleButton(force);
-    }
-
-    function reloadGoogleAuthWithLang(lang) {
-      const targetHl = gsiLangMap[lang] || 'en';
-      const oldScript = document.getElementById('gsiScript');
-      if (oldScript) {
-        const currentSrc = oldScript.src || '';
-        if (currentSrc.includes('hl=' + targetHl)) {
-          // Same language, preserve rendered button
-          renderAllGoogleButtons(false);
-          return;
-        }
-        oldScript.remove();
-      }
-      lastNavBtnState = null;
-      lastTournamentBtnState = null;
-      lastBaseResumeBtnState = null;
-      isGoogleAuthInitialized = false;
-
-      const s = document.createElement('script');
-      s.id = 'gsiScript';
-      s.src = 'https://accounts.google.com/gsi/client?hl=' + targetHl;
-      s.async = true;
-      s.defer = true;
-      s.onload = () => {
-        initGoogleAuth();
-      };
-      document.head.appendChild(s);
     }
 
     function updateRateLimitBadge(rateLimit) {
