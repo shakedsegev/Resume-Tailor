@@ -4,6 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Resume-Tailor 🎯 | Design-Preserving AI Resume Tailor</title>
+  <script>
+    (function() {
+      try {
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      } catch (_) {}
+    })();
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
@@ -390,7 +403,9 @@
           <div id="authContainer" class="flex items-center">
             <!-- Logged out: Google Sign In Button Container -->
             <div id="loggedOutView" class="flex items-center">
-              <div id="googleSignInButton" class="flex items-center min-h-[36px]"></div>
+              <div id="googleSignInButton" class="flex items-center justify-center min-w-[140px] sm:min-w-[195px] min-h-[32px] sm:min-h-[36px] shrink-0">
+                <div class="w-[140px] sm:w-[195px] h-[32px] sm:h-[36px] rounded-full bg-slate-200/50 dark:bg-slate-800/50 animate-pulse"></div>
+              </div>
             </div>
 
             <!-- Logged in: User Profile Badge & Sign Out -->
@@ -2998,8 +3013,8 @@
       const isMobile = window.innerWidth < 640;
       const stateKey = `${isDark ? 'dark' : 'light'}_${isMobile ? 'm' : 'd'}`;
 
-      // Prevent duplicate re-renders if state hasn't changed
-      if (!force && lastNavBtnState === stateKey && navBtn.children.length > 0) {
+      // Prevent duplicate re-renders if state hasn't changed (unless still showing skeleton)
+      if (!force && lastNavBtnState === stateKey && navBtn.children.length > 0 && !navBtn.querySelector('.animate-pulse')) {
         return;
       }
       lastNavBtnState = stateKey;
@@ -3008,7 +3023,7 @@
       google.accounts.id.renderButton(navBtn, {
         theme: isDark ? 'filled_black' : 'outline',
         size: isMobile ? 'small' : 'medium',
-        shape: 'rectangular',
+        shape: 'pill',
         text: isMobile ? 'signin' : 'signin_with',
         click_listener: () => {
           isSigningInWithGoogle = true;
@@ -3047,7 +3062,7 @@
       google.accounts.id.renderButton(modalBtn, {
         theme: isDark ? 'filled_black' : 'outline',
         size: isMobile ? 'medium' : 'large',
-        shape: 'rectangular',
+        shape: 'pill',
         text: isMobile ? 'signin' : 'signin_with',
         width: isMobile ? 180 : 250,
         click_listener: () => {
@@ -3084,7 +3099,7 @@
       google.accounts.id.renderButton(baseBtn, {
         theme: isDark ? 'filled_black' : 'outline',
         size: isMobile ? 'small' : 'medium',
-        shape: 'rectangular',
+        shape: 'pill',
         text: isMobile ? 'signin' : 'signin_with',
         width: isMobile ? 180 : 250,
         click_listener: () => {
@@ -3631,7 +3646,7 @@
       const navGoogleBtn = document.getElementById('googleSignInButton');
       if (navGoogleBtn) {
         navGoogleBtn.innerHTML = `
-          <div class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border border-sky-300 dark:border-sky-700 bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 text-xs font-semibold animate-pulse shadow-xs">
+          <div class="flex items-center justify-center space-x-1.5 px-3 py-1.5 rounded-full border border-sky-300 dark:border-sky-700 bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 text-xs font-semibold animate-pulse shadow-xs min-h-[36px]">
             <svg class="animate-spin h-3.5 w-3.5 text-sky-600 dark:text-sky-400" viewBox="0 0 24 24" fill="none">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
