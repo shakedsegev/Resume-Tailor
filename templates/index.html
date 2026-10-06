@@ -403,9 +403,7 @@
           <div id="authContainer" class="flex items-center">
             <!-- Logged out: Google Sign In Button Container -->
             <div id="loggedOutView" class="flex items-center">
-              <div id="googleSignInButton" class="flex items-center justify-center min-w-[140px] sm:min-w-[195px] min-h-[32px] sm:min-h-[36px] shrink-0">
-                <div class="w-[140px] sm:w-[195px] h-[32px] sm:h-[36px] rounded-full bg-slate-200/50 dark:bg-slate-800/50 animate-pulse"></div>
-              </div>
+              <div id="googleSignInButton" class="flex items-center justify-center min-w-[130px] sm:min-w-[195px] h-[36px] shrink-0"></div>
             </div>
 
             <!-- Logged in: User Profile Badge & Sign Out -->
@@ -3000,24 +2998,13 @@
     const btnUploadProfile = document.getElementById('btnUploadProfile');
     let selectedProfileFiles = [];
 
-    let lastNavBtnState = null;
-    let lastTournamentBtnState = null;
-    let lastBaseResumeBtnState = null;
-
-    function renderNavGoogleButton(force = false) {
+    function renderNavGoogleButton() {
       if (!window.google?.accounts?.id || currentUser) return;
       const navBtn = document.getElementById('googleSignInButton');
       if (!navBtn) return;
 
       const isDark = document.documentElement.classList.contains('dark');
       const isMobile = window.innerWidth < 640;
-      const stateKey = `${isDark ? 'dark' : 'light'}_${isMobile ? 'm' : 'd'}`;
-
-      // Prevent duplicate re-renders if state hasn't changed (unless still showing skeleton)
-      if (!force && lastNavBtnState === stateKey && navBtn.children.length > 0 && !navBtn.querySelector('.animate-pulse')) {
-        return;
-      }
-      lastNavBtnState = stateKey;
 
       navBtn.innerHTML = '';
       google.accounts.id.renderButton(navBtn, {
@@ -3025,38 +3012,25 @@
         size: isMobile ? 'small' : 'medium',
         shape: 'pill',
         text: isMobile ? 'signin' : 'signin_with',
+        logo_alignment: 'left',
         click_listener: () => {
           isSigningInWithGoogle = true;
           clearTimeout(googleSignInTimeout);
           googleSignInTimeout = setTimeout(() => {
             isSigningInWithGoogle = false;
-            if (!currentUser) renderAllGoogleButtons(true);
+            if (!currentUser) renderAllGoogleButtons();
           }, 45000);
         }
       });
     }
 
-    let navResizeTimeout = null;
-    window.addEventListener('resize', () => {
-      clearTimeout(navResizeTimeout);
-      navResizeTimeout = setTimeout(() => {
-        renderAllGoogleButtons(false);
-      }, 250);
-    });
-
-    function renderTournamentGoogleButton(force = false) {
+    function renderTournamentGoogleButton() {
       if (!window.google?.accounts?.id || currentUser) return;
       const modalBtn = document.getElementById('tournamentGoogleBtn');
       if (!modalBtn) return;
 
       const isDark = document.documentElement.classList.contains('dark');
       const isMobile = window.innerWidth < 640;
-      const stateKey = `${isDark ? 'dark' : 'light'}_${isMobile ? 'm' : 'd'}`;
-
-      if (!force && lastTournamentBtnState === stateKey && modalBtn.children.length > 0) {
-        return;
-      }
-      lastTournamentBtnState = stateKey;
 
       modalBtn.innerHTML = '';
       google.accounts.id.renderButton(modalBtn, {
@@ -3070,17 +3044,16 @@
           clearTimeout(googleSignInTimeout);
           googleSignInTimeout = setTimeout(() => {
             isSigningInWithGoogle = false;
-            if (!currentUser) renderAllGoogleButtons(true);
+            if (!currentUser) renderAllGoogleButtons();
           }, 45000);
         }
       });
     }
 
-    function renderBaseResumeGoogleButton(force = false) {
+    function renderBaseResumeGoogleButton() {
       if (!window.google?.accounts?.id || currentUser) return;
       const tabProfile = document.getElementById('tabContentProfile');
       if (tabProfile && tabProfile.classList.contains('hidden')) {
-        // Tab is currently hidden; render when user switches to Master Profile tab
         return;
       }
       const baseBtn = document.getElementById('baseResumeGoogleBtn');
@@ -3088,12 +3061,6 @@
 
       const isDark = document.documentElement.classList.contains('dark');
       const isMobile = window.innerWidth < 640;
-      const stateKey = `${isDark ? 'dark' : 'light'}_${isMobile ? 'm' : 'd'}`;
-
-      if (!force && lastBaseResumeBtnState === stateKey && baseBtn.children.length > 0) {
-        return;
-      }
-      lastBaseResumeBtnState = stateKey;
 
       baseBtn.innerHTML = '';
       google.accounts.id.renderButton(baseBtn, {
@@ -3107,16 +3074,16 @@
           clearTimeout(googleSignInTimeout);
           googleSignInTimeout = setTimeout(() => {
             isSigningInWithGoogle = false;
-            if (!currentUser) renderAllGoogleButtons(true);
+            if (!currentUser) renderAllGoogleButtons();
           }, 45000);
         }
       });
     }
 
-    function renderAllGoogleButtons(force = false) {
-      renderNavGoogleButton(force);
-      renderTournamentGoogleButton(force);
-      renderBaseResumeGoogleButton(force);
+    function renderAllGoogleButtons() {
+      renderNavGoogleButton();
+      renderTournamentGoogleButton();
+      renderBaseResumeGoogleButton();
     }
 
     function updateRateLimitBadge(rateLimit) {
@@ -3780,12 +3747,9 @@
       }
 
       // 6. Update components and render buttons immediately
-      lastNavBtnState = null;
-      lastTournamentBtnState = null;
-      lastBaseResumeBtnState = null;
       updateProfileDisplay();
       updateBaseResumeDisplay();
-      renderAllGoogleButtons(true);
+      renderAllGoogleButtons();
 
       // 7. Notify other tabs on this device immediately
       rtSyncChannel?.postMessage({ type: 'AUTH_LOGOUT' });
