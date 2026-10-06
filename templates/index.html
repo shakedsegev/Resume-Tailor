@@ -403,7 +403,7 @@
           <div id="authContainer" class="flex items-center">
             <!-- Logged out: Google Sign In Button Container -->
             <div id="loggedOutView" class="flex items-center">
-              <div id="googleSignInButton" class="flex items-center justify-center min-w-[130px] sm:min-w-[195px] h-[36px] shrink-0"></div>
+              <div id="googleSignInButton" class="flex items-center justify-center min-w-[195px] h-[36px] shrink-0"></div>
             </div>
 
             <!-- Logged in: User Profile Badge & Sign Out -->
@@ -2766,7 +2766,7 @@
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
       if (themeToggleIcon) themeToggleIcon.textContent = isDark ? '☀️' : '🌙';
       if (typeof renderAllGoogleButtons === 'function') {
-        renderAllGoogleButtons();
+        renderAllGoogleButtons(true);
       }
     });
     initTheme();
@@ -2998,59 +2998,69 @@
     const btnUploadProfile = document.getElementById('btnUploadProfile');
     let selectedProfileFiles = [];
 
-    function renderNavGoogleButton() {
+    function renderNavGoogleButton(forceThemeChange = false) {
       if (!window.google?.accounts?.id || currentUser) return;
       const navBtn = document.getElementById('googleSignInButton');
       if (!navBtn) return;
 
       const isDark = document.documentElement.classList.contains('dark');
-      const isMobile = window.innerWidth < 640;
+      const targetTheme = isDark ? 'filled_black' : 'outline';
 
+      if (!forceThemeChange && navBtn.dataset.renderedTheme === targetTheme && navBtn.children.length > 0) {
+        return;
+      }
+      navBtn.dataset.renderedTheme = targetTheme;
       navBtn.innerHTML = '';
+
       google.accounts.id.renderButton(navBtn, {
-        theme: isDark ? 'filled_black' : 'outline',
-        size: isMobile ? 'small' : 'medium',
+        theme: targetTheme,
+        size: 'medium',
         shape: 'pill',
-        text: isMobile ? 'signin' : 'signin_with',
+        text: 'signin_with',
         logo_alignment: 'left',
         click_listener: () => {
           isSigningInWithGoogle = true;
           clearTimeout(googleSignInTimeout);
           googleSignInTimeout = setTimeout(() => {
             isSigningInWithGoogle = false;
-            if (!currentUser) renderAllGoogleButtons();
+            if (!currentUser) renderAllGoogleButtons(true);
           }, 45000);
         }
       });
     }
 
-    function renderTournamentGoogleButton() {
+    function renderTournamentGoogleButton(forceThemeChange = false) {
       if (!window.google?.accounts?.id || currentUser) return;
       const modalBtn = document.getElementById('tournamentGoogleBtn');
       if (!modalBtn) return;
 
       const isDark = document.documentElement.classList.contains('dark');
-      const isMobile = window.innerWidth < 640;
+      const targetTheme = isDark ? 'filled_black' : 'outline';
 
+      if (!forceThemeChange && modalBtn.dataset.renderedTheme === targetTheme && modalBtn.children.length > 0) {
+        return;
+      }
+      modalBtn.dataset.renderedTheme = targetTheme;
       modalBtn.innerHTML = '';
+
       google.accounts.id.renderButton(modalBtn, {
-        theme: isDark ? 'filled_black' : 'outline',
-        size: isMobile ? 'medium' : 'large',
+        theme: targetTheme,
+        size: 'large',
         shape: 'pill',
-        text: isMobile ? 'signin' : 'signin_with',
-        width: isMobile ? 180 : 250,
+        text: 'signin_with',
+        width: 250,
         click_listener: () => {
           isSigningInWithGoogle = true;
           clearTimeout(googleSignInTimeout);
           googleSignInTimeout = setTimeout(() => {
             isSigningInWithGoogle = false;
-            if (!currentUser) renderAllGoogleButtons();
+            if (!currentUser) renderAllGoogleButtons(true);
           }, 45000);
         }
       });
     }
 
-    function renderBaseResumeGoogleButton() {
+    function renderBaseResumeGoogleButton(forceThemeChange = false) {
       if (!window.google?.accounts?.id || currentUser) return;
       const tabProfile = document.getElementById('tabContentProfile');
       if (tabProfile && tabProfile.classList.contains('hidden')) {
@@ -3060,30 +3070,35 @@
       if (!baseBtn) return;
 
       const isDark = document.documentElement.classList.contains('dark');
-      const isMobile = window.innerWidth < 640;
+      const targetTheme = isDark ? 'filled_black' : 'outline';
 
+      if (!forceThemeChange && baseBtn.dataset.renderedTheme === targetTheme && baseBtn.children.length > 0) {
+        return;
+      }
+      baseBtn.dataset.renderedTheme = targetTheme;
       baseBtn.innerHTML = '';
+
       google.accounts.id.renderButton(baseBtn, {
-        theme: isDark ? 'filled_black' : 'outline',
-        size: isMobile ? 'small' : 'medium',
+        theme: targetTheme,
+        size: 'medium',
         shape: 'pill',
-        text: isMobile ? 'signin' : 'signin_with',
-        width: isMobile ? 180 : 250,
+        text: 'signin_with',
+        width: 250,
         click_listener: () => {
           isSigningInWithGoogle = true;
           clearTimeout(googleSignInTimeout);
           googleSignInTimeout = setTimeout(() => {
             isSigningInWithGoogle = false;
-            if (!currentUser) renderAllGoogleButtons();
+            if (!currentUser) renderAllGoogleButtons(true);
           }, 45000);
         }
       });
     }
 
-    function renderAllGoogleButtons() {
-      renderNavGoogleButton();
-      renderTournamentGoogleButton();
-      renderBaseResumeGoogleButton();
+    function renderAllGoogleButtons(forceThemeChange = false) {
+      renderNavGoogleButton(forceThemeChange);
+      renderTournamentGoogleButton(forceThemeChange);
+      renderBaseResumeGoogleButton(forceThemeChange);
     }
 
     function updateRateLimitBadge(rateLimit) {
