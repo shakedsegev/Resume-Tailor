@@ -13,8 +13,8 @@ import re
 from pathlib import Path
 from typing import Optional, Any
 from pydantic import BaseModel
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Body, Request
-from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Body, Request, Response
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse, PlainTextResponse
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 import requests
@@ -151,9 +151,29 @@ TEMPLATES_DIR = project_root / "templates"
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
 
+@app.get("/health")
+@app.get("/ping")
+@app.head("/health")
+@app.head("/ping")
+async def health_check():
+    """Ultra-lightweight keep-alive ping and health check endpoint for external cron jobs (<20 bytes)."""
+    return {"status": "ok"}
+
+
+@app.head("/")
+async def head_index():
+    """Handles HEAD requests for uptime monitors and keep-alive pings with zero response body."""
+    return Response(status_code=200)
+
+
 @app.get("/", response_class=HTMLResponse)
-async def serve_index():
-    """Serves the single-page application frontend."""
+async def serve_index(request: Request):
+    """Serves the single-page application frontend, with lightweight fallback for automated cron pingers."""
+    user_agent = request.headers.get("user-agent", "").lower()
+    # If an automated cron or uptime monitor hits the root path, return a lightweight text response to prevent buffer limit errors
+    if any(bot in user_agent for bot in ("cron", "uptime", "pingdom", "betteruptime", "checkly", "freshping", "statuscake")):
+        return PlainTextResponse("ok", status_code=200)
+
     index_file = TEMPLATES_DIR / "index.html"
     if not index_file.exists():
         raise HTTPException(status_code=404, detail="Frontend template not found.")

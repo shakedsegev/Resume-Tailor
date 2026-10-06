@@ -507,5 +507,40 @@ def test_guest_device_rate_limit_isolation():
     assert res_b_after.json()["rate_limit"]["remaining"] == 2
 
 
+def test_health_and_keepalive_endpoints():
+    # 1. Dedicated health endpoints
+    res_health = client.get("/health")
+    assert res_health.status_code == 200
+    assert res_health.json() == {"status": "ok"}
+
+    res_ping = client.get("/ping")
+    assert res_ping.status_code == 200
+    assert res_ping.json() == {"status": "ok"}
+
+    # 2. HEAD requests for zero-byte pings
+    res_head_root = client.head("/")
+    assert res_head_root.status_code == 200
+    assert len(res_head_root.content) == 0
+
+    res_head_health = client.head("/health")
+    assert res_head_health.status_code == 200
+
+    # 3. Automated cron/uptime monitors hitting the root path GET
+    res_cron = client.get("/", headers={"User-Agent": "cron-job.org/2.0"})
+    assert res_cron.status_code == 200
+    assert res_cron.text == "ok"
+    assert len(res_cron.content) < 10
+
+    res_uptime = client.get("/", headers={"User-Agent": "Mozilla/5.0 (compatible; UptimeRobot/2.0)"})
+    assert res_uptime.status_code == 200
+    assert res_uptime.text == "ok"
+
+    # 4. Standard browser requests receive full HTML
+    res_browser = client.get("/", headers={"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"})
+    assert res_browser.status_code == 200
+    assert "Resume-Tailor" in res_browser.text
+
+
+
 
 
