@@ -26,7 +26,7 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -403,7 +403,7 @@
           <div id="authContainer" class="flex items-center">
             <!-- Logged out: Google Sign In Button Container -->
             <div id="loggedOutView" class="flex items-center">
-              <div id="googleSignInButton" class="flex items-center justify-center min-w-[195px] h-[36px] shrink-0"></div>
+              <div id="googleSignInButton" class="flex items-center justify-center w-[180px] sm:w-[200px] h-[36px] shrink-0 overflow-hidden"></div>
             </div>
 
             <!-- Logged in: User Profile Badge & Sign Out -->
@@ -2765,9 +2765,6 @@
       const isDark = document.documentElement.classList.toggle('dark');
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
       if (themeToggleIcon) themeToggleIcon.textContent = isDark ? '☀️' : '🌙';
-      if (typeof renderAllGoogleButtons === 'function') {
-        renderAllGoogleButtons(true);
-      }
     });
     initTheme();
 
@@ -2998,25 +2995,27 @@
     const btnUploadProfile = document.getElementById('btnUploadProfile');
     let selectedProfileFiles = [];
 
-    function renderNavGoogleButton(forceThemeChange = false) {
+    function renderNavGoogleButton(force = false) {
       if (!window.google?.accounts?.id || currentUser) return;
       const navBtn = document.getElementById('googleSignInButton');
       if (!navBtn) return;
 
-      const isDark = document.documentElement.classList.contains('dark');
-      const targetTheme = isDark ? 'filled_black' : 'outline';
+      const isMobile = window.innerWidth < 640;
+      const targetWidth = isMobile ? 180 : 200;
+      const stateKey = isMobile ? 'm_180' : 'd_200';
 
-      if (!forceThemeChange && navBtn.dataset.renderedTheme === targetTheme && navBtn.children.length > 0) {
+      if (!force && navBtn.dataset.renderedState === stateKey && navBtn.children.length > 0) {
         return;
       }
-      navBtn.dataset.renderedTheme = targetTheme;
+      navBtn.dataset.renderedState = stateKey;
       navBtn.innerHTML = '';
 
       google.accounts.id.renderButton(navBtn, {
-        theme: targetTheme,
+        theme: 'outline',
         size: 'medium',
         shape: 'pill',
         text: 'signin_with',
+        width: targetWidth,
         logo_alignment: 'left',
         click_listener: () => {
           isSigningInWithGoogle = true;
@@ -3029,26 +3028,27 @@
       });
     }
 
-    function renderTournamentGoogleButton(forceThemeChange = false) {
+    function renderTournamentGoogleButton(force = false) {
       if (!window.google?.accounts?.id || currentUser) return;
       const modalBtn = document.getElementById('tournamentGoogleBtn');
       if (!modalBtn) return;
 
-      const isDark = document.documentElement.classList.contains('dark');
-      const targetTheme = isDark ? 'filled_black' : 'outline';
+      const isMobile = window.innerWidth < 640;
+      const targetWidth = isMobile ? 200 : 250;
+      const stateKey = isMobile ? 'm' : 'd';
 
-      if (!forceThemeChange && modalBtn.dataset.renderedTheme === targetTheme && modalBtn.children.length > 0) {
+      if (!force && modalBtn.dataset.renderedState === stateKey && modalBtn.children.length > 0) {
         return;
       }
-      modalBtn.dataset.renderedTheme = targetTheme;
+      modalBtn.dataset.renderedState = stateKey;
       modalBtn.innerHTML = '';
 
       google.accounts.id.renderButton(modalBtn, {
-        theme: targetTheme,
-        size: 'large',
+        theme: 'outline',
+        size: isMobile ? 'medium' : 'large',
         shape: 'pill',
         text: 'signin_with',
-        width: 250,
+        width: targetWidth,
         click_listener: () => {
           isSigningInWithGoogle = true;
           clearTimeout(googleSignInTimeout);
@@ -3060,7 +3060,7 @@
       });
     }
 
-    function renderBaseResumeGoogleButton(forceThemeChange = false) {
+    function renderBaseResumeGoogleButton(force = false) {
       if (!window.google?.accounts?.id || currentUser) return;
       const tabProfile = document.getElementById('tabContentProfile');
       if (tabProfile && tabProfile.classList.contains('hidden')) {
@@ -3069,21 +3069,22 @@
       const baseBtn = document.getElementById('baseResumeGoogleBtn');
       if (!baseBtn) return;
 
-      const isDark = document.documentElement.classList.contains('dark');
-      const targetTheme = isDark ? 'filled_black' : 'outline';
+      const isMobile = window.innerWidth < 640;
+      const targetWidth = isMobile ? 200 : 250;
+      const stateKey = isMobile ? 'm' : 'd';
 
-      if (!forceThemeChange && baseBtn.dataset.renderedTheme === targetTheme && baseBtn.children.length > 0) {
+      if (!force && baseBtn.dataset.renderedState === stateKey && baseBtn.children.length > 0) {
         return;
       }
-      baseBtn.dataset.renderedTheme = targetTheme;
+      baseBtn.dataset.renderedState = stateKey;
       baseBtn.innerHTML = '';
 
       google.accounts.id.renderButton(baseBtn, {
-        theme: targetTheme,
+        theme: 'outline',
         size: 'medium',
         shape: 'pill',
         text: 'signin_with',
-        width: 250,
+        width: targetWidth,
         click_listener: () => {
           isSigningInWithGoogle = true;
           clearTimeout(googleSignInTimeout);
@@ -3095,11 +3096,19 @@
       });
     }
 
-    function renderAllGoogleButtons(forceThemeChange = false) {
-      renderNavGoogleButton(forceThemeChange);
-      renderTournamentGoogleButton(forceThemeChange);
-      renderBaseResumeGoogleButton(forceThemeChange);
+    function renderAllGoogleButtons(force = false) {
+      renderNavGoogleButton(force);
+      renderTournamentGoogleButton(force);
+      renderBaseResumeGoogleButton(force);
     }
+
+    let navResizeTimeout = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(navResizeTimeout);
+      navResizeTimeout = setTimeout(() => {
+        if (!currentUser) renderAllGoogleButtons(false);
+      }, 300);
+    });
 
     function updateRateLimitBadge(rateLimit) {
       if (!rateLimit || rateLimit.is_admin || (currentUser && currentUser.is_admin)) {
