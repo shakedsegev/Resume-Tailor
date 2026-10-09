@@ -986,16 +986,18 @@
         <div id="baseResumeContainer">
           <!-- Guest Locked Card -->
           <div id="baseResumeGuestCard" class="p-3.5 sm:p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div class="flex items-center space-x-3 min-w-0">
+            <div class="flex items-center space-x-3 rtl:space-x-reverse min-w-0">
               <span class="text-xl shrink-0">🔒</span>
               <div class="min-w-0">
                 <p class="text-xs font-bold text-slate-800" data-i18n="base_resume_guest_title">Sign In to Save Your Base Resume</p>
                 <p class="text-[11px] text-slate-500 mt-0.5" data-i18n="base_resume_guest_desc">Save your standard resume to tailor in 1 click across any device by pasting only the Job Description.</p>
               </div>
             </div>
-            <div id="baseResumeGoogleBtn" class="shrink-0 flex items-center justify-center w-full sm:w-auto">
-              <div id="baseResumeGoogleBtnDark" class="hidden dark:flex items-center justify-center min-h-[40px] rounded-full overflow-hidden border border-slate-700 w-full sm:w-auto"></div>
-              <div id="baseResumeGoogleBtnLight" class="flex dark:hidden items-center justify-center min-h-[40px] rounded-full overflow-hidden border border-slate-200 w-full sm:w-auto"></div>
+            <div class="shrink-0 flex items-center justify-start sm:justify-end">
+              <button type="button" onclick="window.scrollTo({top: 0, behavior: 'smooth'});" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300 hover:bg-sky-100 dark:hover:bg-sky-900/60 transition-colors shadow-2xs cursor-pointer">
+                <span>☝️</span>
+                <span data-i18n="base_resume_signin_hint">Sign in at the top to unlock</span>
+              </button>
             </div>
           </div>
 
@@ -1549,6 +1551,7 @@
         base_resume_section_desc: "Save your standard resume to tailor directly by only pasting the Job Description.",
         base_resume_guest_title: "Sign In to Save Your Base Resume",
         base_resume_guest_desc: "Save your standard resume to tailor in 1 click across any device by pasting only the Job Description.",
+        base_resume_signin_hint: "Sign in at the top to unlock",
         base_resume_dropzone_click: "Click to upload base resume",
         base_resume_active_status: "✅ Active: Used automatically in Step 1",
         base_resume_inactive_status: "⏸️ Inactive: Using manual file upload in Step 1",
@@ -1713,6 +1716,7 @@
         base_resume_section_desc: "שמור את קורות החיים הראשיים שלך כדי להתאים מיידית על ידי הדבקת תיאור המשרה בלבד.",
         base_resume_guest_title: "התחבר כדי לשמור את קורות החיים הראשיים שלך",
         base_resume_guest_desc: "שמור את קורות החיים הסטנדרטיים שלך להתאמה בלחיצה אחת בכל מכשיר על ידי הדבקת תיאור המשרה בלבד.",
+        base_resume_signin_hint: "התחברו בראש העמוד כדי לפתוח",
         base_resume_dropzone_click: "לחץ להעלאת קורות חיים ראשיים",
         base_resume_active_status: "✅ פעיל: משמש אוטומטית בשלב 1",
         base_resume_inactive_status: "⏸️ מושהה: משתמש בהעלאת קובץ ידנית בשלב 1",
@@ -1876,6 +1880,7 @@
         base_resume_section_desc: "Guarde su currículum estándar para adaptarlo directamente pegando únicamente la descripción del trabajo.",
         base_resume_guest_title: "Inicie sesión para guardar su Currículum Base",
         base_resume_guest_desc: "Guarde su currículum estándar para adaptarlo en 1 clic en cualquier dispositivo pegando solo la descripción del trabajo.",
+        base_resume_signin_hint: "Inicie sesión arriba para desbloquear",
         base_resume_dropzone_click: "Haga clic para subir currículum base",
         base_resume_active_status: "✅ Activo: Se usa automáticamente en el Paso 1",
         base_resume_inactive_status: "⏸️ Inactivo: Usando subida manual de archivo en Paso 1",
@@ -2034,6 +2039,7 @@
         base_resume_section_desc: "保存您的标准简历，下次仅需粘贴职位描述即可直接完成定制。",
         base_resume_guest_title: "登录以保存您的基准简历",
         base_resume_guest_desc: "登录后保存标准简历，在任何设备上只需粘贴职位描述即可一键完成定制。",
+        base_resume_signin_hint: "请在顶部登录以解锁",
         base_resume_dropzone_click: "点击上传基准简历",
         base_resume_active_status: "✅ 已激活：将在步骤 1 中自动使用",
         base_resume_inactive_status: "⏸️ 已暂停：将在步骤 1 中使用手动文件上传",
@@ -2192,6 +2198,7 @@
         base_resume_section_desc: "احفظ سيرتك الذاتية المعتمدة لتخصيصها مباشرة عبر لصق الوصف الوظيفي فقط.",
         base_resume_guest_title: "سجل الدخول لحفظ سيرتك الذاتية الأساسية",
         base_resume_guest_desc: "احفظ سيرتك الذاتية المعتمدة لتخصيصها بنقرة واحدة عبر أي جهاز بمجرد لصق الوصف الوظيفي.",
+        base_resume_signin_hint: "سجل الدخول من الأعلى للفتح",
         base_resume_dropzone_click: "انقر لرفع السيرة الذاتية الأساسية",
         base_resume_active_status: "✅ نشط: يُستخدم تلقائيًا في الخطوة 1",
         base_resume_inactive_status: "⏸️ معطل: يتم استخدام الرفع اليدوي في الخطوة 1",
@@ -2350,6 +2357,7 @@
         base_resume_section_desc: "Enregistrez votre CV standard pour l'adapter directement en collant uniquement l'offre d'emploi.",
         base_resume_guest_title: "Connectez-vous pour enregistrer votre CV de Base",
         base_resume_guest_desc: "Enregistrez votre CV standard pour l'adapter en 1 clic depuis n'importe quel appareil en collant simplement l'offre d'emploi.",
+        base_resume_signin_hint: "Connectez-vous en haut pour débloquer",
         base_resume_dropzone_click: "Cliquez pour téléverser votre CV de base",
         base_resume_active_status: "✅ Actif : Utilisé automatiquement à l'Étape 1",
         base_resume_inactive_status: "⏸️ Inactif : Utilisation du téléversement manuel à l'Étape 1",
@@ -2508,6 +2516,7 @@
         base_resume_section_desc: "Speichern Sie Ihren Standard-Lebenslauf, um ihn direkt durch einfaches Einfügen der Stellenbeschreibung anzupassen.",
         base_resume_guest_title: "Anmelden, um Basis-Lebenslauf zu speichern",
         base_resume_guest_desc: "Speichern Sie Ihren Standard-Lebenslauf, um ihn auf jedem Gerät mit nur 1 Klick durch Einfügen der Stellenbeschreibung anzupassen.",
+        base_resume_signin_hint: "Oben anmelden, um freizuschalten",
         base_resume_dropzone_click: "Klicken, um Basis-Lebenslauf hochzuladen",
         base_resume_active_status: "✅ Aktiv: Wird automatisch in Schritt 1 verwendet",
         base_resume_inactive_status: "⏸️ Inaktiv: Manueller Datei-Upload in Schritt 1 aktiv",
@@ -2749,9 +2758,6 @@
 
         tabContentProfile.classList.remove('hidden');
         tabContentTailor.classList.add('hidden');
-        if (!currentUser && typeof renderBaseResumeGoogleButton === 'function') {
-          setTimeout(renderBaseResumeGoogleButton, 50);
-        }
       }
     }
 
@@ -2969,7 +2975,6 @@
     // Base Resume elements
     const baseResumeContainer = document.getElementById('baseResumeContainer');
     const baseResumeGuestCard = document.getElementById('baseResumeGuestCard');
-    const baseResumeGoogleBtn = document.getElementById('baseResumeGoogleBtn');
     const baseResumeDropzone = document.getElementById('baseResumeDropzone');
     const baseResumeFileInput = document.getElementById('baseResumeFileInput');
     const baseResumeSyncHint = document.getElementById('baseResumeSyncHint');
@@ -3156,80 +3161,9 @@
       }
     }
 
-    function renderBaseResumeGoogleButton(force = false) {
-      if (!window.google?.accounts?.id || currentUser) return;
-      const tabProfile = document.getElementById('tabContentProfile');
-      if (tabProfile && tabProfile.classList.contains('hidden')) {
-        return;
-      }
-      const baseBtn = document.getElementById('baseResumeGoogleBtn');
-      if (!baseBtn) return;
-
-      let btnDark = document.getElementById('baseResumeGoogleBtnDark');
-      let btnLight = document.getElementById('baseResumeGoogleBtnLight');
-      if (!btnDark || !btnLight) {
-        baseBtn.innerHTML = `
-          <div id="baseResumeGoogleBtnDark" class="hidden dark:flex items-center justify-center min-h-[40px] rounded-full overflow-hidden border border-slate-700 w-full sm:w-auto"></div>
-          <div id="baseResumeGoogleBtnLight" class="flex dark:hidden items-center justify-center min-h-[40px] rounded-full overflow-hidden border border-slate-200 w-full sm:w-auto"></div>
-        `;
-        btnDark = document.getElementById('baseResumeGoogleBtnDark');
-        btnLight = document.getElementById('baseResumeGoogleBtnLight');
-      }
-
-      const isMobile = window.innerWidth < 640;
-      const targetWidth = isMobile ? 200 : 250;
-      const stateKey = `${isMobile ? 'm' : 'd'}_${targetWidth}`;
-
-      const darkRendered = !force && btnDark.dataset.renderedState === stateKey && btnDark.children.length > 0;
-      const lightRendered = !force && btnLight.dataset.renderedState === stateKey && btnLight.children.length > 0;
-
-      if (darkRendered && lightRendered) return;
-
-      if (!darkRendered) {
-        btnDark.dataset.renderedState = stateKey;
-        btnDark.innerHTML = '';
-        google.accounts.id.renderButton(btnDark, {
-          theme: 'filled_black',
-          size: 'medium',
-          shape: 'pill',
-          text: 'signin_with',
-          width: targetWidth,
-          click_listener: () => {
-            isSigningInWithGoogle = true;
-            clearTimeout(googleSignInTimeout);
-            googleSignInTimeout = setTimeout(() => {
-              isSigningInWithGoogle = false;
-              if (!currentUser) renderAllGoogleButtons(true);
-            }, 45000);
-          }
-        });
-      }
-
-      if (!lightRendered) {
-        btnLight.dataset.renderedState = stateKey;
-        btnLight.innerHTML = '';
-        google.accounts.id.renderButton(btnLight, {
-          theme: 'outline',
-          size: 'medium',
-          shape: 'pill',
-          text: 'signin_with',
-          width: targetWidth,
-          click_listener: () => {
-            isSigningInWithGoogle = true;
-            clearTimeout(googleSignInTimeout);
-            googleSignInTimeout = setTimeout(() => {
-              isSigningInWithGoogle = false;
-              if (!currentUser) renderAllGoogleButtons(true);
-            }, 45000);
-          }
-        });
-      }
-    }
-
     function renderAllGoogleButtons(force = false) {
       renderNavGoogleButton(force);
       renderTournamentGoogleButton(force);
-      renderBaseResumeGoogleButton(force);
     }
 
     let navResizeTimeout = null;
@@ -3280,7 +3214,6 @@
         baseResumeGuestCard?.classList.remove('hidden');
         baseResumeDropzone?.classList.add('hidden');
         baseResumeInfoCard?.classList.add('hidden');
-        renderBaseResumeGoogleButton();
       } else {
         // Registered / logged-in user
         baseResumeGuestCard?.classList.add('hidden');
@@ -3785,18 +3718,6 @@
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
             </svg>
             <span>Signing in to Google...</span>
-          </div>
-        `;
-      }
-      const baseBtn = document.getElementById('baseResumeGoogleBtn');
-      if (baseBtn) {
-        baseBtn.innerHTML = `
-          <div class="flex items-center justify-center space-x-2 py-1.5 text-xs text-sky-600 dark:text-sky-400 font-semibold animate-pulse">
-            <svg class="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-            </svg>
-            <span>Signing in...</span>
           </div>
         `;
       }
