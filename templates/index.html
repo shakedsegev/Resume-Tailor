@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Resume-Tailor 🎯 | Design-Preserving AI Resume Tailor</title>
+  <title>Resume-Tailor | Design-Preserving AI Resume Tailor</title>
   <script>
     (function() {
       try {
@@ -383,18 +383,13 @@
       <!-- Row 1: Brand (left) and Controls (right) on mobile, becomes direct flex children on desktop via md:contents -->
       <div class="w-full flex items-center justify-between gap-1 sm:gap-1.5 md:contents">
         <!-- Brand Logo & Name -->
-        <div class="flex items-center space-x-1.5 sm:space-x-3 shrink-0 md:order-1">
-          <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center text-white text-sm sm:text-base shadow-md shadow-sky-500/20">
-            🎯
-          </div>
-          <div class="flex items-center">
-            <span class="text-xs min-[400px]:text-sm sm:text-lg font-bold tracking-tight bg-gradient-to-r from-slate-900 via-sky-950 to-indigo-950 dark:from-white dark:to-slate-200 bg-clip-text text-transparent whitespace-nowrap">
-              Resume-Tailor
-            </span>
-            <span class="ml-2 hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-semibold bg-sky-100 dark:bg-sky-950/70 text-sky-800 dark:text-sky-300" data-i18n="badge_design_preserving">
-              Design-Preserving AI
-            </span>
-          </div>
+        <div class="flex items-center shrink-0 md:order-1">
+          <span class="text-xs min-[400px]:text-sm sm:text-lg font-bold tracking-tight bg-gradient-to-r from-slate-900 via-sky-950 to-indigo-950 dark:from-white dark:to-slate-200 bg-clip-text text-transparent whitespace-nowrap">
+            Resume-Tailor
+          </span>
+          <span class="ml-2 hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-semibold bg-sky-100 dark:bg-sky-950/70 text-sky-800 dark:text-sky-300" data-i18n="badge_design_preserving">
+            Design-Preserving AI
+          </span>
         </div>
 
         <!-- Controls: Auth, Lang, Dark Mode, Admin Button -->
@@ -718,7 +713,6 @@
             id="btnSubmit"
             class="w-full py-3.5 px-6 rounded-xl font-bold text-white shadow-lg shadow-sky-500/25 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-all flex items-center justify-center space-x-2 cursor-pointer"
           >
-            <span>🚀</span>
             <span data-i18n="btn_submit">Let's Go!</span>
           </button>
         </form>
@@ -966,18 +960,15 @@
         </p>
       </div>
 
-      <!-- Saved Base Resume Card (1-Click Tailoring) -->
+      <!-- Saved Base Resume Card -->
       <div class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
         <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-3">
+          <div class="flex items-center space-x-3 rtl:space-x-reverse">
             <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl shrink-0">
               📄
             </div>
             <div>
-              <h3 class="text-sm font-bold text-slate-800" data-i18n="base_resume_section_title">Saved Base Resume (1-Click Tailoring)</h3>
-              <p class="text-xs text-slate-500 mt-0.5" data-i18n="base_resume_section_desc">
-                Save your standard resume to tailor directly by only pasting the Job Description.
-              </p>
+              <h3 class="text-sm font-bold text-slate-800" data-i18n="base_resume_section_title">Saved Base Resume</h3>
             </div>
           </div>
         </div>
@@ -985,19 +976,13 @@
         <!-- Base Resume Upload / Active Display -->
         <div id="baseResumeContainer">
           <!-- Guest Locked Card -->
-          <div id="baseResumeGuestCard" class="p-3.5 sm:p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div id="baseResumeGuestCard" class="p-3.5 sm:p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-3">
             <div class="flex items-center space-x-3 rtl:space-x-reverse min-w-0">
               <span class="text-xl shrink-0">🔒</span>
               <div class="min-w-0">
                 <p class="text-xs font-bold text-slate-800" data-i18n="base_resume_guest_title">Sign In to Save Your Base Resume</p>
-                <p class="text-[11px] text-slate-500 mt-0.5" data-i18n="base_resume_guest_desc">Save your standard resume to tailor in 1 click across any device by pasting only the Job Description.</p>
+                <p class="text-[11px] text-slate-500 mt-0.5" data-i18n="base_resume_guest_desc">Enable fast tailoring across any device by pasting only the Job Description.</p>
               </div>
-            </div>
-            <div class="shrink-0 flex items-center justify-start sm:justify-end">
-              <button type="button" onclick="window.scrollTo({top: 0, behavior: 'smooth'});" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300 hover:bg-sky-100 dark:hover:bg-sky-900/60 transition-colors shadow-2xs cursor-pointer">
-                <span>☝️</span>
-                <span data-i18n="base_resume_signin_hint">Sign in at the top to unlock</span>
-              </button>
             </div>
           </div>
 
@@ -1060,14 +1045,14 @@
           <div class="space-y-3 pt-2">
             <!-- Fully Styled English Dropzone (Supports Multiple Files) -->
             <div id="profileDropzone" class="border-2 border-dashed border-slate-300 hover:border-sky-500 transition-colors rounded-xl p-4 text-center cursor-pointer bg-slate-50/50 hover:bg-sky-50/30">
-              <input type="file" id="profileFileInput" accept=".txt,.json,.md,.pdf,.docx" multiple class="hidden">
+              <input type="file" id="profileFileInput" accept=".txt,.md,.pdf,.docx" multiple class="hidden">
               <div class="flex flex-wrap items-center justify-center gap-1.5 text-xs font-medium text-slate-700 px-2">
                 <span>📄</span>
                 <span class="text-sky-600 font-semibold" data-i18n="opt_a_click">Click to select files</span>
                 <span data-i18n="opt_a_drag">or drag & drop</span>
               </div>
               <p class="text-[10px] text-slate-400 mt-1" data-i18n="opt_a_types">
-                PDF, Word DOCX, Markdown, JSON, or TXT (select one or more)
+                PDF, Word DOCX, Markdown, or TXT (select one or more)
               </p>
             </div>
 
@@ -1128,11 +1113,6 @@
               <span>⬇️</span> <span data-i18n="btn_download_json">Download profile.json</span>
             </button>
 
-            <!-- Import JSON Button -->
-            <label for="importProfileJsonInput" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors flex items-center gap-1.5 cursor-pointer" title="Import profile.json backup">
-              <span>⬆️</span> <span data-i18n="btn_import_json">Import profile.json</span>
-              <input type="file" id="importProfileJsonInput" accept=".json" class="hidden">
-            </label>
           </div>
         </div>
 
@@ -1494,7 +1474,7 @@
         opt_a_desc: "Upload documents or paste notes. The AI converts them into verified profile data.",
         opt_a_click: "Click to select file(s)",
         opt_a_drag: "or drag & drop",
-        opt_a_types: "PDF, Word DOCX, Markdown, JSON, or TXT (multi-file supported)",
+        opt_a_types: "PDF, Word DOCX, Markdown, or TXT (multi-file supported)",
         opt_a_placeholder: "Or paste background text, unlisted project details, and verified accomplishments here...",
         opt_a_btn: "Convert to Master Profile with AI",
         opt_b_title: "Option B: Questionnaire Wizard",
@@ -1503,7 +1483,6 @@
         active_gt_label: "Profile is Active",
         master_profile_title: "Your Profile in JSON Form",
         btn_download_json: "Download profile.json",
-        btn_import_json: "Import profile.json",
         wiz_modal_title: "Guided Profile Questionnaire",
         wiz_q1: "1. Full Name & Target Roles",
         wiz_q2: "2. Core Technical Skills",
@@ -1547,11 +1526,10 @@
         tip_design_safe_desc: "Export your Canva resume to <strong>PPTX</strong> and upload it here (or upload a standard PPTX file) to preserve exact visual layouts, cards, and styling. Other formats (PDF or DOCX) will be compiled into a clean standard format optimized for ATS parsers.",
         base_resume_active_badge: "Base Resume Active",
         base_resume_step1_sub: "Ready to go! Paste the Job Description in Step 2 below.",
-        base_resume_section_title: "Saved Base Resume (1-Click Tailoring)",
+        base_resume_section_title: "Saved Base Resume",
         base_resume_section_desc: "Save your standard resume to tailor directly by only pasting the Job Description.",
         base_resume_guest_title: "Sign In to Save Your Base Resume",
-        base_resume_guest_desc: "Save your standard resume to tailor in 1 click across any device by pasting only the Job Description.",
-        base_resume_signin_hint: "Sign in at the top to unlock",
+        base_resume_guest_desc: "Enable fast tailoring across any device by pasting only the Job Description.",
         base_resume_dropzone_click: "Click to upload base resume",
         base_resume_active_status: "✅ Active: Used automatically in Step 1",
         base_resume_inactive_status: "⏸️ Inactive: Using manual file upload in Step 1",
@@ -1659,7 +1637,7 @@
         opt_a_desc: "העלה מסמכים או הדבק הערות. ה-AI ימיר אותם לפרופיל מאומת ומובנה.",
         opt_a_click: "לחץ לבחירת קובץ/קבצים",
         opt_a_drag: "או גרור לכאן",
-        opt_a_types: "PDF, Word DOCX, Markdown, JSON, או TXT (תמיכה בריבוי קבצים)",
+        opt_a_types: "PDF, Word DOCX, Markdown או TXT (תמיכה בריבוי קבצים)",
         opt_a_placeholder: "או הדבק כאן הערות רקע, פרטי פרויקטים שלא רשומים בקורות החיים והישגים מאומתים...",
         opt_a_btn: "המר לפרופיל ראשי באמצעות AI",
         opt_b_title: "אפשרות ב': אשף שאלון אינטראקטיבי",
@@ -1668,7 +1646,6 @@
         active_gt_label: "הפרופיל פעיל",
         master_profile_title: "הפרופיל שלך במבנה JSON",
         btn_download_json: "הורד profile.json",
-        btn_import_json: "ייבא profile.json",
         wiz_modal_title: "שאלון מונחה לבניית פרופיל",
         wiz_q1: "1. שם מלא ותפקידי יעד",
         wiz_q2: "2. כישורים טכנולוגיים מרכזיים",
@@ -1712,11 +1689,10 @@
         tip_design_safe_desc: "ייצא את קורות החיים מ-Canva ל-<strong>PPTX</strong> והעלה לכאן (או העלה קובץ PPTX סטנדרטי) כדי לשמר בדיוק את העימוד, הכרטיסיות והסגנון הגרפי. פורמטים אחרים (PDF או DOCX) יועברו לעימוד נקי וסטנדרטי המותאם למערכות ATS.",
         base_resume_active_badge: "קורות חיים ראשיים פעילים",
         base_resume_step1_sub: "מוכן לפעולה! הדבק את תיאור המשרה בשלב 2 למטה.",
-        base_resume_section_title: "קורות חיים ראשיים שמורים (התאמה בלחיצה אחת)",
+        base_resume_section_title: "קורות חיים ראשיים שמורים",
         base_resume_section_desc: "שמור את קורות החיים הראשיים שלך כדי להתאים מיידית על ידי הדבקת תיאור המשרה בלבד.",
         base_resume_guest_title: "התחבר כדי לשמור את קורות החיים הראשיים שלך",
-        base_resume_guest_desc: "שמור את קורות החיים הסטנדרטיים שלך להתאמה בלחיצה אחת בכל מכשיר על ידי הדבקת תיאור המשרה בלבד.",
-        base_resume_signin_hint: "התחברו בראש העמוד כדי לפתוח",
+        base_resume_guest_desc: "מאפשר התאמה מהירה בכל מכשיר על ידי הדבקת תיאור המשרה בלבד.",
         base_resume_dropzone_click: "לחץ להעלאת קורות חיים ראשיים",
         base_resume_active_status: "✅ פעיל: משמש אוטומטית בשלב 1",
         base_resume_inactive_status: "⏸️ מושהה: משתמש בהעלאת קובץ ידנית בשלב 1",
@@ -1824,7 +1800,7 @@
         opt_a_desc: "Sube notas, markdown, texto de LinkedIn o un documento. La IA lo convierte en una fuente de verdad estructurada.",
         opt_a_click: "Haz clic para seleccionar documento",
         opt_a_drag: "o arrastra aquí",
-        opt_a_types: "PDF, Word DOCX, Markdown, JSON o TXT",
+        opt_a_types: "PDF, Word DOCX, Markdown o TXT",
         opt_a_placeholder: "O pega aquí información de fondo, detalles de proyectos y logros comprobados...",
         opt_a_btn: "Convertir a Perfil Maestro con IA",
         opt_b_title: "Opción B: Asistente de Cuestionario",
@@ -1833,7 +1809,6 @@
         active_gt_label: "Fuente de Verdad Activa",
         master_profile_title: "Perfil Maestro del Candidato",
         btn_download_json: "Descargar profile.json",
-        btn_import_json: "Importar profile.json",
         wiz_modal_title: "Cuestionario Guiado de Perfil",
         wiz_q1: "1. Nombre Completo y Roles Objetivo",
         wiz_q2: "2. Habilidades Técnicas Clave",
@@ -1876,11 +1851,10 @@
         tip_design_safe_desc: "Exporte su currículum de Canva a <strong>PPTX</strong> y súbalo aquí (o suba un archivo PPTX estándar) para preservar el diseño visual exacto, tarjetas y estilo. Otros formatos (PDF o DOCX) se compilarán en un formato estándar limpio optimizado para lectores ATS.",
         base_resume_active_badge: "Currículum Base Activo",
         base_resume_step1_sub: "¡Listo para empezar! Pegue la descripción del puesto en el Paso 2 a continuación.",
-        base_resume_section_title: "Currículum Base Guardado (Adaptación en 1 Clic)",
+        base_resume_section_title: "Currículum Base Guardado",
         base_resume_section_desc: "Guarde su currículum estándar para adaptarlo directamente pegando únicamente la descripción del trabajo.",
         base_resume_guest_title: "Inicie sesión para guardar su Currículum Base",
-        base_resume_guest_desc: "Guarde su currículum estándar para adaptarlo en 1 clic en cualquier dispositivo pegando solo la descripción del trabajo.",
-        base_resume_signin_hint: "Inicie sesión arriba para desbloquear",
+        base_resume_guest_desc: "Permite una adaptación rápida en cualquier dispositivo pegando solo la descripción del trabajo.",
         base_resume_dropzone_click: "Haga clic para subir currículum base",
         base_resume_active_status: "✅ Activo: Se usa automáticamente en el Paso 1",
         base_resume_inactive_status: "⏸️ Inactivo: Usando subida manual de archivo en Paso 1",
@@ -1983,7 +1957,7 @@
         opt_a_desc: "上传笔记、Markdown、领英经历或文档。AI 将其结构化为真实依据库。",
         opt_a_click: "点击选择文档",
         opt_a_drag: "或拖拽至此",
-        opt_a_types: "PDF, Word DOCX, Markdown, JSON, 或 TXT",
+        opt_a_types: "PDF, Word DOCX, Markdown, 或 TXT",
         opt_a_placeholder: "或在此直接粘贴背景笔记、未展开的项目架构与真实成果数据...",
         opt_a_btn: "使用 AI 转换为核心档案",
         opt_b_title: "方案 B：问答引导向导",
@@ -1992,7 +1966,6 @@
         active_gt_label: "已加载的事实依据",
         master_profile_title: "候选人核心背景档案",
         btn_download_json: "下载 profile.json",
-        btn_import_json: "导入 profile.json",
         wiz_modal_title: "核心背景档案问卷",
         wiz_q1: "1. 全名与求职意向岗位",
         wiz_q2: "2. 核心技术栈与技能",
@@ -2035,11 +2008,10 @@
         tip_design_safe_desc: "将您的 Canva 简历导出为 <strong>PPTX</strong> 并在此上传（或直接上传标准 PPTX 文件），即可完整保留原生视觉卡片、色彩与版式。其他格式（PDF 或 DOCX）将被转换为针对 ATS 筛选系统优化的纯净标准单栏格式。",
         base_resume_active_badge: "基准简历已激活",
         base_resume_step1_sub: "准备就绪！请在下方步骤 2 粘贴目标职位描述。",
-        base_resume_section_title: "已保存的基准简历（一键快速定制）",
+        base_resume_section_title: "已保存的基准简历",
         base_resume_section_desc: "保存您的标准简历，下次仅需粘贴职位描述即可直接完成定制。",
         base_resume_guest_title: "登录以保存您的基准简历",
-        base_resume_guest_desc: "登录后保存标准简历，在任何设备上只需粘贴职位描述即可一键完成定制。",
-        base_resume_signin_hint: "请在顶部登录以解锁",
+        base_resume_guest_desc: "在任何设备上只需粘贴职位描述即可实现快速定制。",
         base_resume_dropzone_click: "点击上传基准简历",
         base_resume_active_status: "✅ 已激活：将在步骤 1 中自动使用",
         base_resume_inactive_status: "⏸️ 已暂停：将在步骤 1 中使用手动文件上传",
@@ -2142,7 +2114,7 @@
         opt_a_desc: "ارفع ملاحظاتك أو نصوص LinkedIn أو مستندًا تعريفيًا. سيقوم الذكاء الاصطناعي بتحويله إلى ملف مرجعي منظم.",
         opt_a_click: "انقر لاختيار المستند",
         opt_a_drag: "أو اسحبه هنا",
-        opt_a_types: "PDF, Word DOCX, Markdown, JSON, أو TXT",
+        opt_a_types: "PDF, Word DOCX, Markdown, أو TXT",
         opt_a_placeholder: "أو الصق هنا الملاحظات وتفاصيل المشاريع والإنجازات الموثقة...",
         opt_a_btn: "تحويل إلى ملف مرجعي بالذكاء الاصطناعي",
         opt_b_title: "الخيار ب: معالج الأسئلة التفاعلي",
@@ -2151,7 +2123,6 @@
         active_gt_label: "مصدر الحقيقة النشط",
         master_profile_title: "الملف الشخصي المرجعي",
         btn_download_json: "تحميل profile.json",
-        btn_import_json: "استيراد profile.json",
         wiz_modal_title: "معالج الأسئلة التفاعلي للملف المرجعي",
         wiz_q1: "1. الاسم الكامل والوظائف المستهدفة",
         wiz_q2: "2. المهارات التقنية الأساسية",
@@ -2194,11 +2165,10 @@
         tip_design_safe_desc: "قم بتصدير سيرتك الذاتية من Canva بصيغة <strong>PPTX</strong> وارفعها هنا (أو ارفع ملف PPTX قياسي) للحفاظ التام على التصميم والبطاقات والتنسيق الجرافيكي. سيتم تجميع الصيغ الأخرى (PDF أو DOCX) في تنسيق قياسي نظيف ومحسن لأنظمة ATS.",
         base_resume_active_badge: "السيرة الذاتية الأساسية نشطة",
         base_resume_step1_sub: "جاهز للبدء! الصق الوصف الوظيفي في الخطوة 2 أدناه.",
-        base_resume_section_title: "السيرة الذاتية الأساسية المحفوظة (تخصيص بنقرة واحدة)",
+        base_resume_section_title: "السيرة الذاتية الأساسية المحفوظة",
         base_resume_section_desc: "احفظ سيرتك الذاتية المعتمدة لتخصيصها مباشرة عبر لصق الوصف الوظيفي فقط.",
         base_resume_guest_title: "سجل الدخول لحفظ سيرتك الذاتية الأساسية",
-        base_resume_guest_desc: "احفظ سيرتك الذاتية المعتمدة لتخصيصها بنقرة واحدة عبر أي جهاز بمجرد لصق الوصف الوظيفي.",
-        base_resume_signin_hint: "سجل الدخول من الأعلى للفتح",
+        base_resume_guest_desc: "تمكين التخصيص السريع عبر أي جهاز بمجرد لصق الوصف الوظيفي.",
         base_resume_dropzone_click: "انقر لرفع السيرة الذاتية الأساسية",
         base_resume_active_status: "✅ نشط: يُستخدم تلقائيًا في الخطوة 1",
         base_resume_inactive_status: "⏸️ معطل: يتم استخدام الرفع اليدوي في الخطوة 1",
@@ -2301,7 +2271,7 @@
         opt_a_desc: "Téléversez des notes, du markdown ou un profil. L'IA le convertit en source de vérité structurée.",
         opt_a_click: "Cliquez pour choisir un document",
         opt_a_drag: "ou glissez-déposez ici",
-        opt_a_types: "PDF, Word DOCX, Markdown, JSON ou TXT",
+        opt_a_types: "PDF, Word DOCX, Markdown ou TXT",
         opt_a_placeholder: "Ou collez ici vos notes de fond, détails de projets et réussites chiffrées...",
         opt_a_btn: "Convertir en Profil Maître avec l'IA",
         opt_b_title: "Option B : Assistant Questionnaire",
@@ -2310,7 +2280,6 @@
         active_gt_label: "Source de Vérité Active",
         master_profile_title: "Profil Maître du Candidat",
         btn_download_json: "Télécharger profile.json",
-        btn_import_json: "Importer profile.json",
         wiz_modal_title: "Questionnaire Guidé de Profil",
         wiz_q1: "1. Nom Complet et Postes Visés",
         wiz_q2: "2. Compétences Techniques Clés",
@@ -2353,11 +2322,10 @@
         tip_design_safe_desc: "Exportez votre CV Canva en <strong>PPTX</strong> et téléversez-le ici (ou téléversez un fichier PPTX standard) pour conserver exactement les blocs visuels, cartes et styles graphiques. Les autres formats (PDF ou DOCX) seront convertis en un format standard propre optimisé pour les robots ATS.",
         base_resume_active_badge: "CV de Base Actif",
         base_resume_step1_sub: "Prêt ! Collez la description du poste à l'Étape 2 ci-dessous.",
-        base_resume_section_title: "CV de Base Enregistré (Adaptation en 1 Clic)",
+        base_resume_section_title: "CV de Base Enregistré",
         base_resume_section_desc: "Enregistrez votre CV standard pour l'adapter directement en collant uniquement l'offre d'emploi.",
         base_resume_guest_title: "Connectez-vous pour enregistrer votre CV de Base",
-        base_resume_guest_desc: "Enregistrez votre CV standard pour l'adapter en 1 clic depuis n'importe quel appareil en collant simplement l'offre d'emploi.",
-        base_resume_signin_hint: "Connectez-vous en haut pour débloquer",
+        base_resume_guest_desc: "Permet une adaptation rapide sur n'importe quel appareil en collant simplement l'offre d'emploi.",
         base_resume_dropzone_click: "Cliquez pour téléverser votre CV de base",
         base_resume_active_status: "✅ Actif : Utilisé automatiquement à l'Étape 1",
         base_resume_inactive_status: "⏸️ Inactif : Utilisation du téléversement manuel à l'Étape 1",
@@ -2460,7 +2428,7 @@
         opt_a_desc: "Laden Sie Notizen, Markdown oder Profile hoch. Die KI strukturiert diese als Faktenbasis.",
         opt_a_click: "Dokument auswählen",
         opt_a_drag: "oder hierher ziehen",
-        opt_a_types: "PDF, Word DOCX, Markdown, JSON oder TXT",
+        opt_a_types: "PDF, Word DOCX, Markdown oder TXT",
         opt_a_placeholder: "Oder fügen Sie hier Notizen, Projektdetails und nachweisbare Erfolge ein...",
         opt_a_btn: "Mit KI in Master-Profil umwandeln",
         opt_b_title: "Option B: Interaktiver Fragebogen",
@@ -2469,7 +2437,6 @@
         active_gt_label: "Aktive Faktenbasis",
         master_profile_title: "Kandidaten Master-Profil",
         btn_download_json: "profile.json herunterladen",
-        btn_import_json: "profile.json importieren",
         wiz_modal_title: "Geführter Profil-Fragebogen",
         wiz_q1: "1. Vollständiger Name & Zielpositionen",
         wiz_q2: "2. Wichtigste technische Fähigkeiten",
@@ -2512,11 +2479,10 @@
         tip_design_safe_desc: "Exportieren Sie Ihren Canva-Lebenslauf als <strong>PPTX</strong> und laden Sie ihn hier hoch (oder laden Sie eine normale PPTX-Datei hoch), um das exakte visuelle Layout, Kacheln und Grafiken beizubehalten. Andere Formate (PDF oder DOCX) werden in ein sauberes Standardformat umgewandelt, das für ATS-Systeme optimiert ist.",
         base_resume_active_badge: "Basis-Lebenslauf aktiv",
         base_resume_step1_sub: "Bereit zum Start! Fügen Sie die Stellenbeschreibung in Schritt 2 unten ein.",
-        base_resume_section_title: "Gespeicherter Basis-Lebenslauf (1-Klick-Anpassung)",
+        base_resume_section_title: "Gespeicherter Basis-Lebenslauf",
         base_resume_section_desc: "Speichern Sie Ihren Standard-Lebenslauf, um ihn direkt durch einfaches Einfügen der Stellenbeschreibung anzupassen.",
         base_resume_guest_title: "Anmelden, um Basis-Lebenslauf zu speichern",
-        base_resume_guest_desc: "Speichern Sie Ihren Standard-Lebenslauf, um ihn auf jedem Gerät mit nur 1 Klick durch Einfügen der Stellenbeschreibung anzupassen.",
-        base_resume_signin_hint: "Oben anmelden, um freizuschalten",
+        base_resume_guest_desc: "Ermöglicht schnelle Anpassung auf jedem Gerät durch einfaches Einfügen der Stellenbeschreibung.",
         base_resume_dropzone_click: "Klicken, um Basis-Lebenslauf hochzuladen",
         base_resume_active_status: "✅ Aktiv: Wird automatisch in Schritt 1 verwendet",
         base_resume_inactive_status: "⏸️ Inaktiv: Manueller Datei-Upload in Schritt 1 aktiv",
@@ -4228,59 +4194,6 @@
       a.href = url;
       a.download = "master_candidate_profile.json";
       a.click();
-    });
-
-    // Import Profile JSON Backup
-    const importProfileJsonInput = document.getElementById('importProfileJsonInput');
-    importProfileJsonInput?.addEventListener('change', (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = async (ev) => {
-        try {
-          const parsed = JSON.parse(ev.target.result);
-          const profileData = parsed.profile || parsed;
-          if (!profileData || typeof profileData !== 'object') throw new Error("Invalid profile format");
-
-          if (currentUser) {
-            const res = await fetch('/api/user/profile', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', ...authHeaders() },
-              body: JSON.stringify({ profile: profileData, is_active: true })
-            });
-            if (!res.ok) {
-              if (res.status === 401) {
-                localStorage.removeItem('resume_tailor_session');
-                applyAuthState({ is_authenticated: false });
-                alert(window.t('alert_session_expired', "Your session has expired. Please sign in with Google again."));
-                return;
-              }
-              throw new Error("Failed to save profile to server");
-            }
-          }
-
-          activeProfile = profileData;
-          isProfileActive = true;
-          updateProfileDisplay();
-
-          if (!currentUser) {
-            try {
-              localStorage.setItem('rt_local_profile', JSON.stringify({
-                profile: activeProfile,
-                is_active: true
-              }));
-            } catch (_) {}
-          } else {
-            rtSyncChannel?.postMessage({ type: 'PROFILE_UPDATED' });
-          }
-          alert(window.t('alert_profile_imported', "Master Profile successfully imported!"));
-        } catch (err) {
-          alert("Invalid profile JSON file: " + err.message);
-        } finally {
-          importProfileJsonInput.value = '';
-        }
-      };
-      reader.readAsText(file);
     });
 
     // Tailoring Form Event Listeners
